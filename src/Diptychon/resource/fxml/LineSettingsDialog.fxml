@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?scenebuilder-stylesheet ../css/modal-dialog.css?>
+
+<VBox id="VBox" fx:id="root" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="289.0" prefWidth="474.0" spacing="5.0" styleClass="modal-dialog, rootGreen" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.LineSettingsDialog">
+  <children>
+    <Label styleClass="modal-dialog-title" text="Textline Detection Settings" />
+    <VBox maxWidth="411.0" minWidth="25.0" prefHeight="142.0" prefWidth="411.0" styleClass="rootGreen, modal-dialog-small">
+      <children>
+        <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
+          <children>
+            <Label prefWidth="107.0" text="Extend Top">
+              <tooltip>
+                <Tooltip text="Defines the size (in %) that automatically detected textlines will be extended in top direction" />
+              </tooltip>
+            </Label>
+            <Slider fx:id="topSlider" prefHeight="36.0" prefWidth="222.0" showTickLabels="true" showTickMarks="true">
+              <tooltip>
+                <Tooltip text="Defines the size (in %) that automatically detected textlines will be extended in top direction" />
+              </tooltip>
+            </Slider>
+            <Label fx:id="topLabel" text="0" />
+          </children>
+        </HBox>
+        <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
+          <children>
+            <Label prefWidth="107.0" text="Extend Bottom">
+              <tooltip>
+                <Tooltip text="Defines the size (in %) that automatically detected textlines will be extended in bottom direction" />
+              </tooltip>
+            </Label>
+            <Slider fx:id="bottomSlider" prefHeight="40.0" prefWidth="222.0" showTickLabels="true" showTickMarks="true">
+              <tooltip>
+                <Tooltip text="Defines the size (in %) that automatically detected textlines will be extended in bottom direction" />
+              </tooltip>
+            </Slider>
+            <Label fx:id="bottomLabel" text="0" />
+          </children>
+        </HBox>
+        <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0" />
+      </children>
+    </VBox>
+    <HBox id="HBox" alignment="CENTER" spacing="5.0">
+      <children>
+        <Button defaultButton="true" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#apply" prefWidth="80.0" styleClass="modal-button-text-small" text="Apply" />
+        <Button defaultButton="false" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#setDefault" prefWidth="80.0" styleClass="modal-button-text-small" text="Default">
+          <HBox.margin>
+            <Insets />
+          </HBox.margin>
+        </Button>
+        <Button cancelButton="true" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#cancel" prefWidth="80.0" styleClass="modal-button-text-small" text="Cancel" />
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<VBox fx:id="root" alignment="CENTER" minHeight="179.0" minWidth="274.0" prefHeight="239.0" prefWidth="356.0" spacing="10.0" styleClass="rootGreen, modal-dialog-background" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.YesNoConfirmationDialog">
+  <children>
+    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Confirmation Request">
+      <font>
+        <Font size="20.0" />
+      </font>
+    </Text>
+    <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="291.0" spacing="5.0" styleClass="modal-dialog-align-left">
+      <children>
+        <fx:include source="/fxml/Questionmark.fxml" maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" prefHeight="60.0" prefWidth="60.0" />
+        <Label fx:id="infoText" labelFor="$root" maxWidth="300.0" styleClass="modal-dialog-label" text="" textAlignment="CENTER" wrapText="true" />
+      </children>
+    </HBox>
+    <HBox id="HBox2" alignment="CENTER" spacing="5.0">
+      <children>
+        <Button contentDisplay="CENTER" defaultButton="true" maxHeight="30.0" maxWidth="75.0" minHeight="30.0" minWidth="75.0" mnemonicParsing="false" onAction="#accept" prefHeight="30.0" prefWidth="75.0" styleClass="modal-button-text-small" text="Accept" textAlignment="CENTER" wrapText="true" />
+        <Button cancelButton="true" contentDisplay="CENTER" maxHeight="30.0" maxWidth="75.0" minHeight="30.0" minWidth="75.0" mnemonicParsing="false" onAction="#deny" prefHeight="30.0" prefWidth="75.0" styleClass="modal-button-text-small" text="Deny" textAlignment="CENTER" wrapText="false" />
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

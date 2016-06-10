@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<VBox id="VBox" fx:id="root" alignment="CENTER" prefHeight="396.0" prefWidth="500.0" spacing="10.0" styleClass="modal-dialog, rootGreen" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.WizardFileSelector">
+  <children>
+    <VBox prefHeight="253.0" prefWidth="450.0" styleClass="modal-dialog">
+      <children>
+        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+          <children>
+            <Label contentDisplay="TOP" prefWidth="120.0" text="Project Name" />
+            <TextField fx:id="projectNameEdt" minHeight="25.0" prefWidth="141.0" promptText="New Project" />
+          </children>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+          <children>
+            <Label alignment="BOTTOM_LEFT" prefWidth="100.0" text="Save Path" />
+            <TextField fx:id="savedPathEdt" editable="false" prefWidth="141.0" />
+            <Button mnemonicParsing="false" onAction="#handleSavePath" styleClass="modal-button-text-small" text="Open" />
+          </children>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+          <children>
+            <Label text="Choose File/Directory" />
+          </children>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+          <children>
+            <RadioButton fx:id="filesRadio" mnemonicParsing="false" onAction="#clickFileRadio" prefHeight="27.0" prefWidth="120.0" selected="true" text="Files">
+              <toggleGroup>
+                <ToggleGroup fx:id="x1" />
+              </toggleGroup>
+            </RadioButton>
+            <Button id="openFiles" fx:id="openFilesBtn" mnemonicParsing="false" onAction="#openFiles" prefHeight="29.0" prefWidth="161.0" styleClass="modal-button-text-small" text="Open Files" />
+          </children>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+          <children>
+            <RadioButton fx:id="DirRadio" mnemonicParsing="false" onAction="#clickDirRadio" prefHeight="27.0" prefWidth="120.0" text="Directory" toggleGroup="$x1" />
+            <Button id="openDir" fx:id="openDirBtn" disable="true" mnemonicParsing="false" onAction="#openDirectory" prefHeight="29.0" prefWidth="161.0" styleClass="modal-button-text-small" text="Open Directory" />
+          </children>
+        </HBox>
+        <HBox prefHeight="100.0" prefWidth="200.0">
+          <children>
+            <CheckBox fx:id="findTextCheck" mnemonicParsing="false" prefWidth="141.0" text="Find Text Lines" />
+            <Label fx:id="hint_Label" prefWidth="170.0" text="Name or Path missing." textFill="RED" visible="false" />
+          </children>
+        </HBox>
+      </children>
+    </VBox>
+    <HBox minHeight="44.0" prefHeight="87.0" prefWidth="450.0" spacing="10.0" styleClass="modal-dialog">
+      <children>
+        <Button id="openFiles" mnemonicParsing="false" onAction="#previous" prefHeight="35.0" prefWidth="102.0" styleClass="modal-button-text-small" text="Previous" visible="true" />
+        <Button id="openFiles" mnemonicParsing="false" onAction="#next" prefHeight="30.0" prefWidth="102.0" styleClass="modal-button-text-small" text="Next" />
+        <Button id="openFiles" mnemonicParsing="false" onAction="#cancel" prefHeight="35.0" prefWidth="102.0" styleClass="modal-button-text-small" text="Cancel" />
+      </children>
+      <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+      </padding>
+    </HBox>
+  </children>
+  <padding>
+    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+  </padding>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

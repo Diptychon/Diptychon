@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?scenebuilder-stylesheet ../css/modal-dialog.css?>
+
+<VBox id="VBox" fx:id="root" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="289.0" prefWidth="448.0" spacing="5.0" styleClass="modal-dialog, rootGreen" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.FontSettingsDialog">
+  <children>
+    <VBox maxWidth="379.0" minWidth="25.0" prefHeight="142.0" prefWidth="379.0" styleClass="rootGreen, modal-dialog-small">
+      <children>
+        <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
+          <children>
+            <Label prefWidth="107.0" text="Font" />
+            <ComboBox fx:id="fontfamily" maxWidth="192.0" minWidth="68.0" prefWidth="192.0" styleClass="modal-button-text-small">
+              <items>
+                <FXCollections fx:factory="observableArrayList" />
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+        <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
+          <children>
+            <Label prefWidth="107.0" text="Font Size" />
+            <ComboBox fx:id="fontsize" maxWidth="100.0" minWidth="60.0" prefWidth="60.000099999997474" styleClass="modal-button-text-small">
+              <items>
+                <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="10" />
+                  <String fx:value="12" />
+                  <String fx:value="16" />
+                  <String fx:value="18" />
+                  <String fx:value="24" />
+                  <String fx:value="36" />
+                  <String fx:value="48" />
+                </FXCollections>
+              </items>
+            </ComboBox>
+          </children>
+        </HBox>
+        <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0" />
+      </children>
+    </VBox>
+    <HBox id="HBox" alignment="CENTER" spacing="5.0">
+      <children>
+        <Button defaultButton="true" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#apply" prefWidth="80.0" styleClass="modal-button-text-small" text="Apply" />
+        <Button defaultButton="false" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#setDefault" prefWidth="80.0" styleClass="modal-button-text-small" text="Default">
+          <HBox.margin>
+            <Insets />
+          </HBox.margin>
+        </Button>
+        <Button cancelButton="true" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#cancel" prefWidth="80.0" styleClass="modal-button-text-small" text="Cancel" />
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

@@ -1,0 +1,904 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<FONT color="green">003</FONT>     * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<FONT color="green">004</FONT>     * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<FONT color="green">006</FONT>     * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<FONT color="green">007</FONT>     * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<FONT color="green">008</FONT>     *<a name="line.8"></a>
+<FONT color="green">009</FONT>     *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<FONT color="green">010</FONT>     *<a name="line.10"></a>
+<FONT color="green">011</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<FONT color="green">012</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<FONT color="green">013</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<FONT color="green">014</FONT>     * See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>     * limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    package org.apache.commons.imaging.formats.psd;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import java.awt.Dimension;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.awt.image.BufferedImage;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.io.ByteArrayInputStream;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.io.File;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.io.IOException;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.io.InputStream;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.io.PrintWriter;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.io.UnsupportedEncodingException;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import java.util.ArrayList;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import java.util.List;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import java.util.Map;<a name="line.29"></a>
+<FONT color="green">030</FONT>    <a name="line.30"></a>
+<FONT color="green">031</FONT>    import org.apache.commons.imaging.ImageFormat;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import org.apache.commons.imaging.ImageInfo;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import org.apache.commons.imaging.ImageParser;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import org.apache.commons.imaging.ImageReadException;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import org.apache.commons.imaging.common.ByteOrder;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import org.apache.commons.imaging.common.IImageMetadata;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import org.apache.commons.imaging.common.bytesource.ByteSource;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import org.apache.commons.imaging.formats.psd.dataparsers.DataParser;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import org.apache.commons.imaging.formats.psd.dataparsers.DataParserBitmap;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import org.apache.commons.imaging.formats.psd.dataparsers.DataParserCmyk;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import org.apache.commons.imaging.formats.psd.dataparsers.DataParserGrayscale;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import org.apache.commons.imaging.formats.psd.dataparsers.DataParserIndexed;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import org.apache.commons.imaging.formats.psd.dataparsers.DataParserLab;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import org.apache.commons.imaging.formats.psd.dataparsers.DataParserRgb;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import org.apache.commons.imaging.formats.psd.datareaders.CompressedDataReader;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import org.apache.commons.imaging.formats.psd.datareaders.DataReader;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import org.apache.commons.imaging.formats.psd.datareaders.UncompressedDataReader;<a name="line.47"></a>
+<FONT color="green">048</FONT>    import org.apache.commons.imaging.util.Debug;<a name="line.48"></a>
+<FONT color="green">049</FONT>    <a name="line.49"></a>
+<FONT color="green">050</FONT>    public class PsdImageParser extends ImageParser {<a name="line.50"></a>
+<FONT color="green">051</FONT>    <a name="line.51"></a>
+<FONT color="green">052</FONT>        public PsdImageParser() {<a name="line.52"></a>
+<FONT color="green">053</FONT>            super.setByteOrder(ByteOrder.MOTOROLA);<a name="line.53"></a>
+<FONT color="green">054</FONT>            // setDebug(true);<a name="line.54"></a>
+<FONT color="green">055</FONT>        }<a name="line.55"></a>
+<FONT color="green">056</FONT>    <a name="line.56"></a>
+<FONT color="green">057</FONT>        @Override<a name="line.57"></a>
+<FONT color="green">058</FONT>        public String getName() {<a name="line.58"></a>
+<FONT color="green">059</FONT>            return "PSD-Custom";<a name="line.59"></a>
+<FONT color="green">060</FONT>        }<a name="line.60"></a>
+<FONT color="green">061</FONT>    <a name="line.61"></a>
+<FONT color="green">062</FONT>        @Override<a name="line.62"></a>
+<FONT color="green">063</FONT>        public String getDefaultExtension() {<a name="line.63"></a>
+<FONT color="green">064</FONT>            return DEFAULT_EXTENSION;<a name="line.64"></a>
+<FONT color="green">065</FONT>        }<a name="line.65"></a>
+<FONT color="green">066</FONT>    <a name="line.66"></a>
+<FONT color="green">067</FONT>        private static final String DEFAULT_EXTENSION = ".psd";<a name="line.67"></a>
+<FONT color="green">068</FONT>    <a name="line.68"></a>
+<FONT color="green">069</FONT>        private static final String ACCEPTED_EXTENSIONS[] = { DEFAULT_EXTENSION, };<a name="line.69"></a>
+<FONT color="green">070</FONT>    <a name="line.70"></a>
+<FONT color="green">071</FONT>        @Override<a name="line.71"></a>
+<FONT color="green">072</FONT>        protected String[] getAcceptedExtensions() {<a name="line.72"></a>
+<FONT color="green">073</FONT>            return ACCEPTED_EXTENSIONS;<a name="line.73"></a>
+<FONT color="green">074</FONT>        }<a name="line.74"></a>
+<FONT color="green">075</FONT>    <a name="line.75"></a>
+<FONT color="green">076</FONT>        @Override<a name="line.76"></a>
+<FONT color="green">077</FONT>        protected ImageFormat[] getAcceptedTypes() {<a name="line.77"></a>
+<FONT color="green">078</FONT>            return new ImageFormat[] { ImageFormat.IMAGE_FORMAT_PSD, //<a name="line.78"></a>
+<FONT color="green">079</FONT>            };<a name="line.79"></a>
+<FONT color="green">080</FONT>        }<a name="line.80"></a>
+<FONT color="green">081</FONT>    <a name="line.81"></a>
+<FONT color="green">082</FONT>        private PsdHeaderInfo readHeader(final ByteSource byteSource)<a name="line.82"></a>
+<FONT color="green">083</FONT>                throws ImageReadException, IOException {<a name="line.83"></a>
+<FONT color="green">084</FONT>            InputStream is = null;<a name="line.84"></a>
+<FONT color="green">085</FONT>    <a name="line.85"></a>
+<FONT color="green">086</FONT>            try {<a name="line.86"></a>
+<FONT color="green">087</FONT>                is = byteSource.getInputStream();<a name="line.87"></a>
+<FONT color="green">088</FONT>    <a name="line.88"></a>
+<FONT color="green">089</FONT>                return readHeader(is);<a name="line.89"></a>
+<FONT color="green">090</FONT>            } finally {<a name="line.90"></a>
+<FONT color="green">091</FONT>                try {<a name="line.91"></a>
+<FONT color="green">092</FONT>                    if (is != null) {<a name="line.92"></a>
+<FONT color="green">093</FONT>                        is.close();<a name="line.93"></a>
+<FONT color="green">094</FONT>                    }<a name="line.94"></a>
+<FONT color="green">095</FONT>                } catch (final Exception e) {<a name="line.95"></a>
+<FONT color="green">096</FONT>                    Debug.debug(e);<a name="line.96"></a>
+<FONT color="green">097</FONT>                }<a name="line.97"></a>
+<FONT color="green">098</FONT>    <a name="line.98"></a>
+<FONT color="green">099</FONT>            }<a name="line.99"></a>
+<FONT color="green">100</FONT>        }<a name="line.100"></a>
+<FONT color="green">101</FONT>    <a name="line.101"></a>
+<FONT color="green">102</FONT>        private PsdHeaderInfo readHeader(final InputStream is) throws ImageReadException,<a name="line.102"></a>
+<FONT color="green">103</FONT>                IOException {<a name="line.103"></a>
+<FONT color="green">104</FONT>            readAndVerifyBytes(is, new byte[] { 56, 66, 80, 83 },<a name="line.104"></a>
+<FONT color="green">105</FONT>                    "Not a Valid PSD File");<a name="line.105"></a>
+<FONT color="green">106</FONT>    <a name="line.106"></a>
+<FONT color="green">107</FONT>            final int Version = read2Bytes("Version", is, "Not a Valid PSD File");<a name="line.107"></a>
+<FONT color="green">108</FONT>    <a name="line.108"></a>
+<FONT color="green">109</FONT>            final byte Reserved[] = readByteArray("Reserved", 6, is,<a name="line.109"></a>
+<FONT color="green">110</FONT>                    "Not a Valid PSD File");<a name="line.110"></a>
+<FONT color="green">111</FONT>    <a name="line.111"></a>
+<FONT color="green">112</FONT>            final int Channels = read2Bytes("Channels", is, "Not a Valid PSD File");<a name="line.112"></a>
+<FONT color="green">113</FONT>            final int Rows = read4Bytes("Rows", is, "Not a Valid PSD File");<a name="line.113"></a>
+<FONT color="green">114</FONT>            final int Columns = read4Bytes("Columns", is, "Not a Valid PSD File");<a name="line.114"></a>
+<FONT color="green">115</FONT>            final int Depth = read2Bytes("Depth", is, "Not a Valid PSD File");<a name="line.115"></a>
+<FONT color="green">116</FONT>            final int Mode = read2Bytes("Mode", is, "Not a Valid PSD File");<a name="line.116"></a>
+<FONT color="green">117</FONT>    <a name="line.117"></a>
+<FONT color="green">118</FONT>            final PsdHeaderInfo result = new PsdHeaderInfo(Version, Reserved, Channels,<a name="line.118"></a>
+<FONT color="green">119</FONT>                    Rows, Columns, Depth, Mode);<a name="line.119"></a>
+<FONT color="green">120</FONT>    <a name="line.120"></a>
+<FONT color="green">121</FONT>            return result;<a name="line.121"></a>
+<FONT color="green">122</FONT>        }<a name="line.122"></a>
+<FONT color="green">123</FONT>    <a name="line.123"></a>
+<FONT color="green">124</FONT>        private ImageContents readImageContents(final InputStream is)<a name="line.124"></a>
+<FONT color="green">125</FONT>                throws ImageReadException, IOException {<a name="line.125"></a>
+<FONT color="green">126</FONT>            final PsdHeaderInfo header = readHeader(is);<a name="line.126"></a>
+<FONT color="green">127</FONT>    <a name="line.127"></a>
+<FONT color="green">128</FONT>            final int ColorModeDataLength = read4Bytes("ColorModeDataLength", is,<a name="line.128"></a>
+<FONT color="green">129</FONT>                    "Not a Valid PSD File");<a name="line.129"></a>
+<FONT color="green">130</FONT>            skipBytes(is, ColorModeDataLength);<a name="line.130"></a>
+<FONT color="green">131</FONT>            // is.skip(ColorModeDataLength);<a name="line.131"></a>
+<FONT color="green">132</FONT>            // byte ColorModeData[] = readByteArray("ColorModeData",<a name="line.132"></a>
+<FONT color="green">133</FONT>            // ColorModeDataLength, is, "Not a Valid PSD File");<a name="line.133"></a>
+<FONT color="green">134</FONT>    <a name="line.134"></a>
+<FONT color="green">135</FONT>            final int ImageResourcesLength = read4Bytes("ImageResourcesLength", is,<a name="line.135"></a>
+<FONT color="green">136</FONT>                    "Not a Valid PSD File");<a name="line.136"></a>
+<FONT color="green">137</FONT>            skipBytes(is, ImageResourcesLength);<a name="line.137"></a>
+<FONT color="green">138</FONT>            // long skipped = is.skip(ImageResourcesLength);<a name="line.138"></a>
+<FONT color="green">139</FONT>            // byte ImageResources[] = readByteArray("ImageResources",<a name="line.139"></a>
+<FONT color="green">140</FONT>            // ImageResourcesLength, is, "Not a Valid PSD File");<a name="line.140"></a>
+<FONT color="green">141</FONT>    <a name="line.141"></a>
+<FONT color="green">142</FONT>            final int LayerAndMaskDataLength = read4Bytes("LayerAndMaskDataLength", is,<a name="line.142"></a>
+<FONT color="green">143</FONT>                    "Not a Valid PSD File");<a name="line.143"></a>
+<FONT color="green">144</FONT>            skipBytes(is, LayerAndMaskDataLength);<a name="line.144"></a>
+<FONT color="green">145</FONT>            // is.skip(LayerAndMaskDataLength);<a name="line.145"></a>
+<FONT color="green">146</FONT>            // byte LayerAndMaskData[] = readByteArray("LayerAndMaskData",<a name="line.146"></a>
+<FONT color="green">147</FONT>            // LayerAndMaskDataLength, is, "Not a Valid PSD File");<a name="line.147"></a>
+<FONT color="green">148</FONT>    <a name="line.148"></a>
+<FONT color="green">149</FONT>            final int Compression = read2Bytes("Compression", is, "Not a Valid PSD File");<a name="line.149"></a>
+<FONT color="green">150</FONT>    <a name="line.150"></a>
+<FONT color="green">151</FONT>            // skip_bytes(is, LayerAndMaskDataLength);<a name="line.151"></a>
+<FONT color="green">152</FONT>            // byte ImageData[] = readByteArray("ImageData", LayerAndMaskDataLength,<a name="line.152"></a>
+<FONT color="green">153</FONT>            // is, "Not a Valid PSD File");<a name="line.153"></a>
+<FONT color="green">154</FONT>    <a name="line.154"></a>
+<FONT color="green">155</FONT>            // System.out.println("Compression: " + Compression);<a name="line.155"></a>
+<FONT color="green">156</FONT>    <a name="line.156"></a>
+<FONT color="green">157</FONT>            final ImageContents result = new ImageContents(header, ColorModeDataLength,<a name="line.157"></a>
+<FONT color="green">158</FONT>            // ColorModeData,<a name="line.158"></a>
+<FONT color="green">159</FONT>                    ImageResourcesLength,<a name="line.159"></a>
+<FONT color="green">160</FONT>                    // ImageResources,<a name="line.160"></a>
+<FONT color="green">161</FONT>                    LayerAndMaskDataLength,<a name="line.161"></a>
+<FONT color="green">162</FONT>                    // LayerAndMaskData,<a name="line.162"></a>
+<FONT color="green">163</FONT>                    Compression);<a name="line.163"></a>
+<FONT color="green">164</FONT>    <a name="line.164"></a>
+<FONT color="green">165</FONT>            return result;<a name="line.165"></a>
+<FONT color="green">166</FONT>        }<a name="line.166"></a>
+<FONT color="green">167</FONT>    <a name="line.167"></a>
+<FONT color="green">168</FONT>        private List&lt;ImageResourceBlock&gt; readImageResourceBlocks(final byte bytes[],<a name="line.168"></a>
+<FONT color="green">169</FONT>                final int imageResourceIDs[], final int maxBlocksToRead)<a name="line.169"></a>
+<FONT color="green">170</FONT>                throws ImageReadException, IOException {<a name="line.170"></a>
+<FONT color="green">171</FONT>            return readImageResourceBlocks(new ByteArrayInputStream(bytes),<a name="line.171"></a>
+<FONT color="green">172</FONT>                    imageResourceIDs, maxBlocksToRead, bytes.length);<a name="line.172"></a>
+<FONT color="green">173</FONT>        }<a name="line.173"></a>
+<FONT color="green">174</FONT>    <a name="line.174"></a>
+<FONT color="green">175</FONT>        private boolean keepImageResourceBlock(final int ID, final int imageResourceIDs[]) {<a name="line.175"></a>
+<FONT color="green">176</FONT>            if (imageResourceIDs == null) {<a name="line.176"></a>
+<FONT color="green">177</FONT>                return true;<a name="line.177"></a>
+<FONT color="green">178</FONT>            }<a name="line.178"></a>
+<FONT color="green">179</FONT>    <a name="line.179"></a>
+<FONT color="green">180</FONT>            for (final int imageResourceID : imageResourceIDs) {<a name="line.180"></a>
+<FONT color="green">181</FONT>                if (ID == imageResourceID) {<a name="line.181"></a>
+<FONT color="green">182</FONT>                    return true;<a name="line.182"></a>
+<FONT color="green">183</FONT>                }<a name="line.183"></a>
+<FONT color="green">184</FONT>            }<a name="line.184"></a>
+<FONT color="green">185</FONT>    <a name="line.185"></a>
+<FONT color="green">186</FONT>            return false;<a name="line.186"></a>
+<FONT color="green">187</FONT>        }<a name="line.187"></a>
+<FONT color="green">188</FONT>    <a name="line.188"></a>
+<FONT color="green">189</FONT>        private List&lt;ImageResourceBlock&gt; readImageResourceBlocks(final InputStream is,<a name="line.189"></a>
+<FONT color="green">190</FONT>                final int imageResourceIDs[], final int maxBlocksToRead, int available)<a name="line.190"></a>
+<FONT color="green">191</FONT>                throws ImageReadException, IOException {<a name="line.191"></a>
+<FONT color="green">192</FONT>            final List&lt;ImageResourceBlock&gt; result = new ArrayList&lt;ImageResourceBlock&gt;();<a name="line.192"></a>
+<FONT color="green">193</FONT>    <a name="line.193"></a>
+<FONT color="green">194</FONT>            while (available &gt; 0) {<a name="line.194"></a>
+<FONT color="green">195</FONT>                readAndVerifyBytes(is, new byte[] { 56, 66, 73, 77 },<a name="line.195"></a>
+<FONT color="green">196</FONT>                        "Not a Valid PSD File");<a name="line.196"></a>
+<FONT color="green">197</FONT>                available -= 4;<a name="line.197"></a>
+<FONT color="green">198</FONT>    <a name="line.198"></a>
+<FONT color="green">199</FONT>                final int id = read2Bytes("ID", is, "Not a Valid PSD File");<a name="line.199"></a>
+<FONT color="green">200</FONT>                available -= 2;<a name="line.200"></a>
+<FONT color="green">201</FONT>    <a name="line.201"></a>
+<FONT color="green">202</FONT>                final int nameLength = readByte("NameLength", is, "Not a Valid PSD File");<a name="line.202"></a>
+<FONT color="green">203</FONT>    <a name="line.203"></a>
+<FONT color="green">204</FONT>                available -= 1;<a name="line.204"></a>
+<FONT color="green">205</FONT>                final byte nameBytes[] = readByteArray("NameData", nameLength, is,<a name="line.205"></a>
+<FONT color="green">206</FONT>                        "Not a Valid PSD File");<a name="line.206"></a>
+<FONT color="green">207</FONT>                available -= nameLength;<a name="line.207"></a>
+<FONT color="green">208</FONT>                if (((nameLength + 1) % 2) != 0) {<a name="line.208"></a>
+<FONT color="green">209</FONT>                    final int NameDiscard = readByte("NameDiscard", is,<a name="line.209"></a>
+<FONT color="green">210</FONT>                            "Not a Valid PSD File");<a name="line.210"></a>
+<FONT color="green">211</FONT>                    available -= 1;<a name="line.211"></a>
+<FONT color="green">212</FONT>                }<a name="line.212"></a>
+<FONT color="green">213</FONT>                // String Name = readPString("Name", 6, is, "Not a Valid PSD File");<a name="line.213"></a>
+<FONT color="green">214</FONT>                final int DataSize = read4Bytes("Size", is, "Not a Valid PSD File");<a name="line.214"></a>
+<FONT color="green">215</FONT>                available -= 4;<a name="line.215"></a>
+<FONT color="green">216</FONT>                // int ActualDataSize = ((DataSize % 2) == 0)<a name="line.216"></a>
+<FONT color="green">217</FONT>                // ? DataSize<a name="line.217"></a>
+<FONT color="green">218</FONT>                // : DataSize + 1; // pad to make even<a name="line.218"></a>
+<FONT color="green">219</FONT>    <a name="line.219"></a>
+<FONT color="green">220</FONT>                final byte Data[] = readByteArray("Data", DataSize, is,<a name="line.220"></a>
+<FONT color="green">221</FONT>                        "Not a Valid PSD File");<a name="line.221"></a>
+<FONT color="green">222</FONT>                available -= DataSize;<a name="line.222"></a>
+<FONT color="green">223</FONT>    <a name="line.223"></a>
+<FONT color="green">224</FONT>                if ((DataSize % 2) != 0) {<a name="line.224"></a>
+<FONT color="green">225</FONT>                    final int DataDiscard = readByte("DataDiscard", is,<a name="line.225"></a>
+<FONT color="green">226</FONT>                            "Not a Valid PSD File");<a name="line.226"></a>
+<FONT color="green">227</FONT>                    available -= 1;<a name="line.227"></a>
+<FONT color="green">228</FONT>                }<a name="line.228"></a>
+<FONT color="green">229</FONT>    <a name="line.229"></a>
+<FONT color="green">230</FONT>                if (keepImageResourceBlock(id, imageResourceIDs)) {<a name="line.230"></a>
+<FONT color="green">231</FONT>                    result.add(new ImageResourceBlock(id, nameBytes, Data));<a name="line.231"></a>
+<FONT color="green">232</FONT>    <a name="line.232"></a>
+<FONT color="green">233</FONT>                    if ((maxBlocksToRead &gt;= 0)<a name="line.233"></a>
+<FONT color="green">234</FONT>                            &amp;&amp; (result.size() &gt;= maxBlocksToRead)) {<a name="line.234"></a>
+<FONT color="green">235</FONT>                        return result;<a name="line.235"></a>
+<FONT color="green">236</FONT>                    }<a name="line.236"></a>
+<FONT color="green">237</FONT>                }<a name="line.237"></a>
+<FONT color="green">238</FONT>                // debugNumber("ID", ID, 2);<a name="line.238"></a>
+<FONT color="green">239</FONT>    <a name="line.239"></a>
+<FONT color="green">240</FONT>            }<a name="line.240"></a>
+<FONT color="green">241</FONT>    <a name="line.241"></a>
+<FONT color="green">242</FONT>            return result;<a name="line.242"></a>
+<FONT color="green">243</FONT>        }<a name="line.243"></a>
+<FONT color="green">244</FONT>    <a name="line.244"></a>
+<FONT color="green">245</FONT>        private List&lt;ImageResourceBlock&gt; readImageResourceBlocks(<a name="line.245"></a>
+<FONT color="green">246</FONT>                final ByteSource byteSource, final int imageResourceIDs[], final int maxBlocksToRead)<a name="line.246"></a>
+<FONT color="green">247</FONT>                throws ImageReadException, IOException {<a name="line.247"></a>
+<FONT color="green">248</FONT>            InputStream is = null;<a name="line.248"></a>
+<FONT color="green">249</FONT>    <a name="line.249"></a>
+<FONT color="green">250</FONT>            try {<a name="line.250"></a>
+<FONT color="green">251</FONT>                is = byteSource.getInputStream();<a name="line.251"></a>
+<FONT color="green">252</FONT>    <a name="line.252"></a>
+<FONT color="green">253</FONT>                final ImageContents imageContents = readImageContents(is);<a name="line.253"></a>
+<FONT color="green">254</FONT>    <a name="line.254"></a>
+<FONT color="green">255</FONT>                is.close();<a name="line.255"></a>
+<FONT color="green">256</FONT>    <a name="line.256"></a>
+<FONT color="green">257</FONT>                is = this.getInputStream(byteSource, PSD_SECTION_IMAGE_RESOURCES);<a name="line.257"></a>
+<FONT color="green">258</FONT>                final byte ImageResources[] = readByteArray("ImageResources",<a name="line.258"></a>
+<FONT color="green">259</FONT>                        imageContents.ImageResourcesLength, is,<a name="line.259"></a>
+<FONT color="green">260</FONT>                        "Not a Valid PSD File");<a name="line.260"></a>
+<FONT color="green">261</FONT>    <a name="line.261"></a>
+<FONT color="green">262</FONT>                return readImageResourceBlocks(ImageResources, imageResourceIDs,<a name="line.262"></a>
+<FONT color="green">263</FONT>                        maxBlocksToRead);<a name="line.263"></a>
+<FONT color="green">264</FONT>            } finally {<a name="line.264"></a>
+<FONT color="green">265</FONT>                try {<a name="line.265"></a>
+<FONT color="green">266</FONT>                    if (is != null) {<a name="line.266"></a>
+<FONT color="green">267</FONT>                        is.close();<a name="line.267"></a>
+<FONT color="green">268</FONT>                    }<a name="line.268"></a>
+<FONT color="green">269</FONT>                } catch (final Exception e) {<a name="line.269"></a>
+<FONT color="green">270</FONT>                    Debug.debug(e);<a name="line.270"></a>
+<FONT color="green">271</FONT>                }<a name="line.271"></a>
+<FONT color="green">272</FONT>    <a name="line.272"></a>
+<FONT color="green">273</FONT>            }<a name="line.273"></a>
+<FONT color="green">274</FONT>        }<a name="line.274"></a>
+<FONT color="green">275</FONT>    <a name="line.275"></a>
+<FONT color="green">276</FONT>        private static final int PSD_SECTION_HEADER = 0;<a name="line.276"></a>
+<FONT color="green">277</FONT>        private static final int PSD_SECTION_COLOR_MODE = 1;<a name="line.277"></a>
+<FONT color="green">278</FONT>        private static final int PSD_SECTION_IMAGE_RESOURCES = 2;<a name="line.278"></a>
+<FONT color="green">279</FONT>        private static final int PSD_SECTION_LAYER_AND_MASK_DATA = 3;<a name="line.279"></a>
+<FONT color="green">280</FONT>        private static final int PSD_SECTION_IMAGE_DATA = 4;<a name="line.280"></a>
+<FONT color="green">281</FONT>    <a name="line.281"></a>
+<FONT color="green">282</FONT>        private static final int PSD_HEADER_LENGTH = 26;<a name="line.282"></a>
+<FONT color="green">283</FONT>    <a name="line.283"></a>
+<FONT color="green">284</FONT>        private InputStream getInputStream(final ByteSource byteSource, final int section)<a name="line.284"></a>
+<FONT color="green">285</FONT>                throws ImageReadException, IOException {<a name="line.285"></a>
+<FONT color="green">286</FONT>            InputStream is = null;<a name="line.286"></a>
+<FONT color="green">287</FONT>            boolean notFound = false;<a name="line.287"></a>
+<FONT color="green">288</FONT>            try {<a name="line.288"></a>
+<FONT color="green">289</FONT>                is = byteSource.getInputStream();<a name="line.289"></a>
+<FONT color="green">290</FONT>    <a name="line.290"></a>
+<FONT color="green">291</FONT>                if (section == PSD_SECTION_HEADER) {<a name="line.291"></a>
+<FONT color="green">292</FONT>                    return is;<a name="line.292"></a>
+<FONT color="green">293</FONT>                }<a name="line.293"></a>
+<FONT color="green">294</FONT>    <a name="line.294"></a>
+<FONT color="green">295</FONT>                skipBytes(is, PSD_HEADER_LENGTH);<a name="line.295"></a>
+<FONT color="green">296</FONT>                // is.skip(kHeaderLength);<a name="line.296"></a>
+<FONT color="green">297</FONT>    <a name="line.297"></a>
+<FONT color="green">298</FONT>                final int ColorModeDataLength = read4Bytes("ColorModeDataLength", is,<a name="line.298"></a>
+<FONT color="green">299</FONT>                        "Not a Valid PSD File");<a name="line.299"></a>
+<FONT color="green">300</FONT>    <a name="line.300"></a>
+<FONT color="green">301</FONT>                if (section == PSD_SECTION_COLOR_MODE) {<a name="line.301"></a>
+<FONT color="green">302</FONT>                    return is;<a name="line.302"></a>
+<FONT color="green">303</FONT>                }<a name="line.303"></a>
+<FONT color="green">304</FONT>    <a name="line.304"></a>
+<FONT color="green">305</FONT>                skipBytes(is, ColorModeDataLength);<a name="line.305"></a>
+<FONT color="green">306</FONT>                // byte ColorModeData[] = readByteArray("ColorModeData",<a name="line.306"></a>
+<FONT color="green">307</FONT>                // ColorModeDataLength, is, "Not a Valid PSD File");<a name="line.307"></a>
+<FONT color="green">308</FONT>    <a name="line.308"></a>
+<FONT color="green">309</FONT>                final int ImageResourcesLength = read4Bytes("ImageResourcesLength", is,<a name="line.309"></a>
+<FONT color="green">310</FONT>                        "Not a Valid PSD File");<a name="line.310"></a>
+<FONT color="green">311</FONT>    <a name="line.311"></a>
+<FONT color="green">312</FONT>                if (section == PSD_SECTION_IMAGE_RESOURCES) {<a name="line.312"></a>
+<FONT color="green">313</FONT>                    return is;<a name="line.313"></a>
+<FONT color="green">314</FONT>                }<a name="line.314"></a>
+<FONT color="green">315</FONT>    <a name="line.315"></a>
+<FONT color="green">316</FONT>                skipBytes(is, ImageResourcesLength);<a name="line.316"></a>
+<FONT color="green">317</FONT>                // byte ImageResources[] = readByteArray("ImageResources",<a name="line.317"></a>
+<FONT color="green">318</FONT>                // ImageResourcesLength, is, "Not a Valid PSD File");<a name="line.318"></a>
+<FONT color="green">319</FONT>    <a name="line.319"></a>
+<FONT color="green">320</FONT>                final int LayerAndMaskDataLength = read4Bytes("LayerAndMaskDataLength",<a name="line.320"></a>
+<FONT color="green">321</FONT>                        is, "Not a Valid PSD File");<a name="line.321"></a>
+<FONT color="green">322</FONT>    <a name="line.322"></a>
+<FONT color="green">323</FONT>                if (section == PSD_SECTION_LAYER_AND_MASK_DATA) {<a name="line.323"></a>
+<FONT color="green">324</FONT>                    return is;<a name="line.324"></a>
+<FONT color="green">325</FONT>                }<a name="line.325"></a>
+<FONT color="green">326</FONT>    <a name="line.326"></a>
+<FONT color="green">327</FONT>                skipBytes(is, LayerAndMaskDataLength);<a name="line.327"></a>
+<FONT color="green">328</FONT>                // byte LayerAndMaskData[] = readByteArray("LayerAndMaskData",<a name="line.328"></a>
+<FONT color="green">329</FONT>                // LayerAndMaskDataLength, is, "Not a Valid PSD File");<a name="line.329"></a>
+<FONT color="green">330</FONT>    <a name="line.330"></a>
+<FONT color="green">331</FONT>                read2Bytes("Compression", is, "Not a Valid PSD File");<a name="line.331"></a>
+<FONT color="green">332</FONT>    <a name="line.332"></a>
+<FONT color="green">333</FONT>                // byte ImageData[] = readByteArray("ImageData",<a name="line.333"></a>
+<FONT color="green">334</FONT>                // LayerAndMaskDataLength, is, "Not a Valid PSD File");<a name="line.334"></a>
+<FONT color="green">335</FONT>    <a name="line.335"></a>
+<FONT color="green">336</FONT>                if (section == PSD_SECTION_IMAGE_DATA) {<a name="line.336"></a>
+<FONT color="green">337</FONT>                    return is;<a name="line.337"></a>
+<FONT color="green">338</FONT>                }<a name="line.338"></a>
+<FONT color="green">339</FONT>                notFound = true;<a name="line.339"></a>
+<FONT color="green">340</FONT>            } finally {<a name="line.340"></a>
+<FONT color="green">341</FONT>                if (notFound &amp;&amp; is != null) {<a name="line.341"></a>
+<FONT color="green">342</FONT>                    try {<a name="line.342"></a>
+<FONT color="green">343</FONT>                        is.close();<a name="line.343"></a>
+<FONT color="green">344</FONT>                    } catch (final IOException ignore) {<a name="line.344"></a>
+<FONT color="green">345</FONT>                    }<a name="line.345"></a>
+<FONT color="green">346</FONT>                }<a name="line.346"></a>
+<FONT color="green">347</FONT>            }<a name="line.347"></a>
+<FONT color="green">348</FONT>            throw new ImageReadException("getInputStream: Unknown Section: "<a name="line.348"></a>
+<FONT color="green">349</FONT>                    + section);<a name="line.349"></a>
+<FONT color="green">350</FONT>        }<a name="line.350"></a>
+<FONT color="green">351</FONT>    <a name="line.351"></a>
+<FONT color="green">352</FONT>        private byte[] getData(final ByteSource byteSource, final int section)<a name="line.352"></a>
+<FONT color="green">353</FONT>                throws ImageReadException, IOException {<a name="line.353"></a>
+<FONT color="green">354</FONT>            InputStream is = null;<a name="line.354"></a>
+<FONT color="green">355</FONT>    <a name="line.355"></a>
+<FONT color="green">356</FONT>            try {<a name="line.356"></a>
+<FONT color="green">357</FONT>                is = byteSource.getInputStream();<a name="line.357"></a>
+<FONT color="green">358</FONT>    <a name="line.358"></a>
+<FONT color="green">359</FONT>                // PsdHeaderInfo header = readHeader(is);<a name="line.359"></a>
+<FONT color="green">360</FONT>                if (section == PSD_SECTION_HEADER) {<a name="line.360"></a>
+<FONT color="green">361</FONT>                    return readByteArray("Header", PSD_HEADER_LENGTH, is,<a name="line.361"></a>
+<FONT color="green">362</FONT>                            "Not a Valid PSD File");<a name="line.362"></a>
+<FONT color="green">363</FONT>                }<a name="line.363"></a>
+<FONT color="green">364</FONT>                skipBytes(is, PSD_HEADER_LENGTH);<a name="line.364"></a>
+<FONT color="green">365</FONT>    <a name="line.365"></a>
+<FONT color="green">366</FONT>                final int ColorModeDataLength = read4Bytes("ColorModeDataLength", is,<a name="line.366"></a>
+<FONT color="green">367</FONT>                        "Not a Valid PSD File");<a name="line.367"></a>
+<FONT color="green">368</FONT>    <a name="line.368"></a>
+<FONT color="green">369</FONT>                if (section == PSD_SECTION_COLOR_MODE) {<a name="line.369"></a>
+<FONT color="green">370</FONT>                    return readByteArray("ColorModeData", ColorModeDataLength, is,<a name="line.370"></a>
+<FONT color="green">371</FONT>                            "Not a Valid PSD File");<a name="line.371"></a>
+<FONT color="green">372</FONT>                }<a name="line.372"></a>
+<FONT color="green">373</FONT>    <a name="line.373"></a>
+<FONT color="green">374</FONT>                skipBytes(is, ColorModeDataLength);<a name="line.374"></a>
+<FONT color="green">375</FONT>                // byte ColorModeData[] = readByteArray("ColorModeData",<a name="line.375"></a>
+<FONT color="green">376</FONT>                // ColorModeDataLength, is, "Not a Valid PSD File");<a name="line.376"></a>
+<FONT color="green">377</FONT>    <a name="line.377"></a>
+<FONT color="green">378</FONT>                final int ImageResourcesLength = read4Bytes("ImageResourcesLength", is,<a name="line.378"></a>
+<FONT color="green">379</FONT>                        "Not a Valid PSD File");<a name="line.379"></a>
+<FONT color="green">380</FONT>    <a name="line.380"></a>
+<FONT color="green">381</FONT>                if (section == PSD_SECTION_IMAGE_RESOURCES) {<a name="line.381"></a>
+<FONT color="green">382</FONT>                    return readByteArray("ImageResources", ImageResourcesLength,<a name="line.382"></a>
+<FONT color="green">383</FONT>                            is, "Not a Valid PSD File");<a name="line.383"></a>
+<FONT color="green">384</FONT>                }<a name="line.384"></a>
+<FONT color="green">385</FONT>    <a name="line.385"></a>
+<FONT color="green">386</FONT>                skipBytes(is, ImageResourcesLength);<a name="line.386"></a>
+<FONT color="green">387</FONT>                // byte ImageResources[] = readByteArray("ImageResources",<a name="line.387"></a>
+<FONT color="green">388</FONT>                // ImageResourcesLength, is, "Not a Valid PSD File");<a name="line.388"></a>
+<FONT color="green">389</FONT>    <a name="line.389"></a>
+<FONT color="green">390</FONT>                final int LayerAndMaskDataLength = read4Bytes("LayerAndMaskDataLength",<a name="line.390"></a>
+<FONT color="green">391</FONT>                        is, "Not a Valid PSD File");<a name="line.391"></a>
+<FONT color="green">392</FONT>    <a name="line.392"></a>
+<FONT color="green">393</FONT>                if (section == PSD_SECTION_LAYER_AND_MASK_DATA) {<a name="line.393"></a>
+<FONT color="green">394</FONT>                    return readByteArray("LayerAndMaskData",<a name="line.394"></a>
+<FONT color="green">395</FONT>                            LayerAndMaskDataLength, is, "Not a Valid PSD File");<a name="line.395"></a>
+<FONT color="green">396</FONT>                }<a name="line.396"></a>
+<FONT color="green">397</FONT>    <a name="line.397"></a>
+<FONT color="green">398</FONT>                skipBytes(is, LayerAndMaskDataLength);<a name="line.398"></a>
+<FONT color="green">399</FONT>                // byte LayerAndMaskData[] = readByteArray("LayerAndMaskData",<a name="line.399"></a>
+<FONT color="green">400</FONT>                // LayerAndMaskDataLength, is, "Not a Valid PSD File");<a name="line.400"></a>
+<FONT color="green">401</FONT>    <a name="line.401"></a>
+<FONT color="green">402</FONT>                read2Bytes("Compression", is, "Not a Valid PSD File");<a name="line.402"></a>
+<FONT color="green">403</FONT>    <a name="line.403"></a>
+<FONT color="green">404</FONT>                // byte ImageData[] = readByteArray("ImageData",<a name="line.404"></a>
+<FONT color="green">405</FONT>                // LayerAndMaskDataLength, is, "Not a Valid PSD File");<a name="line.405"></a>
+<FONT color="green">406</FONT>    <a name="line.406"></a>
+<FONT color="green">407</FONT>                // if (section == kPSD_SECTION_IMAGE_DATA)<a name="line.407"></a>
+<FONT color="green">408</FONT>                // return readByteArray("LayerAndMaskData", LayerAndMaskDataLength,<a name="line.408"></a>
+<FONT color="green">409</FONT>                // is,<a name="line.409"></a>
+<FONT color="green">410</FONT>                // "Not a Valid PSD File");<a name="line.410"></a>
+<FONT color="green">411</FONT>    <a name="line.411"></a>
+<FONT color="green">412</FONT>            } finally {<a name="line.412"></a>
+<FONT color="green">413</FONT>                try {<a name="line.413"></a>
+<FONT color="green">414</FONT>                    if (is != null) {<a name="line.414"></a>
+<FONT color="green">415</FONT>                        is.close();<a name="line.415"></a>
+<FONT color="green">416</FONT>                    }<a name="line.416"></a>
+<FONT color="green">417</FONT>                } catch (final Exception e) {<a name="line.417"></a>
+<FONT color="green">418</FONT>                    Debug.debug(e);<a name="line.418"></a>
+<FONT color="green">419</FONT>                }<a name="line.419"></a>
+<FONT color="green">420</FONT>    <a name="line.420"></a>
+<FONT color="green">421</FONT>            }<a name="line.421"></a>
+<FONT color="green">422</FONT>            throw new ImageReadException("getInputStream: Unknown Section: "<a name="line.422"></a>
+<FONT color="green">423</FONT>                    + section);<a name="line.423"></a>
+<FONT color="green">424</FONT>        }<a name="line.424"></a>
+<FONT color="green">425</FONT>    <a name="line.425"></a>
+<FONT color="green">426</FONT>        private ImageContents readImageContents(final ByteSource byteSource)<a name="line.426"></a>
+<FONT color="green">427</FONT>                throws ImageReadException, IOException {<a name="line.427"></a>
+<FONT color="green">428</FONT>            InputStream is = null;<a name="line.428"></a>
+<FONT color="green">429</FONT>    <a name="line.429"></a>
+<FONT color="green">430</FONT>            try {<a name="line.430"></a>
+<FONT color="green">431</FONT>                is = byteSource.getInputStream();<a name="line.431"></a>
+<FONT color="green">432</FONT>    <a name="line.432"></a>
+<FONT color="green">433</FONT>                final ImageContents imageContents = readImageContents(is);<a name="line.433"></a>
+<FONT color="green">434</FONT>                return imageContents;<a name="line.434"></a>
+<FONT color="green">435</FONT>            } finally {<a name="line.435"></a>
+<FONT color="green">436</FONT>                try {<a name="line.436"></a>
+<FONT color="green">437</FONT>                    if (is != null) {<a name="line.437"></a>
+<FONT color="green">438</FONT>                        is.close();<a name="line.438"></a>
+<FONT color="green">439</FONT>                    }<a name="line.439"></a>
+<FONT color="green">440</FONT>                } catch (final Exception e) {<a name="line.440"></a>
+<FONT color="green">441</FONT>                    Debug.debug(e);<a name="line.441"></a>
+<FONT color="green">442</FONT>                }<a name="line.442"></a>
+<FONT color="green">443</FONT>    <a name="line.443"></a>
+<FONT color="green">444</FONT>            }<a name="line.444"></a>
+<FONT color="green">445</FONT>    <a name="line.445"></a>
+<FONT color="green">446</FONT>        }<a name="line.446"></a>
+<FONT color="green">447</FONT>    <a name="line.447"></a>
+<FONT color="green">448</FONT>        public final static int IMAGE_RESOURCE_ID_ICC_PROFILE = 0x040F;<a name="line.448"></a>
+<FONT color="green">449</FONT>    <a name="line.449"></a>
+<FONT color="green">450</FONT>        @Override<a name="line.450"></a>
+<FONT color="green">451</FONT>        public byte[] getICCProfileBytes(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.451"></a>
+<FONT color="green">452</FONT>                throws ImageReadException, IOException {<a name="line.452"></a>
+<FONT color="green">453</FONT>            final List&lt;ImageResourceBlock&gt; blocks = readImageResourceBlocks(byteSource,<a name="line.453"></a>
+<FONT color="green">454</FONT>                    new int[] { IMAGE_RESOURCE_ID_ICC_PROFILE, }, 1);<a name="line.454"></a>
+<FONT color="green">455</FONT>    <a name="line.455"></a>
+<FONT color="green">456</FONT>            if ((blocks == null) || (blocks.size() &lt; 1)) {<a name="line.456"></a>
+<FONT color="green">457</FONT>                return null;<a name="line.457"></a>
+<FONT color="green">458</FONT>            }<a name="line.458"></a>
+<FONT color="green">459</FONT>    <a name="line.459"></a>
+<FONT color="green">460</FONT>            final ImageResourceBlock irb = blocks.get(0);<a name="line.460"></a>
+<FONT color="green">461</FONT>            final byte bytes[] = irb.data;<a name="line.461"></a>
+<FONT color="green">462</FONT>            if ((bytes == null) || (bytes.length &lt; 1)) {<a name="line.462"></a>
+<FONT color="green">463</FONT>                return null;<a name="line.463"></a>
+<FONT color="green">464</FONT>            }<a name="line.464"></a>
+<FONT color="green">465</FONT>            return bytes;<a name="line.465"></a>
+<FONT color="green">466</FONT>        }<a name="line.466"></a>
+<FONT color="green">467</FONT>    <a name="line.467"></a>
+<FONT color="green">468</FONT>        @Override<a name="line.468"></a>
+<FONT color="green">469</FONT>        public Dimension getImageSize(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.469"></a>
+<FONT color="green">470</FONT>                throws ImageReadException, IOException {<a name="line.470"></a>
+<FONT color="green">471</FONT>            final PsdHeaderInfo bhi = readHeader(byteSource);<a name="line.471"></a>
+<FONT color="green">472</FONT>            if (bhi == null) {<a name="line.472"></a>
+<FONT color="green">473</FONT>                throw new ImageReadException("PSD: couldn't read header");<a name="line.473"></a>
+<FONT color="green">474</FONT>            }<a name="line.474"></a>
+<FONT color="green">475</FONT>    <a name="line.475"></a>
+<FONT color="green">476</FONT>            return new Dimension(bhi.Columns, bhi.Rows);<a name="line.476"></a>
+<FONT color="green">477</FONT>    <a name="line.477"></a>
+<FONT color="green">478</FONT>        }<a name="line.478"></a>
+<FONT color="green">479</FONT>    <a name="line.479"></a>
+<FONT color="green">480</FONT>        public byte[] embedICCProfile(final byte image[], final byte profile[]) {<a name="line.480"></a>
+<FONT color="green">481</FONT>            return null;<a name="line.481"></a>
+<FONT color="green">482</FONT>        }<a name="line.482"></a>
+<FONT color="green">483</FONT>    <a name="line.483"></a>
+<FONT color="green">484</FONT>        @Override<a name="line.484"></a>
+<FONT color="green">485</FONT>        public boolean embedICCProfile(final File src, final File dst, final byte profile[]) {<a name="line.485"></a>
+<FONT color="green">486</FONT>            return false;<a name="line.486"></a>
+<FONT color="green">487</FONT>        }<a name="line.487"></a>
+<FONT color="green">488</FONT>    <a name="line.488"></a>
+<FONT color="green">489</FONT>        @Override<a name="line.489"></a>
+<FONT color="green">490</FONT>        public IImageMetadata getMetadata(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.490"></a>
+<FONT color="green">491</FONT>                throws ImageReadException, IOException {<a name="line.491"></a>
+<FONT color="green">492</FONT>            return null;<a name="line.492"></a>
+<FONT color="green">493</FONT>        }<a name="line.493"></a>
+<FONT color="green">494</FONT>    <a name="line.494"></a>
+<FONT color="green">495</FONT>        private int getChannelsPerMode(final int mode) {<a name="line.495"></a>
+<FONT color="green">496</FONT>            switch (mode) {<a name="line.496"></a>
+<FONT color="green">497</FONT>            case 0: // Bitmap<a name="line.497"></a>
+<FONT color="green">498</FONT>                return 1;<a name="line.498"></a>
+<FONT color="green">499</FONT>            case 1: // Grayscale<a name="line.499"></a>
+<FONT color="green">500</FONT>                return 1;<a name="line.500"></a>
+<FONT color="green">501</FONT>            case 2: // Indexed<a name="line.501"></a>
+<FONT color="green">502</FONT>                return -1;<a name="line.502"></a>
+<FONT color="green">503</FONT>            case 3: // RGB<a name="line.503"></a>
+<FONT color="green">504</FONT>                return 3;<a name="line.504"></a>
+<FONT color="green">505</FONT>            case 4: // CMYK<a name="line.505"></a>
+<FONT color="green">506</FONT>                return 4;<a name="line.506"></a>
+<FONT color="green">507</FONT>            case 7: // Multichannel<a name="line.507"></a>
+<FONT color="green">508</FONT>                return -1;<a name="line.508"></a>
+<FONT color="green">509</FONT>            case 8: // Duotone<a name="line.509"></a>
+<FONT color="green">510</FONT>                return -1;<a name="line.510"></a>
+<FONT color="green">511</FONT>            case 9: // Lab<a name="line.511"></a>
+<FONT color="green">512</FONT>                return 4;<a name="line.512"></a>
+<FONT color="green">513</FONT>            default:<a name="line.513"></a>
+<FONT color="green">514</FONT>                return -1;<a name="line.514"></a>
+<FONT color="green">515</FONT>    <a name="line.515"></a>
+<FONT color="green">516</FONT>            }<a name="line.516"></a>
+<FONT color="green">517</FONT>        }<a name="line.517"></a>
+<FONT color="green">518</FONT>    <a name="line.518"></a>
+<FONT color="green">519</FONT>        @Override<a name="line.519"></a>
+<FONT color="green">520</FONT>        public ImageInfo getImageInfo(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.520"></a>
+<FONT color="green">521</FONT>                throws ImageReadException, IOException {<a name="line.521"></a>
+<FONT color="green">522</FONT>            final ImageContents imageContents = readImageContents(byteSource);<a name="line.522"></a>
+<FONT color="green">523</FONT>            // ImageContents imageContents = readImage(byteSource, false);<a name="line.523"></a>
+<FONT color="green">524</FONT>    <a name="line.524"></a>
+<FONT color="green">525</FONT>            if (imageContents == null) {<a name="line.525"></a>
+<FONT color="green">526</FONT>                throw new ImageReadException("PSD: Couldn't read blocks");<a name="line.526"></a>
+<FONT color="green">527</FONT>            }<a name="line.527"></a>
+<FONT color="green">528</FONT>    <a name="line.528"></a>
+<FONT color="green">529</FONT>            final PsdHeaderInfo header = imageContents.header;<a name="line.529"></a>
+<FONT color="green">530</FONT>            if (header == null) {<a name="line.530"></a>
+<FONT color="green">531</FONT>                throw new ImageReadException("PSD: Couldn't read Header");<a name="line.531"></a>
+<FONT color="green">532</FONT>            }<a name="line.532"></a>
+<FONT color="green">533</FONT>    <a name="line.533"></a>
+<FONT color="green">534</FONT>            final int Width = header.Columns;<a name="line.534"></a>
+<FONT color="green">535</FONT>            final int Height = header.Rows;<a name="line.535"></a>
+<FONT color="green">536</FONT>    <a name="line.536"></a>
+<FONT color="green">537</FONT>            final List&lt;String&gt; Comments = new ArrayList&lt;String&gt;();<a name="line.537"></a>
+<FONT color="green">538</FONT>            // TODO: comments...<a name="line.538"></a>
+<FONT color="green">539</FONT>    <a name="line.539"></a>
+<FONT color="green">540</FONT>            int BitsPerPixel = header.Depth * getChannelsPerMode(header.Mode);<a name="line.540"></a>
+<FONT color="green">541</FONT>            // System.out.println("header.Depth: " + header.Depth);<a name="line.541"></a>
+<FONT color="green">542</FONT>            // System.out.println("header.Mode: " + header.Mode);<a name="line.542"></a>
+<FONT color="green">543</FONT>            // System.out.println("getChannelsPerMode(header.Mode): " +<a name="line.543"></a>
+<FONT color="green">544</FONT>            // getChannelsPerMode(header.Mode));<a name="line.544"></a>
+<FONT color="green">545</FONT>            if (BitsPerPixel &lt; 0) {<a name="line.545"></a>
+<FONT color="green">546</FONT>                BitsPerPixel = 0;<a name="line.546"></a>
+<FONT color="green">547</FONT>            }<a name="line.547"></a>
+<FONT color="green">548</FONT>            final ImageFormat Format = ImageFormat.IMAGE_FORMAT_PSD;<a name="line.548"></a>
+<FONT color="green">549</FONT>            final String FormatName = "Photoshop";<a name="line.549"></a>
+<FONT color="green">550</FONT>            final String MimeType = "image/x-photoshop";<a name="line.550"></a>
+<FONT color="green">551</FONT>            // we ought to count images, but don't yet.<a name="line.551"></a>
+<FONT color="green">552</FONT>            final int NumberOfImages = -1;<a name="line.552"></a>
+<FONT color="green">553</FONT>            // not accurate ... only reflects first<a name="line.553"></a>
+<FONT color="green">554</FONT>            final boolean isProgressive = false;<a name="line.554"></a>
+<FONT color="green">555</FONT>    <a name="line.555"></a>
+<FONT color="green">556</FONT>            final int PhysicalWidthDpi = 72;<a name="line.556"></a>
+<FONT color="green">557</FONT>            final float PhysicalWidthInch = (float) ((double) Width / (double) PhysicalWidthDpi);<a name="line.557"></a>
+<FONT color="green">558</FONT>            final int PhysicalHeightDpi = 72;<a name="line.558"></a>
+<FONT color="green">559</FONT>            final float PhysicalHeightInch = (float) ((double) Height / (double) PhysicalHeightDpi);<a name="line.559"></a>
+<FONT color="green">560</FONT>    <a name="line.560"></a>
+<FONT color="green">561</FONT>            final String FormatDetails = "Psd";<a name="line.561"></a>
+<FONT color="green">562</FONT>    <a name="line.562"></a>
+<FONT color="green">563</FONT>            final boolean isTransparent = false; // TODO: inaccurate.<a name="line.563"></a>
+<FONT color="green">564</FONT>            final boolean usesPalette = header.Mode == COLOR_MODE_INDEXED;<a name="line.564"></a>
+<FONT color="green">565</FONT>            final int ColorType = ImageInfo.COLOR_TYPE_UNKNOWN;<a name="line.565"></a>
+<FONT color="green">566</FONT>    <a name="line.566"></a>
+<FONT color="green">567</FONT>            String compressionAlgorithm;<a name="line.567"></a>
+<FONT color="green">568</FONT>            switch (imageContents.Compression) {<a name="line.568"></a>
+<FONT color="green">569</FONT>            case 0:<a name="line.569"></a>
+<FONT color="green">570</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_NONE;<a name="line.570"></a>
+<FONT color="green">571</FONT>                break;<a name="line.571"></a>
+<FONT color="green">572</FONT>            case 1:<a name="line.572"></a>
+<FONT color="green">573</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_PSD;<a name="line.573"></a>
+<FONT color="green">574</FONT>                break;<a name="line.574"></a>
+<FONT color="green">575</FONT>            default:<a name="line.575"></a>
+<FONT color="green">576</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_UNKNOWN;<a name="line.576"></a>
+<FONT color="green">577</FONT>            }<a name="line.577"></a>
+<FONT color="green">578</FONT>    <a name="line.578"></a>
+<FONT color="green">579</FONT>            final ImageInfo result = new ImageInfo(FormatDetails, BitsPerPixel, Comments,<a name="line.579"></a>
+<FONT color="green">580</FONT>                    Format, FormatName, Height, MimeType, NumberOfImages,<a name="line.580"></a>
+<FONT color="green">581</FONT>                    PhysicalHeightDpi, PhysicalHeightInch, PhysicalWidthDpi,<a name="line.581"></a>
+<FONT color="green">582</FONT>                    PhysicalWidthInch, Width, isProgressive, isTransparent,<a name="line.582"></a>
+<FONT color="green">583</FONT>                    usesPalette, ColorType, compressionAlgorithm);<a name="line.583"></a>
+<FONT color="green">584</FONT>    <a name="line.584"></a>
+<FONT color="green">585</FONT>            return result;<a name="line.585"></a>
+<FONT color="green">586</FONT>        }<a name="line.586"></a>
+<FONT color="green">587</FONT>    <a name="line.587"></a>
+<FONT color="green">588</FONT>        // TODO not used<a name="line.588"></a>
+<FONT color="green">589</FONT>        private ImageResourceBlock findImageResourceBlock(<a name="line.589"></a>
+<FONT color="green">590</FONT>                final List&lt;ImageResourceBlock&gt; blocks, final int ID) {<a name="line.590"></a>
+<FONT color="green">591</FONT>            for (int i = 0; i &lt; blocks.size(); i++) {<a name="line.591"></a>
+<FONT color="green">592</FONT>                final ImageResourceBlock block = blocks.get(i);<a name="line.592"></a>
+<FONT color="green">593</FONT>    <a name="line.593"></a>
+<FONT color="green">594</FONT>                if (block.id == ID) {<a name="line.594"></a>
+<FONT color="green">595</FONT>                    return block;<a name="line.595"></a>
+<FONT color="green">596</FONT>                }<a name="line.596"></a>
+<FONT color="green">597</FONT>            }<a name="line.597"></a>
+<FONT color="green">598</FONT>            return null;<a name="line.598"></a>
+<FONT color="green">599</FONT>        }<a name="line.599"></a>
+<FONT color="green">600</FONT>    <a name="line.600"></a>
+<FONT color="green">601</FONT>        @Override<a name="line.601"></a>
+<FONT color="green">602</FONT>        public boolean dumpImageFile(final PrintWriter pw, final ByteSource byteSource)<a name="line.602"></a>
+<FONT color="green">603</FONT>                throws ImageReadException, IOException {<a name="line.603"></a>
+<FONT color="green">604</FONT>            pw.println("gif.dumpImageFile");<a name="line.604"></a>
+<FONT color="green">605</FONT>    <a name="line.605"></a>
+<FONT color="green">606</FONT>            final ImageInfo fImageData = getImageInfo(byteSource);<a name="line.606"></a>
+<FONT color="green">607</FONT>            if (fImageData == null) {<a name="line.607"></a>
+<FONT color="green">608</FONT>                return false;<a name="line.608"></a>
+<FONT color="green">609</FONT>            }<a name="line.609"></a>
+<FONT color="green">610</FONT>    <a name="line.610"></a>
+<FONT color="green">611</FONT>            fImageData.toString(pw, "");<a name="line.611"></a>
+<FONT color="green">612</FONT>            final ImageContents imageContents = readImageContents(byteSource);<a name="line.612"></a>
+<FONT color="green">613</FONT>    <a name="line.613"></a>
+<FONT color="green">614</FONT>            imageContents.dump(pw);<a name="line.614"></a>
+<FONT color="green">615</FONT>            imageContents.header.dump(pw);<a name="line.615"></a>
+<FONT color="green">616</FONT>    <a name="line.616"></a>
+<FONT color="green">617</FONT>            final List&lt;ImageResourceBlock&gt; blocks = readImageResourceBlocks(<a name="line.617"></a>
+<FONT color="green">618</FONT>                    byteSource,<a name="line.618"></a>
+<FONT color="green">619</FONT>                    // fImageContents.ImageResources,<a name="line.619"></a>
+<FONT color="green">620</FONT>                    null, -1);<a name="line.620"></a>
+<FONT color="green">621</FONT>    <a name="line.621"></a>
+<FONT color="green">622</FONT>            pw.println("blocks.size(): " + blocks.size());<a name="line.622"></a>
+<FONT color="green">623</FONT>    <a name="line.623"></a>
+<FONT color="green">624</FONT>            // System.out.println("gif.blocks: " + blocks.blocks.size());<a name="line.624"></a>
+<FONT color="green">625</FONT>            for (int i = 0; i &lt; blocks.size(); i++) {<a name="line.625"></a>
+<FONT color="green">626</FONT>                final ImageResourceBlock block = blocks.get(i);<a name="line.626"></a>
+<FONT color="green">627</FONT>                pw.println("\t" + i + " (" + Integer.toHexString(block.id)<a name="line.627"></a>
+<FONT color="green">628</FONT>                        + ", " + "'"<a name="line.628"></a>
+<FONT color="green">629</FONT>                        + new String(block.nameData, "ISO-8859-1")<a name="line.629"></a>
+<FONT color="green">630</FONT>                        + "' ("<a name="line.630"></a>
+<FONT color="green">631</FONT>                        + block.nameData.length<a name="line.631"></a>
+<FONT color="green">632</FONT>                        + "), "<a name="line.632"></a>
+<FONT color="green">633</FONT>                        // + block.getClass().getName()<a name="line.633"></a>
+<FONT color="green">634</FONT>                        // + ", "<a name="line.634"></a>
+<FONT color="green">635</FONT>                        + " data: " + block.data.length + " type: '"<a name="line.635"></a>
+<FONT color="green">636</FONT>                        + new PsdConstants().getDescription(block.id) + "' "<a name="line.636"></a>
+<FONT color="green">637</FONT>                        + ")");<a name="line.637"></a>
+<FONT color="green">638</FONT>    <a name="line.638"></a>
+<FONT color="green">639</FONT>            }<a name="line.639"></a>
+<FONT color="green">640</FONT>    <a name="line.640"></a>
+<FONT color="green">641</FONT>            pw.println("");<a name="line.641"></a>
+<FONT color="green">642</FONT>    <a name="line.642"></a>
+<FONT color="green">643</FONT>            return true;<a name="line.643"></a>
+<FONT color="green">644</FONT>        }<a name="line.644"></a>
+<FONT color="green">645</FONT>    <a name="line.645"></a>
+<FONT color="green">646</FONT>        private static final int COLOR_MODE_INDEXED = 2;<a name="line.646"></a>
+<FONT color="green">647</FONT>    <a name="line.647"></a>
+<FONT color="green">648</FONT>        @Override<a name="line.648"></a>
+<FONT color="green">649</FONT>        public BufferedImage getBufferedImage(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.649"></a>
+<FONT color="green">650</FONT>                throws ImageReadException, IOException {<a name="line.650"></a>
+<FONT color="green">651</FONT>            final ImageContents imageContents = readImageContents(byteSource);<a name="line.651"></a>
+<FONT color="green">652</FONT>            // ImageContents imageContents = readImage(byteSource, false);<a name="line.652"></a>
+<FONT color="green">653</FONT>    <a name="line.653"></a>
+<FONT color="green">654</FONT>            if (imageContents == null) {<a name="line.654"></a>
+<FONT color="green">655</FONT>                throw new ImageReadException("PSD: Couldn't read blocks");<a name="line.655"></a>
+<FONT color="green">656</FONT>            }<a name="line.656"></a>
+<FONT color="green">657</FONT>    <a name="line.657"></a>
+<FONT color="green">658</FONT>            final PsdHeaderInfo header = imageContents.header;<a name="line.658"></a>
+<FONT color="green">659</FONT>            if (header == null) {<a name="line.659"></a>
+<FONT color="green">660</FONT>                throw new ImageReadException("PSD: Couldn't read Header");<a name="line.660"></a>
+<FONT color="green">661</FONT>            }<a name="line.661"></a>
+<FONT color="green">662</FONT>    <a name="line.662"></a>
+<FONT color="green">663</FONT>            // ImageDescriptor id = (ImageDescriptor)<a name="line.663"></a>
+<FONT color="green">664</FONT>            // findBlock(fImageContents.blocks,<a name="line.664"></a>
+<FONT color="green">665</FONT>            // kImageSeperator);<a name="line.665"></a>
+<FONT color="green">666</FONT>            // if (id == null)<a name="line.666"></a>
+<FONT color="green">667</FONT>            // throw new ImageReadException("PSD: Couldn't read Image Descriptor");<a name="line.667"></a>
+<FONT color="green">668</FONT>            // GraphicControlExtension gce = (GraphicControlExtension) findBlock(<a name="line.668"></a>
+<FONT color="green">669</FONT>            // fImageContents.blocks, kGraphicControlExtension);<a name="line.669"></a>
+<FONT color="green">670</FONT>    <a name="line.670"></a>
+<FONT color="green">671</FONT>            readImageResourceBlocks(byteSource,<a name="line.671"></a>
+<FONT color="green">672</FONT>            // fImageContents.ImageResources,<a name="line.672"></a>
+<FONT color="green">673</FONT>                    null, -1);<a name="line.673"></a>
+<FONT color="green">674</FONT>    <a name="line.674"></a>
+<FONT color="green">675</FONT>            final int width = header.Columns;<a name="line.675"></a>
+<FONT color="green">676</FONT>            final int height = header.Rows;<a name="line.676"></a>
+<FONT color="green">677</FONT>            // int height = header.Columns;<a name="line.677"></a>
+<FONT color="green">678</FONT>    <a name="line.678"></a>
+<FONT color="green">679</FONT>            // int transfer_type;<a name="line.679"></a>
+<FONT color="green">680</FONT>    <a name="line.680"></a>
+<FONT color="green">681</FONT>            // transfer_type = DataBuffer.TYPE_BYTE;<a name="line.681"></a>
+<FONT color="green">682</FONT>    <a name="line.682"></a>
+<FONT color="green">683</FONT>            final boolean hasAlpha = false;<a name="line.683"></a>
+<FONT color="green">684</FONT>            final BufferedImage result = getBufferedImageFactory(params)<a name="line.684"></a>
+<FONT color="green">685</FONT>                    .getColorBufferedImage(width, height, hasAlpha);<a name="line.685"></a>
+<FONT color="green">686</FONT>    <a name="line.686"></a>
+<FONT color="green">687</FONT>            DataParser dataParser;<a name="line.687"></a>
+<FONT color="green">688</FONT>            switch (imageContents.header.Mode) {<a name="line.688"></a>
+<FONT color="green">689</FONT>            case 0: // bitmap<a name="line.689"></a>
+<FONT color="green">690</FONT>                dataParser = new DataParserBitmap();<a name="line.690"></a>
+<FONT color="green">691</FONT>                break;<a name="line.691"></a>
+<FONT color="green">692</FONT>            case 1:<a name="line.692"></a>
+<FONT color="green">693</FONT>            case 8: // Duotone=8;<a name="line.693"></a>
+<FONT color="green">694</FONT>                dataParser = new DataParserGrayscale();<a name="line.694"></a>
+<FONT color="green">695</FONT>                break;<a name="line.695"></a>
+<FONT color="green">696</FONT>            case 3:<a name="line.696"></a>
+<FONT color="green">697</FONT>                dataParser = new DataParserRgb();<a name="line.697"></a>
+<FONT color="green">698</FONT>                break;<a name="line.698"></a>
+<FONT color="green">699</FONT>            case 4:<a name="line.699"></a>
+<FONT color="green">700</FONT>                dataParser = new DataParserCmyk();<a name="line.700"></a>
+<FONT color="green">701</FONT>                break;<a name="line.701"></a>
+<FONT color="green">702</FONT>            case 9:<a name="line.702"></a>
+<FONT color="green">703</FONT>                dataParser = new DataParserLab();<a name="line.703"></a>
+<FONT color="green">704</FONT>                break;<a name="line.704"></a>
+<FONT color="green">705</FONT>            case COLOR_MODE_INDEXED:<a name="line.705"></a>
+<FONT color="green">706</FONT>            // case 2 : // Indexed=2;<a name="line.706"></a>
+<FONT color="green">707</FONT>            {<a name="line.707"></a>
+<FONT color="green">708</FONT>    <a name="line.708"></a>
+<FONT color="green">709</FONT>                final byte ColorModeData[] = getData(byteSource, PSD_SECTION_COLOR_MODE);<a name="line.709"></a>
+<FONT color="green">710</FONT>    <a name="line.710"></a>
+<FONT color="green">711</FONT>                // ImageResourceBlock block = findImageResourceBlock(blocks,<a name="line.711"></a>
+<FONT color="green">712</FONT>                // 0x03EB);<a name="line.712"></a>
+<FONT color="green">713</FONT>                // if (block == null)<a name="line.713"></a>
+<FONT color="green">714</FONT>                // throw new ImageReadException(<a name="line.714"></a>
+<FONT color="green">715</FONT>                // "Missing: Indexed Color Image Resource Block");<a name="line.715"></a>
+<FONT color="green">716</FONT>    <a name="line.716"></a>
+<FONT color="green">717</FONT>                dataParser = new DataParserIndexed(ColorModeData);<a name="line.717"></a>
+<FONT color="green">718</FONT>                break;<a name="line.718"></a>
+<FONT color="green">719</FONT>            }<a name="line.719"></a>
+<FONT color="green">720</FONT>            case 7: // Multichannel=7;<a name="line.720"></a>
+<FONT color="green">721</FONT>                // fDataParser = new DataParserStub();<a name="line.721"></a>
+<FONT color="green">722</FONT>                // break;<a name="line.722"></a>
+<FONT color="green">723</FONT>    <a name="line.723"></a>
+<FONT color="green">724</FONT>                // case 1 :<a name="line.724"></a>
+<FONT color="green">725</FONT>                // fDataReader = new CompressedDataReader();<a name="line.725"></a>
+<FONT color="green">726</FONT>                // break;<a name="line.726"></a>
+<FONT color="green">727</FONT>            default:<a name="line.727"></a>
+<FONT color="green">728</FONT>                throw new ImageReadException("Unknown Mode: "<a name="line.728"></a>
+<FONT color="green">729</FONT>                        + imageContents.header.Mode);<a name="line.729"></a>
+<FONT color="green">730</FONT>            }<a name="line.730"></a>
+<FONT color="green">731</FONT>            DataReader fDataReader;<a name="line.731"></a>
+<FONT color="green">732</FONT>            switch (imageContents.Compression) {<a name="line.732"></a>
+<FONT color="green">733</FONT>            case 0:<a name="line.733"></a>
+<FONT color="green">734</FONT>                fDataReader = new UncompressedDataReader(dataParser);<a name="line.734"></a>
+<FONT color="green">735</FONT>                break;<a name="line.735"></a>
+<FONT color="green">736</FONT>            case 1:<a name="line.736"></a>
+<FONT color="green">737</FONT>                fDataReader = new CompressedDataReader(dataParser);<a name="line.737"></a>
+<FONT color="green">738</FONT>                break;<a name="line.738"></a>
+<FONT color="green">739</FONT>            default:<a name="line.739"></a>
+<FONT color="green">740</FONT>                throw new ImageReadException("Unknown Compression: "<a name="line.740"></a>
+<FONT color="green">741</FONT>                        + imageContents.Compression);<a name="line.741"></a>
+<FONT color="green">742</FONT>            }<a name="line.742"></a>
+<FONT color="green">743</FONT>            <a name="line.743"></a>
+<FONT color="green">744</FONT>            InputStream is = null;<a name="line.744"></a>
+<FONT color="green">745</FONT>    <a name="line.745"></a>
+<FONT color="green">746</FONT>            try {<a name="line.746"></a>
+<FONT color="green">747</FONT>                is = getInputStream(byteSource, PSD_SECTION_IMAGE_DATA);<a name="line.747"></a>
+<FONT color="green">748</FONT>                fDataReader.readData(is, result, imageContents, this);<a name="line.748"></a>
+<FONT color="green">749</FONT>    <a name="line.749"></a>
+<FONT color="green">750</FONT>                fDataReader.dump();<a name="line.750"></a>
+<FONT color="green">751</FONT>                // is.<a name="line.751"></a>
+<FONT color="green">752</FONT>                // ImageContents imageContents = readImageContents(is);<a name="line.752"></a>
+<FONT color="green">753</FONT>                // return imageContents;<a name="line.753"></a>
+<FONT color="green">754</FONT>            } finally {<a name="line.754"></a>
+<FONT color="green">755</FONT>                try {<a name="line.755"></a>
+<FONT color="green">756</FONT>                    if (is != null) {<a name="line.756"></a>
+<FONT color="green">757</FONT>                        is.close();<a name="line.757"></a>
+<FONT color="green">758</FONT>                    }<a name="line.758"></a>
+<FONT color="green">759</FONT>                } catch (final Exception e) {<a name="line.759"></a>
+<FONT color="green">760</FONT>                    Debug.debug(e);<a name="line.760"></a>
+<FONT color="green">761</FONT>                }<a name="line.761"></a>
+<FONT color="green">762</FONT>    <a name="line.762"></a>
+<FONT color="green">763</FONT>            }<a name="line.763"></a>
+<FONT color="green">764</FONT>    <a name="line.764"></a>
+<FONT color="green">765</FONT>            return result;<a name="line.765"></a>
+<FONT color="green">766</FONT>    <a name="line.766"></a>
+<FONT color="green">767</FONT>        }<a name="line.767"></a>
+<FONT color="green">768</FONT>    <a name="line.768"></a>
+<FONT color="green">769</FONT>        public final static int IMAGE_RESOURCE_ID_XMP = 0x0424;<a name="line.769"></a>
+<FONT color="green">770</FONT>    <a name="line.770"></a>
+<FONT color="green">771</FONT>        public final static String BLOCK_NAME_XMP = "XMP";<a name="line.771"></a>
+<FONT color="green">772</FONT>    <a name="line.772"></a>
+<FONT color="green">773</FONT>        /**<a name="line.773"></a>
+<FONT color="green">774</FONT>         * Extracts embedded XML metadata as XML string.<a name="line.774"></a>
+<FONT color="green">775</FONT>         * &lt;p&gt;<a name="line.775"></a>
+<FONT color="green">776</FONT>         * <a name="line.776"></a>
+<FONT color="green">777</FONT>         * @param byteSource<a name="line.777"></a>
+<FONT color="green">778</FONT>         *            File containing image data.<a name="line.778"></a>
+<FONT color="green">779</FONT>         * @param params<a name="line.779"></a>
+<FONT color="green">780</FONT>         *            Map of optional parameters, defined in SanselanConstants.<a name="line.780"></a>
+<FONT color="green">781</FONT>         * @return Xmp Xml as String, if present. Otherwise, returns null.<a name="line.781"></a>
+<FONT color="green">782</FONT>         */<a name="line.782"></a>
+<FONT color="green">783</FONT>        @Override<a name="line.783"></a>
+<FONT color="green">784</FONT>        public String getXmpXml(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.784"></a>
+<FONT color="green">785</FONT>                throws ImageReadException, IOException {<a name="line.785"></a>
+<FONT color="green">786</FONT>    <a name="line.786"></a>
+<FONT color="green">787</FONT>            final ImageContents imageContents = readImageContents(byteSource);<a name="line.787"></a>
+<FONT color="green">788</FONT>    <a name="line.788"></a>
+<FONT color="green">789</FONT>            if (imageContents == null) {<a name="line.789"></a>
+<FONT color="green">790</FONT>                throw new ImageReadException("PSD: Couldn't read blocks");<a name="line.790"></a>
+<FONT color="green">791</FONT>            }<a name="line.791"></a>
+<FONT color="green">792</FONT>    <a name="line.792"></a>
+<FONT color="green">793</FONT>            final PsdHeaderInfo header = imageContents.header;<a name="line.793"></a>
+<FONT color="green">794</FONT>            if (header == null) {<a name="line.794"></a>
+<FONT color="green">795</FONT>                throw new ImageReadException("PSD: Couldn't read Header");<a name="line.795"></a>
+<FONT color="green">796</FONT>            }<a name="line.796"></a>
+<FONT color="green">797</FONT>    <a name="line.797"></a>
+<FONT color="green">798</FONT>            final List&lt;ImageResourceBlock&gt; blocks = readImageResourceBlocks(byteSource,<a name="line.798"></a>
+<FONT color="green">799</FONT>                    new int[] { IMAGE_RESOURCE_ID_XMP, }, -1);<a name="line.799"></a>
+<FONT color="green">800</FONT>    <a name="line.800"></a>
+<FONT color="green">801</FONT>            if ((blocks == null) || (blocks.size() &lt; 1)) {<a name="line.801"></a>
+<FONT color="green">802</FONT>                return null;<a name="line.802"></a>
+<FONT color="green">803</FONT>            }<a name="line.803"></a>
+<FONT color="green">804</FONT>    <a name="line.804"></a>
+<FONT color="green">805</FONT>            final List&lt;ImageResourceBlock&gt; xmpBlocks = new ArrayList&lt;ImageResourceBlock&gt;();<a name="line.805"></a>
+<FONT color="green">806</FONT>            if (false) {<a name="line.806"></a>
+<FONT color="green">807</FONT>                // TODO: for PSD 7 and later, verify "XMP" name.<a name="line.807"></a>
+<FONT color="green">808</FONT>                for (int i = 0; i &lt; blocks.size(); i++) {<a name="line.808"></a>
+<FONT color="green">809</FONT>                    final ImageResourceBlock block = blocks.get(i);<a name="line.809"></a>
+<FONT color="green">810</FONT>                    if (!block.getName().equals(BLOCK_NAME_XMP)) {<a name="line.810"></a>
+<FONT color="green">811</FONT>                        continue;<a name="line.811"></a>
+<FONT color="green">812</FONT>                    }<a name="line.812"></a>
+<FONT color="green">813</FONT>                    xmpBlocks.add(block);<a name="line.813"></a>
+<FONT color="green">814</FONT>                }<a name="line.814"></a>
+<FONT color="green">815</FONT>            } else {<a name="line.815"></a>
+<FONT color="green">816</FONT>                xmpBlocks.addAll(blocks);<a name="line.816"></a>
+<FONT color="green">817</FONT>            }<a name="line.817"></a>
+<FONT color="green">818</FONT>    <a name="line.818"></a>
+<FONT color="green">819</FONT>            if (xmpBlocks.size() &lt; 1) {<a name="line.819"></a>
+<FONT color="green">820</FONT>                return null;<a name="line.820"></a>
+<FONT color="green">821</FONT>            }<a name="line.821"></a>
+<FONT color="green">822</FONT>            if (xmpBlocks.size() &gt; 1) {<a name="line.822"></a>
+<FONT color="green">823</FONT>                throw new ImageReadException(<a name="line.823"></a>
+<FONT color="green">824</FONT>                        "PSD contains more than one XMP block.");<a name="line.824"></a>
+<FONT color="green">825</FONT>            }<a name="line.825"></a>
+<FONT color="green">826</FONT>    <a name="line.826"></a>
+<FONT color="green">827</FONT>            final ImageResourceBlock block = xmpBlocks.get(0);<a name="line.827"></a>
+<FONT color="green">828</FONT>    <a name="line.828"></a>
+<FONT color="green">829</FONT>            try {<a name="line.829"></a>
+<FONT color="green">830</FONT>                // segment data is UTF-8 encoded xml.<a name="line.830"></a>
+<FONT color="green">831</FONT>                final String xml = new String(block.data, 0, block.data.length, "utf-8");<a name="line.831"></a>
+<FONT color="green">832</FONT>                return xml;<a name="line.832"></a>
+<FONT color="green">833</FONT>            } catch (final UnsupportedEncodingException e) {<a name="line.833"></a>
+<FONT color="green">834</FONT>                throw new ImageReadException("Invalid JPEG XMP Segment.");<a name="line.834"></a>
+<FONT color="green">835</FONT>            }<a name="line.835"></a>
+<FONT color="green">836</FONT>        }<a name="line.836"></a>
+<FONT color="green">837</FONT>    <a name="line.837"></a>
+<FONT color="green">838</FONT>    }<a name="line.838"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

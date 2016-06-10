@@ -1,0 +1,1074 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<FONT color="green">003</FONT>     * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<FONT color="green">004</FONT>     * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<FONT color="green">006</FONT>     * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<FONT color="green">007</FONT>     * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<FONT color="green">008</FONT>     *<a name="line.8"></a>
+<FONT color="green">009</FONT>     *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<FONT color="green">010</FONT>     *<a name="line.10"></a>
+<FONT color="green">011</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<FONT color="green">012</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<FONT color="green">013</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<FONT color="green">014</FONT>     * See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>     * limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    package org.apache.commons.imaging;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import java.awt.Dimension;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.awt.image.BufferedImage;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.io.File;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.io.IOException;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.io.OutputStream;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.io.PrintWriter;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.io.StringWriter;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.util.ArrayList;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import java.util.List;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import java.util.Map;<a name="line.28"></a>
+<FONT color="green">029</FONT>    <a name="line.29"></a>
+<FONT color="green">030</FONT>    import org.apache.commons.imaging.common.BinaryFileParser;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import org.apache.commons.imaging.common.IBufferedImageFactory;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import org.apache.commons.imaging.common.IImageMetadata;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import org.apache.commons.imaging.common.SimpleBufferedImageFactory;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import org.apache.commons.imaging.common.bytesource.ByteSource;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import org.apache.commons.imaging.common.bytesource.ByteSourceArray;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import org.apache.commons.imaging.common.bytesource.ByteSourceFile;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import org.apache.commons.imaging.formats.bmp.BmpImageParser;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import org.apache.commons.imaging.formats.dcx.DcxImageParser;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import org.apache.commons.imaging.formats.gif.GifImageParser;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import org.apache.commons.imaging.formats.icns.IcnsImageParser;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import org.apache.commons.imaging.formats.ico.IcoImageParser;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import org.apache.commons.imaging.formats.jpeg.JpegImageParser;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import org.apache.commons.imaging.formats.pcx.PcxImageParser;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import org.apache.commons.imaging.formats.png.PngImageParser;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import org.apache.commons.imaging.formats.pnm.PnmImageParser;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import org.apache.commons.imaging.formats.psd.PsdImageParser;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import org.apache.commons.imaging.formats.rgbe.RgbeImageParser;<a name="line.47"></a>
+<FONT color="green">048</FONT>    import org.apache.commons.imaging.formats.tiff.TiffImageParser;<a name="line.48"></a>
+<FONT color="green">049</FONT>    import org.apache.commons.imaging.formats.wbmp.WbmpImageParser;<a name="line.49"></a>
+<FONT color="green">050</FONT>    import org.apache.commons.imaging.formats.xbm.XbmImageParser;<a name="line.50"></a>
+<FONT color="green">051</FONT>    import org.apache.commons.imaging.formats.xpm.XpmImageParser;<a name="line.51"></a>
+<FONT color="green">052</FONT>    import org.apache.commons.imaging.util.Debug;<a name="line.52"></a>
+<FONT color="green">053</FONT>    <a name="line.53"></a>
+<FONT color="green">054</FONT>    /**<a name="line.54"></a>
+<FONT color="green">055</FONT>     * Provides the abstract base class for all image reading and writing<a name="line.55"></a>
+<FONT color="green">056</FONT>     * utilities.  ImageParser implementations are expected to extend this<a name="line.56"></a>
+<FONT color="green">057</FONT>     * class providing logic for identifying and processing data in their<a name="line.57"></a>
+<FONT color="green">058</FONT>     * own specific format.   Specific implementations are found<a name="line.58"></a>
+<FONT color="green">059</FONT>     * under the com.apache.commons.imaging.formats package.<a name="line.59"></a>
+<FONT color="green">060</FONT>     * &lt;h3&gt;Application Notes&lt;/h3&gt;<a name="line.60"></a>
+<FONT color="green">061</FONT>     * &lt;h4&gt;Format support&lt;/h4&gt;<a name="line.61"></a>
+<FONT color="green">062</FONT>     * For the most recent information on format support for the<a name="line.62"></a>
+<FONT color="green">063</FONT>     * Apache Commons Imaging package, refer to<a name="line.63"></a>
+<FONT color="green">064</FONT>     * &lt;a href="http://commons.apache.org/imaging/formatsupport.html"&gt;Format Support&lt;/a&gt;<a name="line.64"></a>
+<FONT color="green">065</FONT>     * at the main project development web site.<a name="line.65"></a>
+<FONT color="green">066</FONT>     * &lt;h4&gt;On the accuracy of this Javadoc&lt;/h4&gt;<a name="line.66"></a>
+<FONT color="green">067</FONT>     * The original authors of this class did not supply documentation.<a name="line.67"></a>
+<FONT color="green">068</FONT>     * The Javadoc for this class is based on inspection of the <a name="line.68"></a>
+<FONT color="green">069</FONT>     * source code.  In some cases, the purpose and usage for particular<a name="line.69"></a>
+<FONT color="green">070</FONT>     * methods was deduced from the source and may not perfectly reflect<a name="line.70"></a>
+<FONT color="green">071</FONT>     * the intentions of the original. Therefore, you should not assume <a name="line.71"></a>
+<FONT color="green">072</FONT>     * that the documentation is perfect, especially in the more obscure<a name="line.72"></a>
+<FONT color="green">073</FONT>     * and specialized areas of implementation.<a name="line.73"></a>
+<FONT color="green">074</FONT>     * &lt;h4&gt;The "Map params" argument&lt;/h4&gt;<a name="line.74"></a>
+<FONT color="green">075</FONT>     * Many of the methods specified by this class accept an argument of<a name="line.75"></a>
+<FONT color="green">076</FONT>     * type Map giving a list of parameters to be used when processing an<a name="line.76"></a>
+<FONT color="green">077</FONT>     * image. For example, some of the output formats permit the specification<a name="line.77"></a>
+<FONT color="green">078</FONT>     * of different kinds of image compression or color models. Some of the<a name="line.78"></a>
+<FONT color="green">079</FONT>     * reading methods permit the calling application to require strict<a name="line.79"></a>
+<FONT color="green">080</FONT>     * format compliance.   In many cases, however, an application will not<a name="line.80"></a>
+<FONT color="green">081</FONT>     * require the use of this argument.  While some of the ImageParser <a name="line.81"></a>
+<FONT color="green">082</FONT>     * implementations check for (and ignore) null arguments for this parameter,<a name="line.82"></a>
+<FONT color="green">083</FONT>     * not all of them do (at least not at the time these notes were written).<a name="line.83"></a>
+<FONT color="green">084</FONT>     * Therefore, a prudent programmer will always supply an valid, though<a name="line.84"></a>
+<FONT color="green">085</FONT>     * empty instance of a Map implementation when calling such methods.<a name="line.85"></a>
+<FONT color="green">086</FONT>     * Generally, the java HashMap class is useful for this purpose.<a name="line.86"></a>
+<FONT color="green">087</FONT>     * &lt;p&gt;Additionally, developers creating or enhancing classes derived<a name="line.87"></a>
+<FONT color="green">088</FONT>     * from ImageParser are encouraged to include such checks in their code.<a name="line.88"></a>
+<FONT color="green">089</FONT>     */<a name="line.89"></a>
+<FONT color="green">090</FONT>    public abstract class ImageParser extends BinaryFileParser implements<a name="line.90"></a>
+<FONT color="green">091</FONT>            ImagingConstants {<a name="line.91"></a>
+<FONT color="green">092</FONT>    <a name="line.92"></a>
+<FONT color="green">093</FONT>        /**<a name="line.93"></a>
+<FONT color="green">094</FONT>         * Gets an array of new instances of all image parsers.<a name="line.94"></a>
+<FONT color="green">095</FONT>         * @return A valid array of image parsers<a name="line.95"></a>
+<FONT color="green">096</FONT>         */<a name="line.96"></a>
+<FONT color="green">097</FONT>        public static final ImageParser[] getAllImageParsers() {<a name="line.97"></a>
+<FONT color="green">098</FONT>            final ImageParser result[] = {<a name="line.98"></a>
+<FONT color="green">099</FONT>                    new BmpImageParser(),<a name="line.99"></a>
+<FONT color="green">100</FONT>                    new DcxImageParser(),<a name="line.100"></a>
+<FONT color="green">101</FONT>                    new GifImageParser(),<a name="line.101"></a>
+<FONT color="green">102</FONT>                    new IcnsImageParser(),<a name="line.102"></a>
+<FONT color="green">103</FONT>                    new IcoImageParser(),<a name="line.103"></a>
+<FONT color="green">104</FONT>                    new JpegImageParser(),<a name="line.104"></a>
+<FONT color="green">105</FONT>                    new PcxImageParser(),<a name="line.105"></a>
+<FONT color="green">106</FONT>                    new PngImageParser(),<a name="line.106"></a>
+<FONT color="green">107</FONT>                    new PnmImageParser(),<a name="line.107"></a>
+<FONT color="green">108</FONT>                    new PsdImageParser(),<a name="line.108"></a>
+<FONT color="green">109</FONT>                    new RgbeImageParser(),<a name="line.109"></a>
+<FONT color="green">110</FONT>                    new TiffImageParser(),<a name="line.110"></a>
+<FONT color="green">111</FONT>                    new WbmpImageParser(),<a name="line.111"></a>
+<FONT color="green">112</FONT>                    new XbmImageParser(),<a name="line.112"></a>
+<FONT color="green">113</FONT>                    new XpmImageParser(),<a name="line.113"></a>
+<FONT color="green">114</FONT>            // new JBig2ImageParser(),<a name="line.114"></a>
+<FONT color="green">115</FONT>            // new TgaImageParser(),<a name="line.115"></a>
+<FONT color="green">116</FONT>            };<a name="line.116"></a>
+<FONT color="green">117</FONT>    <a name="line.117"></a>
+<FONT color="green">118</FONT>            return result;<a name="line.118"></a>
+<FONT color="green">119</FONT>        }<a name="line.119"></a>
+<FONT color="green">120</FONT>    <a name="line.120"></a>
+<FONT color="green">121</FONT>        /**<a name="line.121"></a>
+<FONT color="green">122</FONT>         * Get image metadata from the specified byte source.  Format-specific<a name="line.122"></a>
+<FONT color="green">123</FONT>         * ImageParser implementations are expected to return a valid<a name="line.123"></a>
+<FONT color="green">124</FONT>         * IImageMetadata object or to throw an ImageReadException if unable<a name="line.124"></a>
+<FONT color="green">125</FONT>         * to process the specified byte source.<a name="line.125"></a>
+<FONT color="green">126</FONT>         * @param byteSource A valid byte source.<a name="line.126"></a>
+<FONT color="green">127</FONT>         * @return A valid, potentially subject-matter-specific implementation of<a name="line.127"></a>
+<FONT color="green">128</FONT>         * the IImageMetadata interface describing the content extracted<a name="line.128"></a>
+<FONT color="green">129</FONT>         * from the source content.<a name="line.129"></a>
+<FONT color="green">130</FONT>         * @throws ImageReadException In the event that the the ByteSource <a name="line.130"></a>
+<FONT color="green">131</FONT>         * content does not conform to the format of the specific parser<a name="line.131"></a>
+<FONT color="green">132</FONT>         * implementation.<a name="line.132"></a>
+<FONT color="green">133</FONT>         * @throws IOException In the event of unsuccessful data read operation. <a name="line.133"></a>
+<FONT color="green">134</FONT>         */<a name="line.134"></a>
+<FONT color="green">135</FONT>        public final IImageMetadata getMetadata(final ByteSource byteSource)<a name="line.135"></a>
+<FONT color="green">136</FONT>                throws ImageReadException, IOException {<a name="line.136"></a>
+<FONT color="green">137</FONT>            return getMetadata(byteSource, null);<a name="line.137"></a>
+<FONT color="green">138</FONT>        }<a name="line.138"></a>
+<FONT color="green">139</FONT>    <a name="line.139"></a>
+<FONT color="green">140</FONT>        /**<a name="line.140"></a>
+<FONT color="green">141</FONT>         * Get image metadata from the specified byte source.  Format-specific<a name="line.141"></a>
+<FONT color="green">142</FONT>         * ImageParser implementations are expected to return a valid<a name="line.142"></a>
+<FONT color="green">143</FONT>         * IImageMetadata object or to throw an ImageReadException if unable<a name="line.143"></a>
+<FONT color="green">144</FONT>         * to process the specified byte source.<a name="line.144"></a>
+<FONT color="green">145</FONT>         * &lt;p&gt;The params argument provides a mechanism for individual<a name="line.145"></a>
+<FONT color="green">146</FONT>         * implementations to pass optional information into the parser.<a name="line.146"></a>
+<FONT color="green">147</FONT>         * Not all formats will require this capability.  Because the <a name="line.147"></a>
+<FONT color="green">148</FONT>         * base class may call this method with a null params argument,<a name="line.148"></a>
+<FONT color="green">149</FONT>         * implementations should &lt;strong&gt;always&lt;/strong&gt; include logic <a name="line.149"></a>
+<FONT color="green">150</FONT>         * for ignoring null input.<a name="line.150"></a>
+<FONT color="green">151</FONT>         * @param byteSource A valid byte source.<a name="line.151"></a>
+<FONT color="green">152</FONT>         * @param params Optional instructions for special-handling or <a name="line.152"></a>
+<FONT color="green">153</FONT>         * interpretation of the input data (null objects are permitted and <a name="line.153"></a>
+<FONT color="green">154</FONT>         * must be supported by implementations).<a name="line.154"></a>
+<FONT color="green">155</FONT>         * @return A valid, potentially subject-matter-specific implementation of<a name="line.155"></a>
+<FONT color="green">156</FONT>         * the IImageMetadata interface describing the content extracted<a name="line.156"></a>
+<FONT color="green">157</FONT>         * from the source content.<a name="line.157"></a>
+<FONT color="green">158</FONT>         * @throws ImageReadException In the event that the the ByteSource <a name="line.158"></a>
+<FONT color="green">159</FONT>         * content does not conform to the format of the specific parser<a name="line.159"></a>
+<FONT color="green">160</FONT>         * implementation.<a name="line.160"></a>
+<FONT color="green">161</FONT>         * @throws IOException In the event of unsuccessful data read operation. <a name="line.161"></a>
+<FONT color="green">162</FONT>         */<a name="line.162"></a>
+<FONT color="green">163</FONT>        public abstract IImageMetadata getMetadata(ByteSource byteSource, Map&lt;String,Object&gt; params)<a name="line.163"></a>
+<FONT color="green">164</FONT>                throws ImageReadException, IOException;<a name="line.164"></a>
+<FONT color="green">165</FONT>    <a name="line.165"></a>
+<FONT color="green">166</FONT>        <a name="line.166"></a>
+<FONT color="green">167</FONT>        <a name="line.167"></a>
+<FONT color="green">168</FONT>        /**<a name="line.168"></a>
+<FONT color="green">169</FONT>         * Get image metadata from the specified array of bytes.  Format-specific<a name="line.169"></a>
+<FONT color="green">170</FONT>         * ImageParser implementations are expected to return a valid<a name="line.170"></a>
+<FONT color="green">171</FONT>         * IImageMetadata object or to throw an ImageReadException if unable<a name="line.171"></a>
+<FONT color="green">172</FONT>         * to process the specified data.<a name="line.172"></a>
+<FONT color="green">173</FONT>         * @param bytes A valid array of bytes<a name="line.173"></a>
+<FONT color="green">174</FONT>         * @return A valid, potentially subject-matter-specific implementation of<a name="line.174"></a>
+<FONT color="green">175</FONT>         * the IImageMetadata interface describing the content extracted<a name="line.175"></a>
+<FONT color="green">176</FONT>         * from the source content.<a name="line.176"></a>
+<FONT color="green">177</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.177"></a>
+<FONT color="green">178</FONT>         * content does not conform to the format of the specific parser<a name="line.178"></a>
+<FONT color="green">179</FONT>         * implementation.<a name="line.179"></a>
+<FONT color="green">180</FONT>         * @throws IOException In the event of unsuccessful data read operation. <a name="line.180"></a>
+<FONT color="green">181</FONT>         */<a name="line.181"></a>
+<FONT color="green">182</FONT>        public final IImageMetadata getMetadata(final byte bytes[])<a name="line.182"></a>
+<FONT color="green">183</FONT>                throws ImageReadException, IOException {<a name="line.183"></a>
+<FONT color="green">184</FONT>            return getMetadata(bytes, null);<a name="line.184"></a>
+<FONT color="green">185</FONT>        }<a name="line.185"></a>
+<FONT color="green">186</FONT>    <a name="line.186"></a>
+<FONT color="green">187</FONT>        /**<a name="line.187"></a>
+<FONT color="green">188</FONT>         * Get image metadata from the specified array of bytes.  Format-specific<a name="line.188"></a>
+<FONT color="green">189</FONT>         * ImageParser implementations are expected to return a valid<a name="line.189"></a>
+<FONT color="green">190</FONT>         * IImageMetadata object or to throw an ImageReadException if unable<a name="line.190"></a>
+<FONT color="green">191</FONT>         * to process the specified data.<a name="line.191"></a>
+<FONT color="green">192</FONT>         * &lt;p&gt;The params argument provides a mechanism for individual<a name="line.192"></a>
+<FONT color="green">193</FONT>         * implementations to pass optional information into the parser.<a name="line.193"></a>
+<FONT color="green">194</FONT>         * Not all formats will require this capability.  Because the <a name="line.194"></a>
+<FONT color="green">195</FONT>         * base class may call this method with a null params argument,<a name="line.195"></a>
+<FONT color="green">196</FONT>         * implementations should &lt;strong&gt;always&lt;/strong&gt; include logic <a name="line.196"></a>
+<FONT color="green">197</FONT>         * for ignoring null input.<a name="line.197"></a>
+<FONT color="green">198</FONT>         * @param bytes A valid array of bytes<a name="line.198"></a>
+<FONT color="green">199</FONT>         * @param params Optional instructions for special-handling or <a name="line.199"></a>
+<FONT color="green">200</FONT>         * interpretation of the input data (null objects are permitted and <a name="line.200"></a>
+<FONT color="green">201</FONT>         * must be supported by implementations).<a name="line.201"></a>
+<FONT color="green">202</FONT>         * @return A valid image metadata object describing the content extracted<a name="line.202"></a>
+<FONT color="green">203</FONT>         * from  the specified content.<a name="line.203"></a>
+<FONT color="green">204</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.204"></a>
+<FONT color="green">205</FONT>         * content does not conform to the format of the specific parser<a name="line.205"></a>
+<FONT color="green">206</FONT>         * implementation.<a name="line.206"></a>
+<FONT color="green">207</FONT>         * @throws IOException In the event of unsuccessful data read operation. <a name="line.207"></a>
+<FONT color="green">208</FONT>         */<a name="line.208"></a>
+<FONT color="green">209</FONT>        public final IImageMetadata getMetadata(final byte bytes[], final Map&lt;String,Object&gt; params)<a name="line.209"></a>
+<FONT color="green">210</FONT>                throws ImageReadException, IOException {<a name="line.210"></a>
+<FONT color="green">211</FONT>            return getMetadata(new ByteSourceArray(bytes), params);<a name="line.211"></a>
+<FONT color="green">212</FONT>        }<a name="line.212"></a>
+<FONT color="green">213</FONT>    <a name="line.213"></a>
+<FONT color="green">214</FONT>        <a name="line.214"></a>
+<FONT color="green">215</FONT>        <a name="line.215"></a>
+<FONT color="green">216</FONT>        <a name="line.216"></a>
+<FONT color="green">217</FONT>        /**<a name="line.217"></a>
+<FONT color="green">218</FONT>         * Get image metadata from the specified file.  Format-specific<a name="line.218"></a>
+<FONT color="green">219</FONT>         * ImageParser implementations are expected to return a valid<a name="line.219"></a>
+<FONT color="green">220</FONT>         * IImageMetadata object or to throw an ImageReadException if unable<a name="line.220"></a>
+<FONT color="green">221</FONT>         * to process the specified data.<a name="line.221"></a>
+<FONT color="green">222</FONT>         * @param file A valid reference to a file.<a name="line.222"></a>
+<FONT color="green">223</FONT>         * @return A valid image metadata object describing the content extracted<a name="line.223"></a>
+<FONT color="green">224</FONT>         * from  the specified content.<a name="line.224"></a>
+<FONT color="green">225</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.225"></a>
+<FONT color="green">226</FONT>         * content does not conform to the format of the specific parser<a name="line.226"></a>
+<FONT color="green">227</FONT>         * implementation.<a name="line.227"></a>
+<FONT color="green">228</FONT>         * @throws IOException In the event of unsuccessful file read or<a name="line.228"></a>
+<FONT color="green">229</FONT>         * access operation.<a name="line.229"></a>
+<FONT color="green">230</FONT>         */<a name="line.230"></a>
+<FONT color="green">231</FONT>        public final IImageMetadata getMetadata(final File file)<a name="line.231"></a>
+<FONT color="green">232</FONT>                throws ImageReadException, IOException {<a name="line.232"></a>
+<FONT color="green">233</FONT>            return getMetadata(file, null);<a name="line.233"></a>
+<FONT color="green">234</FONT>        }<a name="line.234"></a>
+<FONT color="green">235</FONT>    <a name="line.235"></a>
+<FONT color="green">236</FONT>        /**<a name="line.236"></a>
+<FONT color="green">237</FONT>         * Get image metadata from the specified file.  Format-specific<a name="line.237"></a>
+<FONT color="green">238</FONT>         * ImageParser implementations are expected to return a valid<a name="line.238"></a>
+<FONT color="green">239</FONT>         * IImageMetadata object or to throw an ImageReadException if unable<a name="line.239"></a>
+<FONT color="green">240</FONT>         * to process the specified data.<a name="line.240"></a>
+<FONT color="green">241</FONT>         * &lt;p&gt;The params argument provides a mechanism for individual<a name="line.241"></a>
+<FONT color="green">242</FONT>         * implementations to pass optional information into the parser.<a name="line.242"></a>
+<FONT color="green">243</FONT>         * Not all formats will require this capability.  Because the <a name="line.243"></a>
+<FONT color="green">244</FONT>         * base class may call this method with a null params argument,<a name="line.244"></a>
+<FONT color="green">245</FONT>         * implementations should &lt;strong&gt;always&lt;/strong&gt; include logic <a name="line.245"></a>
+<FONT color="green">246</FONT>         * for ignoring null input.<a name="line.246"></a>
+<FONT color="green">247</FONT>         * @param file A valid reference to a file.<a name="line.247"></a>
+<FONT color="green">248</FONT>         * @param params Optional instructions for special-handling or <a name="line.248"></a>
+<FONT color="green">249</FONT>         * interpretation of the input data (null objects are permitted and <a name="line.249"></a>
+<FONT color="green">250</FONT>         * must be supported by implementations).<a name="line.250"></a>
+<FONT color="green">251</FONT>         * @return A valid image metadata object describing the content extracted<a name="line.251"></a>
+<FONT color="green">252</FONT>         * from  the specified content.<a name="line.252"></a>
+<FONT color="green">253</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.253"></a>
+<FONT color="green">254</FONT>         * content does not conform to the format of the specific parser<a name="line.254"></a>
+<FONT color="green">255</FONT>         * implementation.<a name="line.255"></a>
+<FONT color="green">256</FONT>         * @throws IOException In the event of unsuccessful file read or<a name="line.256"></a>
+<FONT color="green">257</FONT>         * access operation.<a name="line.257"></a>
+<FONT color="green">258</FONT>         */<a name="line.258"></a>
+<FONT color="green">259</FONT>        public final IImageMetadata getMetadata(final File file, final Map&lt;String,Object&gt; params)<a name="line.259"></a>
+<FONT color="green">260</FONT>                throws ImageReadException, IOException {<a name="line.260"></a>
+<FONT color="green">261</FONT>            if (debug) {<a name="line.261"></a>
+<FONT color="green">262</FONT>                System.out.println(getName() + ".getMetadata" + ": "<a name="line.262"></a>
+<FONT color="green">263</FONT>                        + file.getName());<a name="line.263"></a>
+<FONT color="green">264</FONT>            }<a name="line.264"></a>
+<FONT color="green">265</FONT>    <a name="line.265"></a>
+<FONT color="green">266</FONT>            if (!canAcceptExtension(file)) {<a name="line.266"></a>
+<FONT color="green">267</FONT>                return null;<a name="line.267"></a>
+<FONT color="green">268</FONT>            }<a name="line.268"></a>
+<FONT color="green">269</FONT>    <a name="line.269"></a>
+<FONT color="green">270</FONT>            return getMetadata(new ByteSourceFile(file), params);<a name="line.270"></a>
+<FONT color="green">271</FONT>        }<a name="line.271"></a>
+<FONT color="green">272</FONT>    <a name="line.272"></a>
+<FONT color="green">273</FONT>        <a name="line.273"></a>
+<FONT color="green">274</FONT>        <a name="line.274"></a>
+<FONT color="green">275</FONT>         /**<a name="line.275"></a>
+<FONT color="green">276</FONT>         * Get image information from the specified ByteSource.  Format-specific<a name="line.276"></a>
+<FONT color="green">277</FONT>         * ImageParser implementations are expected to return a valid<a name="line.277"></a>
+<FONT color="green">278</FONT>         * ImageInfo object or to throw an ImageReadException if unable<a name="line.278"></a>
+<FONT color="green">279</FONT>         * to process the specified data.<a name="line.279"></a>
+<FONT color="green">280</FONT>         * &lt;p&gt;The params argument provides a mechanism for individual<a name="line.280"></a>
+<FONT color="green">281</FONT>         * implementations to pass optional information into the parser.<a name="line.281"></a>
+<FONT color="green">282</FONT>         * Not all formats will require this capability.  Because the <a name="line.282"></a>
+<FONT color="green">283</FONT>         * base class may call this method with a null params argument,<a name="line.283"></a>
+<FONT color="green">284</FONT>         * implementations should &lt;strong&gt;always&lt;/strong&gt; include logic <a name="line.284"></a>
+<FONT color="green">285</FONT>         * for ignoring null input.<a name="line.285"></a>
+<FONT color="green">286</FONT>         * @param byteSource A valid ByteSource object<a name="line.286"></a>
+<FONT color="green">287</FONT>         * @param params Optional instructions for special-handling or <a name="line.287"></a>
+<FONT color="green">288</FONT>         * interpretation of the input data (null objects are permitted and <a name="line.288"></a>
+<FONT color="green">289</FONT>         * must be supported by implementations).<a name="line.289"></a>
+<FONT color="green">290</FONT>         * @return A valid image information object describing the content extracted<a name="line.290"></a>
+<FONT color="green">291</FONT>         * from the specified data.<a name="line.291"></a>
+<FONT color="green">292</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.292"></a>
+<FONT color="green">293</FONT>         * content does not conform to the format of the specific parser<a name="line.293"></a>
+<FONT color="green">294</FONT>         * implementation.<a name="line.294"></a>
+<FONT color="green">295</FONT>         * @throws IOException In the event of unsuccessful data<a name="line.295"></a>
+<FONT color="green">296</FONT>         * access operation.<a name="line.296"></a>
+<FONT color="green">297</FONT>         */<a name="line.297"></a>
+<FONT color="green">298</FONT>        public abstract ImageInfo getImageInfo(ByteSource byteSource, Map&lt;String,Object&gt; params)<a name="line.298"></a>
+<FONT color="green">299</FONT>                throws ImageReadException, IOException;<a name="line.299"></a>
+<FONT color="green">300</FONT>    <a name="line.300"></a>
+<FONT color="green">301</FONT>        <a name="line.301"></a>
+<FONT color="green">302</FONT>        <a name="line.302"></a>
+<FONT color="green">303</FONT>         /**<a name="line.303"></a>
+<FONT color="green">304</FONT>         * Get image information from the specified ByteSource.  Format-specific<a name="line.304"></a>
+<FONT color="green">305</FONT>         * ImageParser implementations are expected to return a valid<a name="line.305"></a>
+<FONT color="green">306</FONT>         * ImageInfo object or to throw an ImageReadException if unable<a name="line.306"></a>
+<FONT color="green">307</FONT>         * to process the specified data.<a name="line.307"></a>
+<FONT color="green">308</FONT>         * @param byteSource A valid ByteSource object<a name="line.308"></a>
+<FONT color="green">309</FONT>         * @return A valid image information object describing the content extracted<a name="line.309"></a>
+<FONT color="green">310</FONT>         * from the specified data.<a name="line.310"></a>
+<FONT color="green">311</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.311"></a>
+<FONT color="green">312</FONT>         * content does not conform to the format of the specific parser<a name="line.312"></a>
+<FONT color="green">313</FONT>         * implementation.<a name="line.313"></a>
+<FONT color="green">314</FONT>         * @throws IOException In the event of unsuccessful data<a name="line.314"></a>
+<FONT color="green">315</FONT>         * access operation.<a name="line.315"></a>
+<FONT color="green">316</FONT>         */<a name="line.316"></a>
+<FONT color="green">317</FONT>        public final ImageInfo getImageInfo(final ByteSource byteSource)<a name="line.317"></a>
+<FONT color="green">318</FONT>                throws ImageReadException, IOException {<a name="line.318"></a>
+<FONT color="green">319</FONT>            return getImageInfo(byteSource, null);<a name="line.319"></a>
+<FONT color="green">320</FONT>        }<a name="line.320"></a>
+<FONT color="green">321</FONT>    <a name="line.321"></a>
+<FONT color="green">322</FONT>        <a name="line.322"></a>
+<FONT color="green">323</FONT>        <a name="line.323"></a>
+<FONT color="green">324</FONT>         /**<a name="line.324"></a>
+<FONT color="green">325</FONT>         * Get image information from the specified array of bytes.  Format-specific<a name="line.325"></a>
+<FONT color="green">326</FONT>         * ImageParser implementations are expected to return a valid<a name="line.326"></a>
+<FONT color="green">327</FONT>         * ImageInfo object or to throw an ImageReadException if unable<a name="line.327"></a>
+<FONT color="green">328</FONT>         * to process the specified data.<a name="line.328"></a>
+<FONT color="green">329</FONT>         * &lt;p&gt;The params argument provides a mechanism for individual<a name="line.329"></a>
+<FONT color="green">330</FONT>         * implementations to pass optional information into the parser.<a name="line.330"></a>
+<FONT color="green">331</FONT>         * Not all formats will require this capability.  Because the <a name="line.331"></a>
+<FONT color="green">332</FONT>         * base class may call this method with a null params argument,<a name="line.332"></a>
+<FONT color="green">333</FONT>         * implementations should &lt;strong&gt;always&lt;/strong&gt; include logic <a name="line.333"></a>
+<FONT color="green">334</FONT>         * for ignoring null input.<a name="line.334"></a>
+<FONT color="green">335</FONT>         * @param bytes A valid array of bytes<a name="line.335"></a>
+<FONT color="green">336</FONT>         * @param params Optional instructions for special-handling or <a name="line.336"></a>
+<FONT color="green">337</FONT>         * interpretation of the input data (null objects are permitted and <a name="line.337"></a>
+<FONT color="green">338</FONT>         * must be supported by implementations).<a name="line.338"></a>
+<FONT color="green">339</FONT>         * @return A valid image information object describing the content extracted<a name="line.339"></a>
+<FONT color="green">340</FONT>         * from the specified data.<a name="line.340"></a>
+<FONT color="green">341</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.341"></a>
+<FONT color="green">342</FONT>         * content does not conform to the format of the specific parser<a name="line.342"></a>
+<FONT color="green">343</FONT>         * implementation.<a name="line.343"></a>
+<FONT color="green">344</FONT>         * @throws IOException In the event of unsuccessful data<a name="line.344"></a>
+<FONT color="green">345</FONT>         * access operation.<a name="line.345"></a>
+<FONT color="green">346</FONT>         */<a name="line.346"></a>
+<FONT color="green">347</FONT>        public final ImageInfo getImageInfo(final byte bytes[], final Map&lt;String,Object&gt; params)<a name="line.347"></a>
+<FONT color="green">348</FONT>                throws ImageReadException, IOException {<a name="line.348"></a>
+<FONT color="green">349</FONT>            return getImageInfo(new ByteSourceArray(bytes), params);<a name="line.349"></a>
+<FONT color="green">350</FONT>        }<a name="line.350"></a>
+<FONT color="green">351</FONT>    <a name="line.351"></a>
+<FONT color="green">352</FONT>        /**<a name="line.352"></a>
+<FONT color="green">353</FONT>         * Get image information from the specified file  Format-specific<a name="line.353"></a>
+<FONT color="green">354</FONT>         * ImageParser implementations are expected to return a valid<a name="line.354"></a>
+<FONT color="green">355</FONT>         * ImageInfo object or to throw an ImageReadException if unable<a name="line.355"></a>
+<FONT color="green">356</FONT>         * to process the specified data.<a name="line.356"></a>
+<FONT color="green">357</FONT>         * &lt;p&gt;The params argument provides a mechanism for individual<a name="line.357"></a>
+<FONT color="green">358</FONT>         * implementations to pass optional information into the parser.<a name="line.358"></a>
+<FONT color="green">359</FONT>         * Not all formats will require this capability.  Because the <a name="line.359"></a>
+<FONT color="green">360</FONT>         * base class may call this method with a null params argument,<a name="line.360"></a>
+<FONT color="green">361</FONT>         * implementations should &lt;strong&gt;always&lt;/strong&gt; include logic <a name="line.361"></a>
+<FONT color="green">362</FONT>         * for ignoring null input.<a name="line.362"></a>
+<FONT color="green">363</FONT>         * @param file A valid File object<a name="line.363"></a>
+<FONT color="green">364</FONT>         * @param params Optional instructions for special-handling or <a name="line.364"></a>
+<FONT color="green">365</FONT>         * interpretation of the input data (null objects are permitted and <a name="line.365"></a>
+<FONT color="green">366</FONT>         * must be supported by implementations).<a name="line.366"></a>
+<FONT color="green">367</FONT>         * @return A valid image information object describing the content extracted<a name="line.367"></a>
+<FONT color="green">368</FONT>         * from the specified data.<a name="line.368"></a>
+<FONT color="green">369</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.369"></a>
+<FONT color="green">370</FONT>         * content does not conform to the format of the specific parser<a name="line.370"></a>
+<FONT color="green">371</FONT>         * implementation.<a name="line.371"></a>
+<FONT color="green">372</FONT>         * @throws IOException In the event of unsuccessful file read or<a name="line.372"></a>
+<FONT color="green">373</FONT>         * access operation.<a name="line.373"></a>
+<FONT color="green">374</FONT>         */<a name="line.374"></a>
+<FONT color="green">375</FONT>        public final ImageInfo getImageInfo(final File file, final Map&lt;String,Object&gt; params)<a name="line.375"></a>
+<FONT color="green">376</FONT>                throws ImageReadException, IOException {<a name="line.376"></a>
+<FONT color="green">377</FONT>            if (!canAcceptExtension(file)) {<a name="line.377"></a>
+<FONT color="green">378</FONT>                return null;<a name="line.378"></a>
+<FONT color="green">379</FONT>            }<a name="line.379"></a>
+<FONT color="green">380</FONT>    <a name="line.380"></a>
+<FONT color="green">381</FONT>            return getImageInfo(new ByteSourceFile(file), params);<a name="line.381"></a>
+<FONT color="green">382</FONT>        }<a name="line.382"></a>
+<FONT color="green">383</FONT>    <a name="line.383"></a>
+<FONT color="green">384</FONT>        /**<a name="line.384"></a>
+<FONT color="green">385</FONT>         * Determines the format compliance of the content of the supplied byte<a name="line.385"></a>
+<FONT color="green">386</FONT>         * source based on rules provided by a specific implementation.<a name="line.386"></a>
+<FONT color="green">387</FONT>         * @param byteSource A valid instance of ByteSource<a name="line.387"></a>
+<FONT color="green">388</FONT>         * @return true if the content is format-compliant; otherwise, false<a name="line.388"></a>
+<FONT color="green">389</FONT>         * @throws ImageReadException<a name="line.389"></a>
+<FONT color="green">390</FONT>         *             may be thrown by sub-classes<a name="line.390"></a>
+<FONT color="green">391</FONT>         * @throws IOException<a name="line.391"></a>
+<FONT color="green">392</FONT>         *             may be thrown by sub-classes<a name="line.392"></a>
+<FONT color="green">393</FONT>         */<a name="line.393"></a>
+<FONT color="green">394</FONT>        public FormatCompliance getFormatCompliance(final ByteSource byteSource)<a name="line.394"></a>
+<FONT color="green">395</FONT>                throws ImageReadException, IOException {<a name="line.395"></a>
+<FONT color="green">396</FONT>            return null;<a name="line.396"></a>
+<FONT color="green">397</FONT>        }<a name="line.397"></a>
+<FONT color="green">398</FONT>    <a name="line.398"></a>
+<FONT color="green">399</FONT>        <a name="line.399"></a>
+<FONT color="green">400</FONT>        /**<a name="line.400"></a>
+<FONT color="green">401</FONT>         * Determines the format compliance of the content of the supplied byte<a name="line.401"></a>
+<FONT color="green">402</FONT>         * array based on rules provided by a specific implementation.<a name="line.402"></a>
+<FONT color="green">403</FONT>         * @param bytes A valid byte array.<a name="line.403"></a>
+<FONT color="green">404</FONT>         * @return A valid FormatCompliance object.<a name="line.404"></a>
+<FONT color="green">405</FONT>         * @throws ImageReadException<a name="line.405"></a>
+<FONT color="green">406</FONT>         *             may be thrown by sub-classes<a name="line.406"></a>
+<FONT color="green">407</FONT>         * @throws IOException<a name="line.407"></a>
+<FONT color="green">408</FONT>         *             may be thrown by sub-classes<a name="line.408"></a>
+<FONT color="green">409</FONT>         */<a name="line.409"></a>
+<FONT color="green">410</FONT>        public final FormatCompliance getFormatCompliance(final byte bytes[])<a name="line.410"></a>
+<FONT color="green">411</FONT>                throws ImageReadException, IOException {<a name="line.411"></a>
+<FONT color="green">412</FONT>            return getFormatCompliance(new ByteSourceArray(bytes));<a name="line.412"></a>
+<FONT color="green">413</FONT>        }<a name="line.413"></a>
+<FONT color="green">414</FONT>    <a name="line.414"></a>
+<FONT color="green">415</FONT>        <a name="line.415"></a>
+<FONT color="green">416</FONT>        /**<a name="line.416"></a>
+<FONT color="green">417</FONT>         * Determines the format compliance of the specified file based on<a name="line.417"></a>
+<FONT color="green">418</FONT>         * rules provided by a specific implementation.<a name="line.418"></a>
+<FONT color="green">419</FONT>         * @param file A valid reference to a file.<a name="line.419"></a>
+<FONT color="green">420</FONT>         * @return A valid format compliance object.<a name="line.420"></a>
+<FONT color="green">421</FONT>         * @throws ImageReadException<a name="line.421"></a>
+<FONT color="green">422</FONT>         *             may be thrown by sub-classes<a name="line.422"></a>
+<FONT color="green">423</FONT>         * @throws IOException<a name="line.423"></a>
+<FONT color="green">424</FONT>         *             may be thrown by sub-classes<a name="line.424"></a>
+<FONT color="green">425</FONT>         */<a name="line.425"></a>
+<FONT color="green">426</FONT>        public final FormatCompliance getFormatCompliance(final File file)<a name="line.426"></a>
+<FONT color="green">427</FONT>                throws ImageReadException, IOException {<a name="line.427"></a>
+<FONT color="green">428</FONT>            if (!canAcceptExtension(file)) {<a name="line.428"></a>
+<FONT color="green">429</FONT>                return null;<a name="line.429"></a>
+<FONT color="green">430</FONT>            }<a name="line.430"></a>
+<FONT color="green">431</FONT>    <a name="line.431"></a>
+<FONT color="green">432</FONT>            return getFormatCompliance(new ByteSourceFile(file));<a name="line.432"></a>
+<FONT color="green">433</FONT>        }<a name="line.433"></a>
+<FONT color="green">434</FONT>    <a name="line.434"></a>
+<FONT color="green">435</FONT>        /**<a name="line.435"></a>
+<FONT color="green">436</FONT>         * Gets all images specified by the byte source (some <a name="line.436"></a>
+<FONT color="green">437</FONT>         * formats may include multiple images within a single data source).<a name="line.437"></a>
+<FONT color="green">438</FONT>         * @param byteSource A valid instance of ByteSource.<a name="line.438"></a>
+<FONT color="green">439</FONT>         * @return A valid (potentially empty) list of BufferedImage objects.<a name="line.439"></a>
+<FONT color="green">440</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.440"></a>
+<FONT color="green">441</FONT>         * content does not conform to the format of the specific parser<a name="line.441"></a>
+<FONT color="green">442</FONT>         * implementation.<a name="line.442"></a>
+<FONT color="green">443</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.443"></a>
+<FONT color="green">444</FONT>         * access operation.<a name="line.444"></a>
+<FONT color="green">445</FONT>         */<a name="line.445"></a>
+<FONT color="green">446</FONT>        public List&lt;BufferedImage&gt; getAllBufferedImages(final ByteSource byteSource)<a name="line.446"></a>
+<FONT color="green">447</FONT>                throws ImageReadException, IOException {<a name="line.447"></a>
+<FONT color="green">448</FONT>            final BufferedImage bi = getBufferedImage(byteSource, null);<a name="line.448"></a>
+<FONT color="green">449</FONT>    <a name="line.449"></a>
+<FONT color="green">450</FONT>            final List&lt;BufferedImage&gt; result = new ArrayList&lt;BufferedImage&gt;();<a name="line.450"></a>
+<FONT color="green">451</FONT>    <a name="line.451"></a>
+<FONT color="green">452</FONT>            result.add(bi);<a name="line.452"></a>
+<FONT color="green">453</FONT>    <a name="line.453"></a>
+<FONT color="green">454</FONT>            return result;<a name="line.454"></a>
+<FONT color="green">455</FONT>        }<a name="line.455"></a>
+<FONT color="green">456</FONT>    <a name="line.456"></a>
+<FONT color="green">457</FONT>        /**<a name="line.457"></a>
+<FONT color="green">458</FONT>         * Gets all images specified by the byte array (some <a name="line.458"></a>
+<FONT color="green">459</FONT>         * formats may include multiple images within a single data source).<a name="line.459"></a>
+<FONT color="green">460</FONT>         * @param bytes A valid byte array<a name="line.460"></a>
+<FONT color="green">461</FONT>         * @return A valid (potentially empty) list of BufferedImage objects.<a name="line.461"></a>
+<FONT color="green">462</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.462"></a>
+<FONT color="green">463</FONT>         * content does not conform to the format of the specific parser<a name="line.463"></a>
+<FONT color="green">464</FONT>         * implementation.<a name="line.464"></a>
+<FONT color="green">465</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.465"></a>
+<FONT color="green">466</FONT>         * access operation.<a name="line.466"></a>
+<FONT color="green">467</FONT>         */<a name="line.467"></a>
+<FONT color="green">468</FONT>        public final List&lt;BufferedImage&gt; getAllBufferedImages(final byte bytes[])<a name="line.468"></a>
+<FONT color="green">469</FONT>                throws ImageReadException, IOException {<a name="line.469"></a>
+<FONT color="green">470</FONT>            return getAllBufferedImages(new ByteSourceArray(bytes));<a name="line.470"></a>
+<FONT color="green">471</FONT>        }<a name="line.471"></a>
+<FONT color="green">472</FONT>    <a name="line.472"></a>
+<FONT color="green">473</FONT>         /**<a name="line.473"></a>
+<FONT color="green">474</FONT>         * Gets all images specified by indicated file (some <a name="line.474"></a>
+<FONT color="green">475</FONT>         * formats may include multiple images within a single data source).<a name="line.475"></a>
+<FONT color="green">476</FONT>         * @param file A valid reference to a file.<a name="line.476"></a>
+<FONT color="green">477</FONT>         * @return A valid (potentially empty) list of BufferedImage objects.<a name="line.477"></a>
+<FONT color="green">478</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.478"></a>
+<FONT color="green">479</FONT>         * content does not conform to the format of the specific parser<a name="line.479"></a>
+<FONT color="green">480</FONT>         * implementation.<a name="line.480"></a>
+<FONT color="green">481</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.481"></a>
+<FONT color="green">482</FONT>         * access operation.<a name="line.482"></a>
+<FONT color="green">483</FONT>         */<a name="line.483"></a>
+<FONT color="green">484</FONT>        public final List&lt;BufferedImage&gt; getAllBufferedImages(final File file)<a name="line.484"></a>
+<FONT color="green">485</FONT>                throws ImageReadException, IOException {<a name="line.485"></a>
+<FONT color="green">486</FONT>            if (!canAcceptExtension(file)) {<a name="line.486"></a>
+<FONT color="green">487</FONT>                return null;<a name="line.487"></a>
+<FONT color="green">488</FONT>            }<a name="line.488"></a>
+<FONT color="green">489</FONT>    <a name="line.489"></a>
+<FONT color="green">490</FONT>            return getAllBufferedImages(new ByteSourceFile(file));<a name="line.490"></a>
+<FONT color="green">491</FONT>        }<a name="line.491"></a>
+<FONT color="green">492</FONT>    <a name="line.492"></a>
+<FONT color="green">493</FONT>        <a name="line.493"></a>
+<FONT color="green">494</FONT>         /**<a name="line.494"></a>
+<FONT color="green">495</FONT>         * Gets a buffered image specified by the byte source (for <a name="line.495"></a>
+<FONT color="green">496</FONT>         * sources that specify multiple images, choice of which image<a name="line.496"></a>
+<FONT color="green">497</FONT>         * is returned is implementation dependent).<a name="line.497"></a>
+<FONT color="green">498</FONT>         * @param byteSource A valid instance of ByteSource<a name="line.498"></a>
+<FONT color="green">499</FONT>         * @param params Optional instructions for special-handling or <a name="line.499"></a>
+<FONT color="green">500</FONT>         * interpretation of the input data (null objects are permitted and <a name="line.500"></a>
+<FONT color="green">501</FONT>         * must be supported by implementations).<a name="line.501"></a>
+<FONT color="green">502</FONT>         * @return A valid instance of BufferedImage.<a name="line.502"></a>
+<FONT color="green">503</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.503"></a>
+<FONT color="green">504</FONT>         * content does not conform to the format of the specific parser<a name="line.504"></a>
+<FONT color="green">505</FONT>         * implementation.<a name="line.505"></a>
+<FONT color="green">506</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.506"></a>
+<FONT color="green">507</FONT>         * access operation.<a name="line.507"></a>
+<FONT color="green">508</FONT>         */<a name="line.508"></a>
+<FONT color="green">509</FONT>        public abstract BufferedImage getBufferedImage(ByteSource byteSource,<a name="line.509"></a>
+<FONT color="green">510</FONT>                Map&lt;String,Object&gt; params) throws ImageReadException, IOException;<a name="line.510"></a>
+<FONT color="green">511</FONT>    <a name="line.511"></a>
+<FONT color="green">512</FONT>         /**<a name="line.512"></a>
+<FONT color="green">513</FONT>         * Gets a buffered image specified by the byte array (for <a name="line.513"></a>
+<FONT color="green">514</FONT>         * sources that specify multiple images, choice of which image<a name="line.514"></a>
+<FONT color="green">515</FONT>         * is returned is implementation dependent).<a name="line.515"></a>
+<FONT color="green">516</FONT>         * @param bytes A valid byte array<a name="line.516"></a>
+<FONT color="green">517</FONT>         * @param params Optional instructions for special-handling or <a name="line.517"></a>
+<FONT color="green">518</FONT>         * interpretation of the input data (null objects are permitted and <a name="line.518"></a>
+<FONT color="green">519</FONT>         * must be supported by implementations).<a name="line.519"></a>
+<FONT color="green">520</FONT>         * @return A valid instance of BufferedImage.<a name="line.520"></a>
+<FONT color="green">521</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.521"></a>
+<FONT color="green">522</FONT>         * content does not conform to the format of the specific parser<a name="line.522"></a>
+<FONT color="green">523</FONT>         * implementation.<a name="line.523"></a>
+<FONT color="green">524</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.524"></a>
+<FONT color="green">525</FONT>         * access operation.<a name="line.525"></a>
+<FONT color="green">526</FONT>         */<a name="line.526"></a>
+<FONT color="green">527</FONT>        public final BufferedImage getBufferedImage(final byte bytes[], final Map&lt;String,Object&gt; params)<a name="line.527"></a>
+<FONT color="green">528</FONT>                throws ImageReadException, IOException {<a name="line.528"></a>
+<FONT color="green">529</FONT>            return getBufferedImage(new ByteSourceArray(bytes), params);<a name="line.529"></a>
+<FONT color="green">530</FONT>        }<a name="line.530"></a>
+<FONT color="green">531</FONT>    <a name="line.531"></a>
+<FONT color="green">532</FONT>        /**<a name="line.532"></a>
+<FONT color="green">533</FONT>         * Gets a buffered image specified by the indicated file  (for <a name="line.533"></a>
+<FONT color="green">534</FONT>         * sources that specify multiple images, choice of which image<a name="line.534"></a>
+<FONT color="green">535</FONT>         * is returned is implementation dependent).<a name="line.535"></a>
+<FONT color="green">536</FONT>         * @param file A valid file reference.<a name="line.536"></a>
+<FONT color="green">537</FONT>         * @param params Optional instructions for special-handling or <a name="line.537"></a>
+<FONT color="green">538</FONT>         * interpretation of the input data (null objects are permitted and <a name="line.538"></a>
+<FONT color="green">539</FONT>         * must be supported by implementations).<a name="line.539"></a>
+<FONT color="green">540</FONT>         * @return A valid instance of BufferedImage.<a name="line.540"></a>
+<FONT color="green">541</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.541"></a>
+<FONT color="green">542</FONT>         * content does not conform to the format of the specific parser<a name="line.542"></a>
+<FONT color="green">543</FONT>         * implementation.<a name="line.543"></a>
+<FONT color="green">544</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.544"></a>
+<FONT color="green">545</FONT>         * access operation.<a name="line.545"></a>
+<FONT color="green">546</FONT>         */<a name="line.546"></a>
+<FONT color="green">547</FONT>        public final BufferedImage getBufferedImage(final File file, final Map&lt;String,Object&gt; params)<a name="line.547"></a>
+<FONT color="green">548</FONT>                throws ImageReadException, IOException {<a name="line.548"></a>
+<FONT color="green">549</FONT>            if (!canAcceptExtension(file)) {<a name="line.549"></a>
+<FONT color="green">550</FONT>                return null;<a name="line.550"></a>
+<FONT color="green">551</FONT>            }<a name="line.551"></a>
+<FONT color="green">552</FONT>    <a name="line.552"></a>
+<FONT color="green">553</FONT>            return getBufferedImage(new ByteSourceFile(file), params);<a name="line.553"></a>
+<FONT color="green">554</FONT>        }<a name="line.554"></a>
+<FONT color="green">555</FONT>        <a name="line.555"></a>
+<FONT color="green">556</FONT>        <a name="line.556"></a>
+<FONT color="green">557</FONT>        /**<a name="line.557"></a>
+<FONT color="green">558</FONT>         * Writes the content of a BufferedImage to the specified output<a name="line.558"></a>
+<FONT color="green">559</FONT>         * stream.<a name="line.559"></a>
+<FONT color="green">560</FONT>         * &lt;p&gt;The params argument provides a mechanism for individual<a name="line.560"></a>
+<FONT color="green">561</FONT>         * implementations to pass optional information into the parser.<a name="line.561"></a>
+<FONT color="green">562</FONT>         * Not all formats will support this capability.  Currently,<a name="line.562"></a>
+<FONT color="green">563</FONT>         * some of the parsers do not check for null arguments. So in cases<a name="line.563"></a>
+<FONT color="green">564</FONT>         * where no optional specifications are supported, application<a name="line.564"></a>
+<FONT color="green">565</FONT>         * code should pass in an empty instance of an implementation of <a name="line.565"></a>
+<FONT color="green">566</FONT>         * the map interface (i.e. an empty HashMap).<a name="line.566"></a>
+<FONT color="green">567</FONT>         * @param src An image giving the source content for output<a name="line.567"></a>
+<FONT color="green">568</FONT>         * @param os A valid output stream for storing the formatted image<a name="line.568"></a>
+<FONT color="green">569</FONT>         * @param params A non-null Map implementation supplying optional, <a name="line.569"></a>
+<FONT color="green">570</FONT>         * format-specific instructions for output <a name="line.570"></a>
+<FONT color="green">571</FONT>         * (such as selections for data compression, color models, etc.)<a name="line.571"></a>
+<FONT color="green">572</FONT>         * @throws ImageWriteException In the event that the output format<a name="line.572"></a>
+<FONT color="green">573</FONT>         * cannot handle the input image or invalid params are specified.<a name="line.573"></a>
+<FONT color="green">574</FONT>         * @throws IOException In the event of an write error from<a name="line.574"></a>
+<FONT color="green">575</FONT>         * the output stream.<a name="line.575"></a>
+<FONT color="green">576</FONT>         */<a name="line.576"></a>
+<FONT color="green">577</FONT>        public void writeImage(final BufferedImage src, final OutputStream os, final Map&lt;String,Object&gt; params)<a name="line.577"></a>
+<FONT color="green">578</FONT>                throws ImageWriteException, IOException {<a name="line.578"></a>
+<FONT color="green">579</FONT>            try {<a name="line.579"></a>
+<FONT color="green">580</FONT>                os.close(); // we are obligated to close stream.<a name="line.580"></a>
+<FONT color="green">581</FONT>            } catch (final Exception e) {<a name="line.581"></a>
+<FONT color="green">582</FONT>                Debug.debug(e);<a name="line.582"></a>
+<FONT color="green">583</FONT>            }<a name="line.583"></a>
+<FONT color="green">584</FONT>    <a name="line.584"></a>
+<FONT color="green">585</FONT>            throw new ImageWriteException("This image format (" + getName()<a name="line.585"></a>
+<FONT color="green">586</FONT>                    + ") cannot be written.");<a name="line.586"></a>
+<FONT color="green">587</FONT>        }<a name="line.587"></a>
+<FONT color="green">588</FONT>    <a name="line.588"></a>
+<FONT color="green">589</FONT>        /**<a name="line.589"></a>
+<FONT color="green">590</FONT>         * Get the size of the image described by the specified byte array.<a name="line.590"></a>
+<FONT color="green">591</FONT>         * @param bytes A valid byte array.<a name="line.591"></a>
+<FONT color="green">592</FONT>         * @return A valid instance of Dimension.<a name="line.592"></a>
+<FONT color="green">593</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.593"></a>
+<FONT color="green">594</FONT>         * content does not conform to the format of the specific parser<a name="line.594"></a>
+<FONT color="green">595</FONT>         * implementation.<a name="line.595"></a>
+<FONT color="green">596</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.596"></a>
+<FONT color="green">597</FONT>         * access operation.<a name="line.597"></a>
+<FONT color="green">598</FONT>         */<a name="line.598"></a>
+<FONT color="green">599</FONT>        public final Dimension getImageSize(final byte bytes[])<a name="line.599"></a>
+<FONT color="green">600</FONT>                throws ImageReadException, IOException {<a name="line.600"></a>
+<FONT color="green">601</FONT>            return getImageSize(bytes, null);<a name="line.601"></a>
+<FONT color="green">602</FONT>        }<a name="line.602"></a>
+<FONT color="green">603</FONT>    <a name="line.603"></a>
+<FONT color="green">604</FONT>         /**<a name="line.604"></a>
+<FONT color="green">605</FONT>         * Get the size of the image described by the specified byte array.<a name="line.605"></a>
+<FONT color="green">606</FONT>         * @param bytes A valid byte array.<a name="line.606"></a>
+<FONT color="green">607</FONT>         * @return A valid instance of Dimension.<a name="line.607"></a>
+<FONT color="green">608</FONT>         * @param params Optional instructions for special-handling or <a name="line.608"></a>
+<FONT color="green">609</FONT>         * interpretation of the input data.<a name="line.609"></a>
+<FONT color="green">610</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.610"></a>
+<FONT color="green">611</FONT>         * content does not conform to the format of the specific parser<a name="line.611"></a>
+<FONT color="green">612</FONT>         * implementation.<a name="line.612"></a>
+<FONT color="green">613</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.613"></a>
+<FONT color="green">614</FONT>         * access operation.<a name="line.614"></a>
+<FONT color="green">615</FONT>         */<a name="line.615"></a>
+<FONT color="green">616</FONT>        public final Dimension getImageSize(final byte bytes[], final Map&lt;String,Object&gt; params)<a name="line.616"></a>
+<FONT color="green">617</FONT>                throws ImageReadException, IOException {<a name="line.617"></a>
+<FONT color="green">618</FONT>            return getImageSize(new ByteSourceArray(bytes), params);<a name="line.618"></a>
+<FONT color="green">619</FONT>        }<a name="line.619"></a>
+<FONT color="green">620</FONT>    <a name="line.620"></a>
+<FONT color="green">621</FONT>        /**<a name="line.621"></a>
+<FONT color="green">622</FONT>         * Get the size of the image described by the specified file.<a name="line.622"></a>
+<FONT color="green">623</FONT>         * @param file A valid reference to a file.<a name="line.623"></a>
+<FONT color="green">624</FONT>         * @return A valid instance of Dimension.<a name="line.624"></a>
+<FONT color="green">625</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.625"></a>
+<FONT color="green">626</FONT>         * content does not conform to the format of the specific parser<a name="line.626"></a>
+<FONT color="green">627</FONT>         * implementation.<a name="line.627"></a>
+<FONT color="green">628</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.628"></a>
+<FONT color="green">629</FONT>         * access operation.<a name="line.629"></a>
+<FONT color="green">630</FONT>         */<a name="line.630"></a>
+<FONT color="green">631</FONT>        public final Dimension getImageSize(final File file) throws ImageReadException,<a name="line.631"></a>
+<FONT color="green">632</FONT>                IOException {<a name="line.632"></a>
+<FONT color="green">633</FONT>    <a name="line.633"></a>
+<FONT color="green">634</FONT>            return getImageSize(file, null);<a name="line.634"></a>
+<FONT color="green">635</FONT>        }<a name="line.635"></a>
+<FONT color="green">636</FONT>    <a name="line.636"></a>
+<FONT color="green">637</FONT>        /**<a name="line.637"></a>
+<FONT color="green">638</FONT>         * Get the size of the image described by the specified file.<a name="line.638"></a>
+<FONT color="green">639</FONT>         * @param file A valid reference to a file.<a name="line.639"></a>
+<FONT color="green">640</FONT>         * @return A valid instance of Dimension.<a name="line.640"></a>
+<FONT color="green">641</FONT>         * @param params Optional instructions for special-handling or <a name="line.641"></a>
+<FONT color="green">642</FONT>         * interpretation of the input data.<a name="line.642"></a>
+<FONT color="green">643</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.643"></a>
+<FONT color="green">644</FONT>         * content does not conform to the format of the specific parser<a name="line.644"></a>
+<FONT color="green">645</FONT>         * implementation.<a name="line.645"></a>
+<FONT color="green">646</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.646"></a>
+<FONT color="green">647</FONT>         * access operation.<a name="line.647"></a>
+<FONT color="green">648</FONT>         */<a name="line.648"></a>
+<FONT color="green">649</FONT>        public final Dimension getImageSize(final File file, final Map&lt;String,Object&gt; params)<a name="line.649"></a>
+<FONT color="green">650</FONT>                throws ImageReadException, IOException {<a name="line.650"></a>
+<FONT color="green">651</FONT>    <a name="line.651"></a>
+<FONT color="green">652</FONT>            if (!canAcceptExtension(file)) {<a name="line.652"></a>
+<FONT color="green">653</FONT>                return null;<a name="line.653"></a>
+<FONT color="green">654</FONT>            }<a name="line.654"></a>
+<FONT color="green">655</FONT>    <a name="line.655"></a>
+<FONT color="green">656</FONT>            return getImageSize(new ByteSourceFile(file), params);<a name="line.656"></a>
+<FONT color="green">657</FONT>        }<a name="line.657"></a>
+<FONT color="green">658</FONT>    <a name="line.658"></a>
+<FONT color="green">659</FONT>        /**<a name="line.659"></a>
+<FONT color="green">660</FONT>         * Get the size of the image described by the specified ByteSource.<a name="line.660"></a>
+<FONT color="green">661</FONT>         * @param byteSource A valid reference to a ByteSource.<a name="line.661"></a>
+<FONT color="green">662</FONT>         * @return A valid instance of Dimension.<a name="line.662"></a>
+<FONT color="green">663</FONT>         * @param params Optional instructions for special-handling or <a name="line.663"></a>
+<FONT color="green">664</FONT>         * interpretation of the input data.<a name="line.664"></a>
+<FONT color="green">665</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.665"></a>
+<FONT color="green">666</FONT>         * content does not conform to the format of the specific parser<a name="line.666"></a>
+<FONT color="green">667</FONT>         * implementation.<a name="line.667"></a>
+<FONT color="green">668</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.668"></a>
+<FONT color="green">669</FONT>         * access operation.<a name="line.669"></a>
+<FONT color="green">670</FONT>         */<a name="line.670"></a>
+<FONT color="green">671</FONT>        public abstract Dimension getImageSize(ByteSource byteSource, Map&lt;String,Object&gt; params)<a name="line.671"></a>
+<FONT color="green">672</FONT>                throws ImageReadException, IOException;<a name="line.672"></a>
+<FONT color="green">673</FONT>        <a name="line.673"></a>
+<FONT color="green">674</FONT>        <a name="line.674"></a>
+<FONT color="green">675</FONT>        /**<a name="line.675"></a>
+<FONT color="green">676</FONT>         * Get a string containing XML-formatted text conforming to the Extensible <a name="line.676"></a>
+<FONT color="green">677</FONT>         * Metadata  Platform (EXP) standard for representing information about<a name="line.677"></a>
+<FONT color="green">678</FONT>         * image content.  Not all image formats support EXP infomation and <a name="line.678"></a>
+<FONT color="green">679</FONT>         * even for those that do, there is no guarantee that such information<a name="line.679"></a>
+<FONT color="green">680</FONT>         * will be present in an image.<a name="line.680"></a>
+<FONT color="green">681</FONT>         * @param byteSource A valid reference to a ByteSource.<a name="line.681"></a>
+<FONT color="green">682</FONT>         * @return If XMP metadata is present, a valid string; <a name="line.682"></a>
+<FONT color="green">683</FONT>         * if it is not present, a null.<a name="line.683"></a>
+<FONT color="green">684</FONT>         * @param params Optional instructions for special-handling or <a name="line.684"></a>
+<FONT color="green">685</FONT>         * interpretation of the input data.<a name="line.685"></a>
+<FONT color="green">686</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.686"></a>
+<FONT color="green">687</FONT>         * content does not conform to the format of the specific parser<a name="line.687"></a>
+<FONT color="green">688</FONT>         * implementation.<a name="line.688"></a>
+<FONT color="green">689</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.689"></a>
+<FONT color="green">690</FONT>         * access operation.<a name="line.690"></a>
+<FONT color="green">691</FONT>         */<a name="line.691"></a>
+<FONT color="green">692</FONT>        public abstract String getXmpXml(ByteSource byteSource, Map&lt;String,Object&gt; params)<a name="line.692"></a>
+<FONT color="green">693</FONT>                throws ImageReadException, IOException;<a name="line.693"></a>
+<FONT color="green">694</FONT>    <a name="line.694"></a>
+<FONT color="green">695</FONT>        <a name="line.695"></a>
+<FONT color="green">696</FONT>        <a name="line.696"></a>
+<FONT color="green">697</FONT>        /**<a name="line.697"></a>
+<FONT color="green">698</FONT>         * Get an array of bytes describing the International Color Consortium (ICC)<a name="line.698"></a>
+<FONT color="green">699</FONT>         * specification for the color space of the image contained in the<a name="line.699"></a>
+<FONT color="green">700</FONT>         * input byte array. Not all formats support ICC profiles.<a name="line.700"></a>
+<FONT color="green">701</FONT>         * @param bytes A valid array of bytes.<a name="line.701"></a>
+<FONT color="green">702</FONT>         * @return If available, a valid array of bytes; otherwise, a null<a name="line.702"></a>
+<FONT color="green">703</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.703"></a>
+<FONT color="green">704</FONT>         * content does not conform to the format of the specific parser<a name="line.704"></a>
+<FONT color="green">705</FONT>         * implementation.<a name="line.705"></a>
+<FONT color="green">706</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.706"></a>
+<FONT color="green">707</FONT>         * access operation.<a name="line.707"></a>
+<FONT color="green">708</FONT>         */<a name="line.708"></a>
+<FONT color="green">709</FONT>        public final byte[] getICCProfileBytes(final byte bytes[])<a name="line.709"></a>
+<FONT color="green">710</FONT>                throws ImageReadException, IOException {<a name="line.710"></a>
+<FONT color="green">711</FONT>            return getICCProfileBytes(bytes, null);<a name="line.711"></a>
+<FONT color="green">712</FONT>        }<a name="line.712"></a>
+<FONT color="green">713</FONT>    <a name="line.713"></a>
+<FONT color="green">714</FONT>        /**<a name="line.714"></a>
+<FONT color="green">715</FONT>         * Get an array of bytes describing the International Color Consortium (ICC)<a name="line.715"></a>
+<FONT color="green">716</FONT>         * specification for the color space of the image contained in the<a name="line.716"></a>
+<FONT color="green">717</FONT>         * input byte array. Not all formats support ICC profiles.<a name="line.717"></a>
+<FONT color="green">718</FONT>         * @param bytes A valid array of bytes.<a name="line.718"></a>
+<FONT color="green">719</FONT>         * @param params Optional instructions for special-handling or <a name="line.719"></a>
+<FONT color="green">720</FONT>         * interpretation of the input data.<a name="line.720"></a>
+<FONT color="green">721</FONT>         * @return If available, a valid array of bytes; otherwise, a null<a name="line.721"></a>
+<FONT color="green">722</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.722"></a>
+<FONT color="green">723</FONT>         * content does not conform to the format of the specific parser<a name="line.723"></a>
+<FONT color="green">724</FONT>         * implementation.<a name="line.724"></a>
+<FONT color="green">725</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.725"></a>
+<FONT color="green">726</FONT>         * access operation.<a name="line.726"></a>
+<FONT color="green">727</FONT>         */<a name="line.727"></a>
+<FONT color="green">728</FONT>        public final byte[] getICCProfileBytes(final byte bytes[], final Map&lt;String,Object&gt; params)<a name="line.728"></a>
+<FONT color="green">729</FONT>                throws ImageReadException, IOException {<a name="line.729"></a>
+<FONT color="green">730</FONT>            return getICCProfileBytes(new ByteSourceArray(bytes), params);<a name="line.730"></a>
+<FONT color="green">731</FONT>        }<a name="line.731"></a>
+<FONT color="green">732</FONT>    <a name="line.732"></a>
+<FONT color="green">733</FONT>        /**<a name="line.733"></a>
+<FONT color="green">734</FONT>         * Get an array of bytes describing the International Color Consortium (ICC)<a name="line.734"></a>
+<FONT color="green">735</FONT>         * specification for the color space of the image contained in the<a name="line.735"></a>
+<FONT color="green">736</FONT>         * input file. Not all formats support ICC profiles.<a name="line.736"></a>
+<FONT color="green">737</FONT>         * @param file A valid file reference.<a name="line.737"></a>
+<FONT color="green">738</FONT>         * @return If available, a valid array of bytes; otherwise, a null<a name="line.738"></a>
+<FONT color="green">739</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.739"></a>
+<FONT color="green">740</FONT>         * content does not conform to the format of the specific parser<a name="line.740"></a>
+<FONT color="green">741</FONT>         * implementation.<a name="line.741"></a>
+<FONT color="green">742</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.742"></a>
+<FONT color="green">743</FONT>         * access operation.<a name="line.743"></a>
+<FONT color="green">744</FONT>         */<a name="line.744"></a>
+<FONT color="green">745</FONT>        public final byte[] getICCProfileBytes(final File file)<a name="line.745"></a>
+<FONT color="green">746</FONT>                throws ImageReadException, IOException {<a name="line.746"></a>
+<FONT color="green">747</FONT>            return getICCProfileBytes(file, null);<a name="line.747"></a>
+<FONT color="green">748</FONT>        }<a name="line.748"></a>
+<FONT color="green">749</FONT>    <a name="line.749"></a>
+<FONT color="green">750</FONT>        /**<a name="line.750"></a>
+<FONT color="green">751</FONT>         * Get an array of bytes describing the International Color Consortium (ICC)<a name="line.751"></a>
+<FONT color="green">752</FONT>         * specification for the color space of the image contained in the<a name="line.752"></a>
+<FONT color="green">753</FONT>         * input file. Not all formats support ICC profiles.<a name="line.753"></a>
+<FONT color="green">754</FONT>         * @param file A valid file reference.<a name="line.754"></a>
+<FONT color="green">755</FONT>         * @param params Optional instructions for special-handling or <a name="line.755"></a>
+<FONT color="green">756</FONT>         * interpretation of the input data.<a name="line.756"></a>
+<FONT color="green">757</FONT>         * @return If available, a valid array of bytes; otherwise, a null<a name="line.757"></a>
+<FONT color="green">758</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.758"></a>
+<FONT color="green">759</FONT>         * content does not conform to the format of the specific parser<a name="line.759"></a>
+<FONT color="green">760</FONT>         * implementation.<a name="line.760"></a>
+<FONT color="green">761</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.761"></a>
+<FONT color="green">762</FONT>         * access operation.<a name="line.762"></a>
+<FONT color="green">763</FONT>         */<a name="line.763"></a>
+<FONT color="green">764</FONT>        public final byte[] getICCProfileBytes(final File file, final Map&lt;String,Object&gt; params)<a name="line.764"></a>
+<FONT color="green">765</FONT>                throws ImageReadException, IOException {<a name="line.765"></a>
+<FONT color="green">766</FONT>            if (!canAcceptExtension(file)) {<a name="line.766"></a>
+<FONT color="green">767</FONT>                return null;<a name="line.767"></a>
+<FONT color="green">768</FONT>            }<a name="line.768"></a>
+<FONT color="green">769</FONT>    <a name="line.769"></a>
+<FONT color="green">770</FONT>            if (debug) {<a name="line.770"></a>
+<FONT color="green">771</FONT>                System.out.println(getName() + ": " + file.getName());<a name="line.771"></a>
+<FONT color="green">772</FONT>            }<a name="line.772"></a>
+<FONT color="green">773</FONT>    <a name="line.773"></a>
+<FONT color="green">774</FONT>            return getICCProfileBytes(new ByteSourceFile(file), params);<a name="line.774"></a>
+<FONT color="green">775</FONT>        }<a name="line.775"></a>
+<FONT color="green">776</FONT>    <a name="line.776"></a>
+<FONT color="green">777</FONT>        <a name="line.777"></a>
+<FONT color="green">778</FONT>         /**<a name="line.778"></a>
+<FONT color="green">779</FONT>         * Get an array of bytes describing the International Color Consortium (ICC)<a name="line.779"></a>
+<FONT color="green">780</FONT>         * specification for the color space of the image contained in the<a name="line.780"></a>
+<FONT color="green">781</FONT>         * input byteSoruce. Not all formats support ICC profiles.<a name="line.781"></a>
+<FONT color="green">782</FONT>         * @param byteSource A valid ByteSource.<a name="line.782"></a>
+<FONT color="green">783</FONT>         * @param params Optional instructions for special-handling or <a name="line.783"></a>
+<FONT color="green">784</FONT>         * interpretation of the input data.<a name="line.784"></a>
+<FONT color="green">785</FONT>         * @return If available, a valid array of bytes; otherwise, a null<a name="line.785"></a>
+<FONT color="green">786</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.786"></a>
+<FONT color="green">787</FONT>         * content does not conform to the format of the specific parser<a name="line.787"></a>
+<FONT color="green">788</FONT>         * implementation.<a name="line.788"></a>
+<FONT color="green">789</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.789"></a>
+<FONT color="green">790</FONT>         * access operation.<a name="line.790"></a>
+<FONT color="green">791</FONT>         */<a name="line.791"></a>
+<FONT color="green">792</FONT>        public abstract byte[] getICCProfileBytes(ByteSource byteSource, Map&lt;String,Object&gt; params)<a name="line.792"></a>
+<FONT color="green">793</FONT>                throws ImageReadException, IOException;<a name="line.793"></a>
+<FONT color="green">794</FONT>    <a name="line.794"></a>
+<FONT color="green">795</FONT>        <a name="line.795"></a>
+<FONT color="green">796</FONT>        /**<a name="line.796"></a>
+<FONT color="green">797</FONT>         * Write the ImageInfo and format-specific information for the image<a name="line.797"></a>
+<FONT color="green">798</FONT>         * content of the specified byte array to a string.<a name="line.798"></a>
+<FONT color="green">799</FONT>         * @param bytes A valid array of bytes.<a name="line.799"></a>
+<FONT color="green">800</FONT>         * @return A valid string.<a name="line.800"></a>
+<FONT color="green">801</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.801"></a>
+<FONT color="green">802</FONT>         * content does not conform to the format of the specific parser<a name="line.802"></a>
+<FONT color="green">803</FONT>         * implementation.<a name="line.803"></a>
+<FONT color="green">804</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.804"></a>
+<FONT color="green">805</FONT>         * access operation.<a name="line.805"></a>
+<FONT color="green">806</FONT>         */<a name="line.806"></a>
+<FONT color="green">807</FONT>        public final String dumpImageFile(final byte bytes[]) throws ImageReadException,<a name="line.807"></a>
+<FONT color="green">808</FONT>                IOException {<a name="line.808"></a>
+<FONT color="green">809</FONT>            return dumpImageFile(new ByteSourceArray(bytes));<a name="line.809"></a>
+<FONT color="green">810</FONT>        }<a name="line.810"></a>
+<FONT color="green">811</FONT>    <a name="line.811"></a>
+<FONT color="green">812</FONT>        <a name="line.812"></a>
+<FONT color="green">813</FONT>        /**<a name="line.813"></a>
+<FONT color="green">814</FONT>         * Write the ImageInfo and format-specific information for the image<a name="line.814"></a>
+<FONT color="green">815</FONT>         * content of the specified file to a string.<a name="line.815"></a>
+<FONT color="green">816</FONT>         * @param file A valid file reference.<a name="line.816"></a>
+<FONT color="green">817</FONT>         * @return A valid string.<a name="line.817"></a>
+<FONT color="green">818</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.818"></a>
+<FONT color="green">819</FONT>         * content does not conform to the format of the specific parser<a name="line.819"></a>
+<FONT color="green">820</FONT>         * implementation.<a name="line.820"></a>
+<FONT color="green">821</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.821"></a>
+<FONT color="green">822</FONT>         * access operation.<a name="line.822"></a>
+<FONT color="green">823</FONT>         */<a name="line.823"></a>
+<FONT color="green">824</FONT>        public final String dumpImageFile(final File file) throws ImageReadException,<a name="line.824"></a>
+<FONT color="green">825</FONT>                IOException {<a name="line.825"></a>
+<FONT color="green">826</FONT>            if (!canAcceptExtension(file)) {<a name="line.826"></a>
+<FONT color="green">827</FONT>                return null;<a name="line.827"></a>
+<FONT color="green">828</FONT>            }<a name="line.828"></a>
+<FONT color="green">829</FONT>    <a name="line.829"></a>
+<FONT color="green">830</FONT>            if (debug) {<a name="line.830"></a>
+<FONT color="green">831</FONT>                System.out.println(getName() + ": " + file.getName());<a name="line.831"></a>
+<FONT color="green">832</FONT>            }<a name="line.832"></a>
+<FONT color="green">833</FONT>    <a name="line.833"></a>
+<FONT color="green">834</FONT>            return dumpImageFile(new ByteSourceFile(file));<a name="line.834"></a>
+<FONT color="green">835</FONT>        }<a name="line.835"></a>
+<FONT color="green">836</FONT>    <a name="line.836"></a>
+<FONT color="green">837</FONT>         /**<a name="line.837"></a>
+<FONT color="green">838</FONT>         * Write the ImageInfo and format-specific information for the image<a name="line.838"></a>
+<FONT color="green">839</FONT>         * content of the specified byte source to a string.<a name="line.839"></a>
+<FONT color="green">840</FONT>         * @param byteSource A valid byte source.<a name="line.840"></a>
+<FONT color="green">841</FONT>         * @return A valid string.<a name="line.841"></a>
+<FONT color="green">842</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.842"></a>
+<FONT color="green">843</FONT>         * content does not conform to the format of the specific parser<a name="line.843"></a>
+<FONT color="green">844</FONT>         * implementation.<a name="line.844"></a>
+<FONT color="green">845</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.845"></a>
+<FONT color="green">846</FONT>         * access operation.<a name="line.846"></a>
+<FONT color="green">847</FONT>         */<a name="line.847"></a>
+<FONT color="green">848</FONT>        public final String dumpImageFile(final ByteSource byteSource)<a name="line.848"></a>
+<FONT color="green">849</FONT>                throws ImageReadException, IOException {<a name="line.849"></a>
+<FONT color="green">850</FONT>            final StringWriter sw = new StringWriter();<a name="line.850"></a>
+<FONT color="green">851</FONT>            final PrintWriter pw = new PrintWriter(sw);<a name="line.851"></a>
+<FONT color="green">852</FONT>    <a name="line.852"></a>
+<FONT color="green">853</FONT>            dumpImageFile(pw, byteSource);<a name="line.853"></a>
+<FONT color="green">854</FONT>    <a name="line.854"></a>
+<FONT color="green">855</FONT>            pw.flush();<a name="line.855"></a>
+<FONT color="green">856</FONT>    <a name="line.856"></a>
+<FONT color="green">857</FONT>            return sw.toString();<a name="line.857"></a>
+<FONT color="green">858</FONT>        }<a name="line.858"></a>
+<FONT color="green">859</FONT>    <a name="line.859"></a>
+<FONT color="green">860</FONT>        /**<a name="line.860"></a>
+<FONT color="green">861</FONT>         * Write the ImageInfo and format-specific information for the image<a name="line.861"></a>
+<FONT color="green">862</FONT>         * content of the specified byte source to a PrintWriter<a name="line.862"></a>
+<FONT color="green">863</FONT>         * @param byteSource A valid byte source.<a name="line.863"></a>
+<FONT color="green">864</FONT>         * @return A valid PrintWriter.<a name="line.864"></a>
+<FONT color="green">865</FONT>         * @throws ImageReadException In the event that the the specified <a name="line.865"></a>
+<FONT color="green">866</FONT>         * content does not conform to the format of the specific parser<a name="line.866"></a>
+<FONT color="green">867</FONT>         * implementation.<a name="line.867"></a>
+<FONT color="green">868</FONT>         * @throws IOException In the event of unsuccessful read or<a name="line.868"></a>
+<FONT color="green">869</FONT>         * access operation.<a name="line.869"></a>
+<FONT color="green">870</FONT>         */<a name="line.870"></a>
+<FONT color="green">871</FONT>        public boolean dumpImageFile(final PrintWriter pw, final ByteSource byteSource)<a name="line.871"></a>
+<FONT color="green">872</FONT>                throws ImageReadException, IOException {<a name="line.872"></a>
+<FONT color="green">873</FONT>            return false;<a name="line.873"></a>
+<FONT color="green">874</FONT>        }<a name="line.874"></a>
+<FONT color="green">875</FONT>    <a name="line.875"></a>
+<FONT color="green">876</FONT>        <a name="line.876"></a>
+<FONT color="green">877</FONT>       /**<a name="line.877"></a>
+<FONT color="green">878</FONT>         * This method is not fully implemented in any of the current parsers,<a name="line.878"></a>
+<FONT color="green">879</FONT>         * all of which return false when it is called.<a name="line.879"></a>
+<FONT color="green">880</FONT>         * Although it was clearly intended to embed an ICC profile in a file,<a name="line.880"></a>
+<FONT color="green">881</FONT>         * no description of the intended use of the File arguments is available.<a name="line.881"></a>
+<FONT color="green">882</FONT>         * @param src A file reference.<a name="line.882"></a>
+<FONT color="green">883</FONT>         * @param dst A file reference.<a name="line.883"></a>
+<FONT color="green">884</FONT>         * @param profile An array of bytes describing the ICC profile<a name="line.884"></a>
+<FONT color="green">885</FONT>         * @return true if the embedding operation was successful; otherwise, false. <a name="line.885"></a>
+<FONT color="green">886</FONT>         */<a name="line.886"></a>
+<FONT color="green">887</FONT>        public abstract boolean embedICCProfile(File src, File dst, byte profile[]);<a name="line.887"></a>
+<FONT color="green">888</FONT>    <a name="line.888"></a>
+<FONT color="green">889</FONT>        /**<a name="line.889"></a>
+<FONT color="green">890</FONT>         * Get a descriptive name for the implementation of an ImageParser.<a name="line.890"></a>
+<FONT color="green">891</FONT>         * @return a valid, subject-matter-specific string.<a name="line.891"></a>
+<FONT color="green">892</FONT>         */<a name="line.892"></a>
+<FONT color="green">893</FONT>        public abstract String getName();<a name="line.893"></a>
+<FONT color="green">894</FONT>    <a name="line.894"></a>
+<FONT color="green">895</FONT>        /**<a name="line.895"></a>
+<FONT color="green">896</FONT>         * Get the default extension for the format specified by an implementation<a name="line.896"></a>
+<FONT color="green">897</FONT>         * of ImageParser.  Some parsers can support more than one extension<a name="line.897"></a>
+<FONT color="green">898</FONT>         * (i.e. .JPEG, .JPG;  .TIF, .TIFF, etc.).<a name="line.898"></a>
+<FONT color="green">899</FONT>         * @return A valid string.<a name="line.899"></a>
+<FONT color="green">900</FONT>         */<a name="line.900"></a>
+<FONT color="green">901</FONT>        public abstract String getDefaultExtension();<a name="line.901"></a>
+<FONT color="green">902</FONT>    <a name="line.902"></a>
+<FONT color="green">903</FONT>        /**<a name="line.903"></a>
+<FONT color="green">904</FONT>         * Get an array of all accepted extensions<a name="line.904"></a>
+<FONT color="green">905</FONT>         * @return A valid array of one or more elements.<a name="line.905"></a>
+<FONT color="green">906</FONT>         */<a name="line.906"></a>
+<FONT color="green">907</FONT>        protected abstract String[] getAcceptedExtensions();<a name="line.907"></a>
+<FONT color="green">908</FONT>    <a name="line.908"></a>
+<FONT color="green">909</FONT>        /**<a name="line.909"></a>
+<FONT color="green">910</FONT>         * Get an array of ImageFormat objects describing all <a name="line.910"></a>
+<FONT color="green">911</FONT>         * accepted types<a name="line.911"></a>
+<FONT color="green">912</FONT>         * @return A valid array of one or more elements.<a name="line.912"></a>
+<FONT color="green">913</FONT>         */<a name="line.913"></a>
+<FONT color="green">914</FONT>        protected abstract ImageFormat[] getAcceptedTypes();<a name="line.914"></a>
+<FONT color="green">915</FONT>    <a name="line.915"></a>
+<FONT color="green">916</FONT>        /**<a name="line.916"></a>
+<FONT color="green">917</FONT>         * Indicates whether the ImageParser implementation can accept<a name="line.917"></a>
+<FONT color="green">918</FONT>         * the specified format<a name="line.918"></a>
+<FONT color="green">919</FONT>         * @param type An instance of ImageFormat. <a name="line.919"></a>
+<FONT color="green">920</FONT>         * @return If the parser can accept the format, true; otherwise, false.<a name="line.920"></a>
+<FONT color="green">921</FONT>         */<a name="line.921"></a>
+<FONT color="green">922</FONT>        public boolean canAcceptType(final ImageFormat type) {<a name="line.922"></a>
+<FONT color="green">923</FONT>            final ImageFormat types[] = getAcceptedTypes();<a name="line.923"></a>
+<FONT color="green">924</FONT>    <a name="line.924"></a>
+<FONT color="green">925</FONT>            for (final ImageFormat type2 : types) {<a name="line.925"></a>
+<FONT color="green">926</FONT>                if (type2.equals(type)) {<a name="line.926"></a>
+<FONT color="green">927</FONT>                    return true;<a name="line.927"></a>
+<FONT color="green">928</FONT>                }<a name="line.928"></a>
+<FONT color="green">929</FONT>            }<a name="line.929"></a>
+<FONT color="green">930</FONT>            return false;<a name="line.930"></a>
+<FONT color="green">931</FONT>        }<a name="line.931"></a>
+<FONT color="green">932</FONT>    <a name="line.932"></a>
+<FONT color="green">933</FONT>        /**<a name="line.933"></a>
+<FONT color="green">934</FONT>         * Indicates whether the ImageParser implementation can accept<a name="line.934"></a>
+<FONT color="green">935</FONT>         * the specified file based on its extension.<a name="line.935"></a>
+<FONT color="green">936</FONT>         * @param file An valid file reference. <a name="line.936"></a>
+<FONT color="green">937</FONT>         * @return If the parser can accept the format, true; otherwise, false.<a name="line.937"></a>
+<FONT color="green">938</FONT>         */<a name="line.938"></a>
+<FONT color="green">939</FONT>        protected final boolean canAcceptExtension(final File file) {<a name="line.939"></a>
+<FONT color="green">940</FONT>            return canAcceptExtension(file.getName());<a name="line.940"></a>
+<FONT color="green">941</FONT>        }<a name="line.941"></a>
+<FONT color="green">942</FONT>    <a name="line.942"></a>
+<FONT color="green">943</FONT>        /**<a name="line.943"></a>
+<FONT color="green">944</FONT>         * Indicates whether the ImageParser implementation can accept<a name="line.944"></a>
+<FONT color="green">945</FONT>         * the specified file name based on its extension.<a name="line.945"></a>
+<FONT color="green">946</FONT>         * @param filename An valid string giving a file name or file path. <a name="line.946"></a>
+<FONT color="green">947</FONT>         * @return If the parser can accept the format, true; otherwise, false.<a name="line.947"></a>
+<FONT color="green">948</FONT>         */<a name="line.948"></a>
+<FONT color="green">949</FONT>        protected final boolean canAcceptExtension(final String filename) {<a name="line.949"></a>
+<FONT color="green">950</FONT>            final String exts[] = getAcceptedExtensions();<a name="line.950"></a>
+<FONT color="green">951</FONT>            if (exts == null) {<a name="line.951"></a>
+<FONT color="green">952</FONT>                return true;<a name="line.952"></a>
+<FONT color="green">953</FONT>            }<a name="line.953"></a>
+<FONT color="green">954</FONT>    <a name="line.954"></a>
+<FONT color="green">955</FONT>            final int index = filename.lastIndexOf('.');<a name="line.955"></a>
+<FONT color="green">956</FONT>            if (index &gt;= 0) {<a name="line.956"></a>
+<FONT color="green">957</FONT>                String ext = filename.substring(index);<a name="line.957"></a>
+<FONT color="green">958</FONT>                ext = ext.toLowerCase();<a name="line.958"></a>
+<FONT color="green">959</FONT>    <a name="line.959"></a>
+<FONT color="green">960</FONT>                for (final String ext2 : exts) {<a name="line.960"></a>
+<FONT color="green">961</FONT>                    if (ext2.toLowerCase().equals(ext)) {<a name="line.961"></a>
+<FONT color="green">962</FONT>                        return true;<a name="line.962"></a>
+<FONT color="green">963</FONT>                    }<a name="line.963"></a>
+<FONT color="green">964</FONT>                }<a name="line.964"></a>
+<FONT color="green">965</FONT>            }<a name="line.965"></a>
+<FONT color="green">966</FONT>            return false;<a name="line.966"></a>
+<FONT color="green">967</FONT>        }<a name="line.967"></a>
+<FONT color="green">968</FONT>    <a name="line.968"></a>
+<FONT color="green">969</FONT>        <a name="line.969"></a>
+<FONT color="green">970</FONT>        /**<a name="line.970"></a>
+<FONT color="green">971</FONT>         * Get an instance of IBufferedImageFactory based on the presence<a name="line.971"></a>
+<FONT color="green">972</FONT>         * of a specification for ImagingConstants.&amp;#46;BUFFERED_IMAGE_FACTORY<a name="line.972"></a>
+<FONT color="green">973</FONT>         * within the supplied params.<a name="line.973"></a>
+<FONT color="green">974</FONT>         * @param params A valid Map object, or a null.<a name="line.974"></a>
+<FONT color="green">975</FONT>         * @return A valid instance of an implementation of a <a name="line.975"></a>
+<FONT color="green">976</FONT>         * IBufferedImageFactory.<a name="line.976"></a>
+<FONT color="green">977</FONT>         */<a name="line.977"></a>
+<FONT color="green">978</FONT>        protected IBufferedImageFactory getBufferedImageFactory(final Map&lt;String,Object&gt; params) {<a name="line.978"></a>
+<FONT color="green">979</FONT>            if (params == null) {<a name="line.979"></a>
+<FONT color="green">980</FONT>                return new SimpleBufferedImageFactory();<a name="line.980"></a>
+<FONT color="green">981</FONT>            }<a name="line.981"></a>
+<FONT color="green">982</FONT>    <a name="line.982"></a>
+<FONT color="green">983</FONT>            final IBufferedImageFactory result = (IBufferedImageFactory) params<a name="line.983"></a>
+<FONT color="green">984</FONT>                    .get(ImagingConstants.BUFFERED_IMAGE_FACTORY);<a name="line.984"></a>
+<FONT color="green">985</FONT>    <a name="line.985"></a>
+<FONT color="green">986</FONT>            if (null != result) {<a name="line.986"></a>
+<FONT color="green">987</FONT>                return result;<a name="line.987"></a>
+<FONT color="green">988</FONT>            }<a name="line.988"></a>
+<FONT color="green">989</FONT>    <a name="line.989"></a>
+<FONT color="green">990</FONT>            return new SimpleBufferedImageFactory();<a name="line.990"></a>
+<FONT color="green">991</FONT>        }<a name="line.991"></a>
+<FONT color="green">992</FONT>    <a name="line.992"></a>
+<FONT color="green">993</FONT>        /**<a name="line.993"></a>
+<FONT color="green">994</FONT>         * A utility method to search a params specification and determine<a name="line.994"></a>
+<FONT color="green">995</FONT>         * whether it contains the ImagingConstants&amp;#46;PARAM_KEY_STRICT<a name="line.995"></a>
+<FONT color="green">996</FONT>         * specification. Intended<a name="line.996"></a>
+<FONT color="green">997</FONT>         * for internal use by ImageParser implementations.<a name="line.997"></a>
+<FONT color="green">998</FONT>         * @param params A valid Map object (or a null).<a name="line.998"></a>
+<FONT color="green">999</FONT>         * @return If the params specify strict format compliance, true;<a name="line.999"></a>
+<FONT color="green">1000</FONT>         * otherwise, false.<a name="line.1000"></a>
+<FONT color="green">1001</FONT>         */<a name="line.1001"></a>
+<FONT color="green">1002</FONT>        public static final boolean isStrict(final Map&lt;String,Object&gt; params) {<a name="line.1002"></a>
+<FONT color="green">1003</FONT>            if (params == null || !params.containsKey(PARAM_KEY_STRICT)) {<a name="line.1003"></a>
+<FONT color="green">1004</FONT>                return false;<a name="line.1004"></a>
+<FONT color="green">1005</FONT>            }<a name="line.1005"></a>
+<FONT color="green">1006</FONT>            return ((Boolean) params.get(PARAM_KEY_STRICT)).booleanValue();<a name="line.1006"></a>
+<FONT color="green">1007</FONT>        }<a name="line.1007"></a>
+<FONT color="green">1008</FONT>    }<a name="line.1008"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

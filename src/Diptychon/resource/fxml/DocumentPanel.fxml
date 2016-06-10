@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+
+<SplitPane fx:id="root" dividerPositions="0.5" focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="350.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.panels.DocumentPanel">
+  <items>
+    <ScrollPane fx:id="leftScroll" pannable="false">
+      <content>
+        <AnchorPane id="AnchorPane" fx:id="anchorPaneImage" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onScroll="#handleMouseScroll">
+          <children>
+            <Group id="Group" fx:id="groupImage">
+              <children>
+                <Region fx:id="rubberBand" layoutX="1.0" layoutY="1.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#rubberBandClicked" prefHeight="0.0" prefWidth="0.0" />
+                <ImageView fx:id="documentImageView" onContextMenuRequested="#showDocumentImageContextMenu" onMouseClicked="#mouseClicked" onMouseDragged="#mouseDragged" onMousePressed="#mousePressed" onMouseReleased="#mouseReleased" pickOnBounds="true" preserveRatio="true" />
+              </children>
+            </Group>
+          </children>
+        </AnchorPane>
+      </content>
+    </ScrollPane>
+    <ScrollPane fx:id="rightScroll" prefHeight="-1.0" prefWidth="-1.0">
+      <content>
+        <AnchorPane fx:id="anchorPaneTranscript" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onScroll="#handleMouseScroll">
+          <Group id="Group" fx:id="groupTranscript">
+            <children>
+              <Region id="workaround" fx:id="transcriptBackground" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" />
+            </children>
+          </Group>
+        </AnchorPane>
+      </content>
+    </ScrollPane>
+  </items>
+</SplitPane>

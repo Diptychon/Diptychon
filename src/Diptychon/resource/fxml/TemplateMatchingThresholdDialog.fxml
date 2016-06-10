@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?scenebuilder-stylesheet ../css/modal-dialog.css?>
+
+<VBox id="VBox" fx:id="root" alignment="CENTER" prefHeight="257.0" prefWidth="672.0" spacing="5.0" styleClass="modal-dialog, rootGreen" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.TemplateMatchingThresholdDialog">
+  <children>
+    <Label fx:id="accuracyValue" alignment="TOP_CENTER" minHeight="1.0" prefHeight="1.0" text="" visible="false" />
+    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Template Matching">
+      <font>
+        <Font size="20.0" />
+      </font>
+    </Text>
+    <VBox id="VBox" alignment="CENTER" spacing="5.0" styleClass="modal-dialog, rootGreen">
+      <children>
+        <Label text="Similarity Accuracy" />
+        <Slider fx:id="accuracy" blockIncrement="1.0" majorTickUnit="25.5" max="255.0" min="25.0" minorTickCount="10" prefHeight="64.0" prefWidth="338.0" showTickLabels="false" showTickMarks="true" snapToTicks="false" value="25.0" />
+        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="415.0">
+          <children>
+            <Label alignment="CENTER_LEFT" prefWidth="93.0" text="Coarse" />
+            <Label alignment="CENTER_RIGHT" prefWidth="49.0" text="Fine" />
+          </children>
+        </HBox>
+      </children>
+    </VBox>
+    <HBox id="HBox" alignment="CENTER" spacing="5.0">
+      <children>
+        <Button defaultButton="true" mnemonicParsing="false" onAction="#apply" styleClass="modal-button-text-small" text="Apply" />
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" styleClass="modal-button-text-small" text="Cancel" />
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<VBox fx:id="root" alignment="CENTER" padding="$x2" prefHeight="406.0" prefWidth="500.0" spacing="10.0" styleClass="modal-dialog-background, rootGreen" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.WizardGrayScale">
+  <children>
+    <VBox alignment="CENTER" prefHeight="283.0" prefWidth="450.0" spacing="10.0" styleClass="modal-dialog-background, rootGreen">
+      <children>
+        <Label text="Red" />
+        <HBox prefHeight="100.0" prefWidth="200.0">
+          <children>
+            <Slider fx:id="redSlider" blockIncrement="0.001" majorTickUnit="0.1" max="1.0" prefWidth="300.0" showTickLabels="true" showTickMarks="true" value="0.309" />
+            <ToggleButton fx:id="unchangeRed" contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0">
+              <toggleGroup>
+                <ToggleGroup fx:id="unchanged" />
+              </toggleGroup>
+            </ToggleButton>
+          </children>
+        </HBox>
+        <Label text="Green" />
+        <HBox prefHeight="100.0" prefWidth="200.0">
+          <children>
+            <Slider fx:id="greenSlider" blockIncrement="0.001" majorTickUnit="0.1" max="1.0" prefWidth="300.0" showTickLabels="true" showTickMarks="true" value="0.609" />
+            <ToggleButton fx:id="unchangeBlue" contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" toggleGroup="$unchanged" />
+          </children>
+        </HBox>
+        <Label text="Blue" />
+        <HBox prefHeight="100.0" prefWidth="200.0">
+          <children>
+            <Slider fx:id="blueSlider" blockIncrement="0.001" majorTickUnit="0.1" max="1.0" prefWidth="300.0" showTickLabels="true" showTickMarks="true" value="0.082" />
+            <ToggleButton fx:id="unchangeGreen" contentDisplay="CENTER" graphicTextGap="0.0" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="20.0" prefWidth="20.0" toggleGroup="$unchanged" />
+          </children>
+        </HBox>
+      </children>
+    </VBox>
+    <HBox alignment="CENTER" minHeight="44.0" prefHeight="88.0" prefWidth="450.0" spacing="10.0" styleClass="modal-dialog">
+      <children>
+        <Button id="openFiles" fx:id="preStep" mnemonicParsing="false" onAction="#previous" prefHeight="35.0" prefWidth="102.0" text="Previous" />
+        <Button id="openFiles" fx:id="nextStep" mnemonicParsing="false" onAction="#next" prefHeight="30.0" prefWidth="102.0" text="Next" />
+        <Button id="openFiles" fx:id="cancel" mnemonicParsing="false" onAction="#cancel" prefHeight="35.0" prefWidth="102.0" text="Cancel" />
+      </children>
+      <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" fx:id="x2" />
+      </padding>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

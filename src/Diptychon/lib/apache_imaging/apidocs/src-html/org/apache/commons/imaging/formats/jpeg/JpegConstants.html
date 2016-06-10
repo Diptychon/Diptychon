@@ -1,0 +1,220 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<FONT color="green">003</FONT>     * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<FONT color="green">004</FONT>     * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<FONT color="green">006</FONT>     * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<FONT color="green">007</FONT>     * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<FONT color="green">008</FONT>     *<a name="line.8"></a>
+<FONT color="green">009</FONT>     *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<FONT color="green">010</FONT>     *<a name="line.10"></a>
+<FONT color="green">011</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<FONT color="green">012</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<FONT color="green">013</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<FONT color="green">014</FONT>     * See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>     * limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    package org.apache.commons.imaging.formats.jpeg;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import java.util.Arrays;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.util.Collections;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.util.List;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import org.apache.commons.imaging.common.BinaryConstant;<a name="line.23"></a>
+<FONT color="green">024</FONT>    <a name="line.24"></a>
+<FONT color="green">025</FONT>    public interface JpegConstants {<a name="line.25"></a>
+<FONT color="green">026</FONT>        public static final int MAX_SEGMENT_SIZE = 0xffff;<a name="line.26"></a>
+<FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>        public static final BinaryConstant JFIF0_SIGNATURE = new BinaryConstant(<a name="line.28"></a>
+<FONT color="green">029</FONT>                new byte[] { 0x4a, // J<a name="line.29"></a>
+<FONT color="green">030</FONT>                        0x46, // F<a name="line.30"></a>
+<FONT color="green">031</FONT>                        0x49, // I<a name="line.31"></a>
+<FONT color="green">032</FONT>                        0x46, // F<a name="line.32"></a>
+<FONT color="green">033</FONT>                        0x0, //<a name="line.33"></a>
+<FONT color="green">034</FONT>                });<a name="line.34"></a>
+<FONT color="green">035</FONT>        public static final BinaryConstant JFIF0_SIGNATURE_ALTERNATIVE = new BinaryConstant(<a name="line.35"></a>
+<FONT color="green">036</FONT>                new byte[] { 0x4a, // J<a name="line.36"></a>
+<FONT color="green">037</FONT>                        0x46, // F<a name="line.37"></a>
+<FONT color="green">038</FONT>                        0x49, // I<a name="line.38"></a>
+<FONT color="green">039</FONT>                        0x46, // F<a name="line.39"></a>
+<FONT color="green">040</FONT>                        0x20, //<a name="line.40"></a>
+<FONT color="green">041</FONT>                });<a name="line.41"></a>
+<FONT color="green">042</FONT>    <a name="line.42"></a>
+<FONT color="green">043</FONT>        public static final BinaryConstant EXIF_IDENTIFIER_CODE = new BinaryConstant(<a name="line.43"></a>
+<FONT color="green">044</FONT>                new byte[] { 0x45, // E<a name="line.44"></a>
+<FONT color="green">045</FONT>                        0x78, // x<a name="line.45"></a>
+<FONT color="green">046</FONT>                        0x69, // i<a name="line.46"></a>
+<FONT color="green">047</FONT>                        0x66, // f<a name="line.47"></a>
+<FONT color="green">048</FONT>                });<a name="line.48"></a>
+<FONT color="green">049</FONT>    <a name="line.49"></a>
+<FONT color="green">050</FONT>        public static final BinaryConstant XMP_IDENTIFIER = new BinaryConstant(<a name="line.50"></a>
+<FONT color="green">051</FONT>                new byte[] { 0x68, // h<a name="line.51"></a>
+<FONT color="green">052</FONT>                        0x74, // t<a name="line.52"></a>
+<FONT color="green">053</FONT>                        0x74, // t<a name="line.53"></a>
+<FONT color="green">054</FONT>                        0x70, // p<a name="line.54"></a>
+<FONT color="green">055</FONT>                        0x3A, // :<a name="line.55"></a>
+<FONT color="green">056</FONT>                        0x2F, // /<a name="line.56"></a>
+<FONT color="green">057</FONT>                        0x2F, // /<a name="line.57"></a>
+<FONT color="green">058</FONT>                        0x6E, // n<a name="line.58"></a>
+<FONT color="green">059</FONT>                        0x73, // s<a name="line.59"></a>
+<FONT color="green">060</FONT>                        0x2E, // .<a name="line.60"></a>
+<FONT color="green">061</FONT>                        0x61, // a<a name="line.61"></a>
+<FONT color="green">062</FONT>                        0x64, // d<a name="line.62"></a>
+<FONT color="green">063</FONT>                        0x6F, // o<a name="line.63"></a>
+<FONT color="green">064</FONT>                        0x62, // b<a name="line.64"></a>
+<FONT color="green">065</FONT>                        0x65, // e<a name="line.65"></a>
+<FONT color="green">066</FONT>                        0x2E, // .<a name="line.66"></a>
+<FONT color="green">067</FONT>                        0x63, // c<a name="line.67"></a>
+<FONT color="green">068</FONT>                        0x6F, // o<a name="line.68"></a>
+<FONT color="green">069</FONT>                        0x6D, // m<a name="line.69"></a>
+<FONT color="green">070</FONT>                        0x2F, // /<a name="line.70"></a>
+<FONT color="green">071</FONT>                        0x78, // x<a name="line.71"></a>
+<FONT color="green">072</FONT>                        0x61, // a<a name="line.72"></a>
+<FONT color="green">073</FONT>                        0x70, // p<a name="line.73"></a>
+<FONT color="green">074</FONT>                        0x2F, // /<a name="line.74"></a>
+<FONT color="green">075</FONT>                        0x31, // 1<a name="line.75"></a>
+<FONT color="green">076</FONT>                        0x2E, // .<a name="line.76"></a>
+<FONT color="green">077</FONT>                        0x30, // 0<a name="line.77"></a>
+<FONT color="green">078</FONT>                        0x2F, // /<a name="line.78"></a>
+<FONT color="green">079</FONT>                        0, // 0-terminated us-ascii string.<a name="line.79"></a>
+<FONT color="green">080</FONT>                });<a name="line.80"></a>
+<FONT color="green">081</FONT>    <a name="line.81"></a>
+<FONT color="green">082</FONT>        public static final BinaryConstant SOI = new BinaryConstant(new byte[] {<a name="line.82"></a>
+<FONT color="green">083</FONT>                (byte) 0xff, (byte) 0xd8 });<a name="line.83"></a>
+<FONT color="green">084</FONT>        public static final BinaryConstant EOI = new BinaryConstant(new byte[] {<a name="line.84"></a>
+<FONT color="green">085</FONT>                (byte) 0xff, (byte) 0xd9 });<a name="line.85"></a>
+<FONT color="green">086</FONT>    <a name="line.86"></a>
+<FONT color="green">087</FONT>        public static final int JPEG_APP0 = 0xE0;<a name="line.87"></a>
+<FONT color="green">088</FONT>        public static final int JPEG_APP0_Marker = (0xff00) | (JPEG_APP0);<a name="line.88"></a>
+<FONT color="green">089</FONT>        public static final int JPEG_APP1_Marker = (0xff00) | (JPEG_APP0 + 1);<a name="line.89"></a>
+<FONT color="green">090</FONT>        public static final int JPEG_APP2_Marker = (0xff00) | (JPEG_APP0 + 2);<a name="line.90"></a>
+<FONT color="green">091</FONT>        public static final int JPEG_APP13_Marker = (0xff00) | (JPEG_APP0 + 13);<a name="line.91"></a>
+<FONT color="green">092</FONT>        public static final int JPEG_APP14_Marker = (0xff00) | (JPEG_APP0 + 14);<a name="line.92"></a>
+<FONT color="green">093</FONT>        public static final int JPEG_APP15_Marker = (0xff00) | (JPEG_APP0 + 15);<a name="line.93"></a>
+<FONT color="green">094</FONT>    <a name="line.94"></a>
+<FONT color="green">095</FONT>        public static final int JFIFMarker = 0xFFE0;<a name="line.95"></a>
+<FONT color="green">096</FONT>        public static final int SOF0Marker = 0xFFc0;<a name="line.96"></a>
+<FONT color="green">097</FONT>        public static final int SOF1Marker = 0xFFc0 + 0x1;<a name="line.97"></a>
+<FONT color="green">098</FONT>        public static final int SOF2Marker = 0xFFc0 + 0x2;<a name="line.98"></a>
+<FONT color="green">099</FONT>        public static final int SOF3Marker = 0xFFc0 + 0x3;<a name="line.99"></a>
+<FONT color="green">100</FONT>        public static final int DHTMarker = 0xFFc0 + 0x4;<a name="line.100"></a>
+<FONT color="green">101</FONT>        public static final int SOF5Marker = 0xFFc0 + 0x5;<a name="line.101"></a>
+<FONT color="green">102</FONT>        public static final int SOF6Marker = 0xFFc0 + 0x6;<a name="line.102"></a>
+<FONT color="green">103</FONT>        public static final int SOF7Marker = 0xFFc0 + 0x7;<a name="line.103"></a>
+<FONT color="green">104</FONT>        public static final int SOF8Marker = 0xFFc0 + 0x8;<a name="line.104"></a>
+<FONT color="green">105</FONT>        public static final int SOF9Marker = 0xFFc0 + 0x9;<a name="line.105"></a>
+<FONT color="green">106</FONT>        public static final int SOF10Marker = 0xFFc0 + 0xa;<a name="line.106"></a>
+<FONT color="green">107</FONT>        public static final int SOF11Marker = 0xFFc0 + 0xb;<a name="line.107"></a>
+<FONT color="green">108</FONT>        public static final int DACMarker = 0xFFc0 + 0xc;<a name="line.108"></a>
+<FONT color="green">109</FONT>        public static final int SOF13Marker = 0xFFc0 + 0xd;<a name="line.109"></a>
+<FONT color="green">110</FONT>        public static final int SOF14Marker = 0xFFc0 + 0xe;<a name="line.110"></a>
+<FONT color="green">111</FONT>        public static final int SOF15Marker = 0xFFc0 + 0xf;<a name="line.111"></a>
+<FONT color="green">112</FONT>    <a name="line.112"></a>
+<FONT color="green">113</FONT>        public static final int EOIMarker = 0xFFd9;<a name="line.113"></a>
+<FONT color="green">114</FONT>        public static final int SOS_Marker = 0xFFda;<a name="line.114"></a>
+<FONT color="green">115</FONT>        public static final int DQTMarker = 0xFFdb;<a name="line.115"></a>
+<FONT color="green">116</FONT>        public static final int DNLMarker = 0xFFdc;<a name="line.116"></a>
+<FONT color="green">117</FONT>        public static final int COMMarker = 0xFFfe;<a name="line.117"></a>
+<FONT color="green">118</FONT>    <a name="line.118"></a>
+<FONT color="green">119</FONT>        public static final List&lt;Integer&gt; MARKERS = Collections<a name="line.119"></a>
+<FONT color="green">120</FONT>                .unmodifiableList(Arrays.asList(JPEG_APP0, JPEG_APP0_Marker,<a name="line.120"></a>
+<FONT color="green">121</FONT>                        JPEG_APP1_Marker, JPEG_APP2_Marker, JPEG_APP13_Marker,<a name="line.121"></a>
+<FONT color="green">122</FONT>                        JPEG_APP14_Marker, JPEG_APP15_Marker, JFIFMarker,<a name="line.122"></a>
+<FONT color="green">123</FONT>                        SOF0Marker, SOF1Marker, SOF2Marker, SOF3Marker, DHTMarker,<a name="line.123"></a>
+<FONT color="green">124</FONT>                        SOF5Marker, SOF6Marker, SOF7Marker, SOF8Marker, SOF9Marker,<a name="line.124"></a>
+<FONT color="green">125</FONT>                        SOF10Marker, SOF11Marker, DACMarker, SOF13Marker,<a name="line.125"></a>
+<FONT color="green">126</FONT>                        SOF14Marker, SOF15Marker, EOIMarker, SOS_Marker, DQTMarker,<a name="line.126"></a>
+<FONT color="green">127</FONT>                        DNLMarker, COMMarker));<a name="line.127"></a>
+<FONT color="green">128</FONT>    <a name="line.128"></a>
+<FONT color="green">129</FONT>        public static final BinaryConstant icc_profile_label = new BinaryConstant(<a name="line.129"></a>
+<FONT color="green">130</FONT>                new byte[] { 0x49, 0x43, 0x43, 0x5F, 0x50, 0x52, 0x4F, 0x46, 0x49,<a name="line.130"></a>
+<FONT color="green">131</FONT>                        0x4C, 0x45, 0x0 });<a name="line.131"></a>
+<FONT color="green">132</FONT>    <a name="line.132"></a>
+<FONT color="green">133</FONT>        public static final BinaryConstant PHOTOSHOP_IDENTIFICATION_STRING = new BinaryConstant(<a name="line.133"></a>
+<FONT color="green">134</FONT>                new byte[] { 0x50, // P<a name="line.134"></a>
+<FONT color="green">135</FONT>                        0x68, // h<a name="line.135"></a>
+<FONT color="green">136</FONT>                        0x6F, // o<a name="line.136"></a>
+<FONT color="green">137</FONT>                        0x74, // t<a name="line.137"></a>
+<FONT color="green">138</FONT>                        0x6F, // o<a name="line.138"></a>
+<FONT color="green">139</FONT>                        0x73, // s<a name="line.139"></a>
+<FONT color="green">140</FONT>                        0x68, // h<a name="line.140"></a>
+<FONT color="green">141</FONT>                        0x6F, // o<a name="line.141"></a>
+<FONT color="green">142</FONT>                        0x70, // p<a name="line.142"></a>
+<FONT color="green">143</FONT>                        0x20, //<a name="line.143"></a>
+<FONT color="green">144</FONT>                        0x33, // 3<a name="line.144"></a>
+<FONT color="green">145</FONT>                        0x2E, // .<a name="line.145"></a>
+<FONT color="green">146</FONT>                        0x30, // 0<a name="line.146"></a>
+<FONT color="green">147</FONT>                        0, });<a name="line.147"></a>
+<FONT color="green">148</FONT>        public static final BinaryConstant CONST_8BIM = new BinaryConstant(<a name="line.148"></a>
+<FONT color="green">149</FONT>                new byte[] { 0x38, // 8<a name="line.149"></a>
+<FONT color="green">150</FONT>                        0x42, // B<a name="line.150"></a>
+<FONT color="green">151</FONT>                        0x49, // I<a name="line.151"></a>
+<FONT color="green">152</FONT>                        0x4D, // M<a name="line.152"></a>
+<FONT color="green">153</FONT>                });<a name="line.153"></a>
+<FONT color="green">154</FONT>    }<a name="line.154"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

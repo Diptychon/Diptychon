@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.*?>
+
+<BorderPane fx:id="root" prefHeight="768.0" prefWidth="938.999977929685" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.MainFrame">
+  <top>
+    <VBox prefHeight="73.0">
+      <children>
+        <MenuBar maxHeight="-Infinity" minHeight="-Infinity" prefHeight="30.0">
+          <menus>
+            <Menu mnemonicParsing="false" text="File">
+              <items>
+                <Menu mnemonicParsing="false" text="New">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#handleNewProjectAction" text="Project">
+                      <accelerator>
+                        <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                      </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleWizard" text="Wizard" />
+                    <MenuItem disable="true" mnemonicParsing="false" text="Transcription" />
+                  </items>
+                </Menu>
+                <MenuItem mnemonicParsing="false" onAction="#handleOpenAction" text="Open...">
+                  <accelerator>
+                    <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                  </accelerator>
+                </MenuItem>
+                <Menu mnemonicParsing="false" text="Open recent" fx:id="openRecent" />
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem mnemonicParsing="false" onAction="#handleSaveAction" text="Save" fx:id="miSave">
+                  <accelerator>
+                    <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                  </accelerator>
+                </MenuItem>
+                <MenuItem mnemonicParsing="false" onAction="#handleSaveAsAction" text="Save as..." fx:id="miSaveAs">
+                  <accelerator>
+                    <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                  </accelerator>
+                </MenuItem>
+                <Menu disable="false" mnemonicParsing="false" text="Export">
+                  <items>
+                    <Menu disable="false" mnemonicParsing="false" text="Images">
+                      <items>
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportGrayScale" text="Greyscale Image..." />
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportBinaryImage" text="Binary Image..." />
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportPDFwithparentheses" text="PDF with parentheses..." />
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportPDFwithoutparentheses" text="PDF without parentheses..." />
+                      </items>
+                    </Menu>
+                    <Menu disable="false" mnemonicParsing="false" text="Transcript">
+                      <items>
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportTranscriptRTF" text="Rich Text Format (*.rtf)..." />
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportTranscriptPlainText" text="Plain Text (*.txt)..." />
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportTranscriptTEI" text="Text Encoding Initiative (*.xml)..." />
+                      </items>
+                    </Menu>
+                    <Menu disable="false" mnemonicParsing="false" text="Statistics">
+                      <items>
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportStatistic" text="Statistics" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleMergeStatistics" text="Merge Statistics..." />
+                      </items>
+                    </Menu>
+                    <Menu disable="false" mnemonicParsing="false" text="Glyphs">
+                      <items>
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportGlyphsGrayscale" text="Greyscale Images" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportGlyphsBinary" text="Binary Images" />
+                      </items>
+                    </Menu>
+                  </items>
+                </Menu>
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem mnemonicParsing="false" onAction="#handleExitAction" text="Exit">
+                  <accelerator>
+                    <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                  </accelerator>
+                </MenuItem>
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Edit">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#handleFind" text="Find" fx:id="miFind">
+                  <accelerator>
+                    <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                  </accelerator>
+                </MenuItem>
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Settings">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#handleFontSettingsMenu" text="Transcription Font..." />
+                <MenuItem mnemonicParsing="false" onAction="#handleFragSettingsMenu" text="Fragmentation...">
+                  <accelerator>
+                    <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                  </accelerator>
+                </MenuItem>
+                <MenuItem mnemonicParsing="false" onAction="#handleSearchEnginePrefsMenu" text="Search Engine...">
+                  <accelerator>
+                    <KeyCodeCombination alt="UP" code="Y" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                  </accelerator>
+                </MenuItem>
+                <MenuItem mnemonicParsing="false" onAction="#handleLineSettingsMenu" text="Line Detection...">
+                  <accelerator>
+                    <KeyCodeCombination alt="UP" code="L" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                  </accelerator>
+                </MenuItem>
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#handleAboutAction" text="About" />
+              </items>
+            </Menu>
+          </menus>
+        </MenuBar>
+        <ToolBar fx:id="toolbar" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="43.0" prefWidth="1023.9998779296875">
+          <items>
+            <Button fx:id="newProject" contentDisplay="GRAPHIC_ONLY" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onAction="#handleNewProjectAction" prefHeight="30.0" prefWidth="30.0" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="Open">
+              <graphic>
+                <ImageView fitHeight="24.0" fitWidth="24.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@/icons/toolbar/New24.gif" preserveRatio="false" smooth="false" />
+                  </image>
+                </ImageView>
+              </graphic>
+              <tooltip>
+                <Tooltip text="New Project" />
+              </tooltip>
+            </Button>
+            <Button fx:id="open" contentDisplay="GRAPHIC_ONLY" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onAction="#handleOpenAction" prefHeight="30.0" prefWidth="30.0" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="Open">
+              <graphic>
+                <ImageView fitHeight="24.0" fitWidth="24.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@/icons/toolbar/Open24.gif" preserveRatio="false" smooth="false" />
+                  </image>
+                </ImageView>
+              </graphic>
+              <tooltip>
+                <Tooltip text="Open Project" />
+              </tooltip>
+            </Button>
+            <Button fx:id="save" contentDisplay="GRAPHIC_ONLY" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onAction="#handleSaveAction" prefHeight="30.0" prefWidth="30.0" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="Save">
+              <graphic>
+                <ImageView fitHeight="24.0" fitWidth="24.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@/icons/toolbar/Save24.gif" preserveRatio="false" smooth="false" />
+                  </image>
+                </ImageView>
+              </graphic>
+              <tooltip>
+                <Tooltip text="Save Project" />
+              </tooltip>
+            </Button>
+            <Button fx:id="saveAs" contentDisplay="GRAPHIC_ONLY" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onAction="#handleSaveAsAction" prefHeight="30.0" prefWidth="30.0" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="Save as...">
+              <graphic>
+                <ImageView fitHeight="24.0" fitWidth="24.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@/icons/toolbar/SaveAs24.gif" preserveRatio="false" smooth="false" />
+                  </image>
+                </ImageView>
+              </graphic>
+              <tooltip>
+                <Tooltip text="Save Project as..." />
+              </tooltip>
+            </Button>
+            <Button fx:id="prev" contentDisplay="GRAPHIC_ONLY" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onAction="#handleBrowsePrevious" prefHeight="30.0" prefWidth="30.0" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="prev">
+              <graphic>
+                <ImageView fitHeight="24.0" fitWidth="24.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@/icons/toolbar/Back24.gif" preserveRatio="false" smooth="false" />
+                  </image>
+                </ImageView>
+              </graphic>
+              <tooltip>
+                <Tooltip text="Show previos Document Image" />
+              </tooltip>
+            </Button>
+            <Button fx:id="next" contentDisplay="GRAPHIC_ONLY" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onAction="#handleBrowseNext" prefHeight="30.0" prefWidth="30.0" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="next">
+              <graphic>
+                <ImageView fitHeight="24.0" fitWidth="24.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@/icons/toolbar/Forward24.gif" preserveRatio="false" smooth="false" />
+                  </image>
+                </ImageView>
+              </graphic>
+              <tooltip>
+                <Tooltip text="Show next Document Image" />
+              </tooltip>
+            </Button>
+            <TextField fx:id="curPage" alignment="CENTER" onAction="#handlePageInput" prefHeight="30.0" prefWidth="30.0" text="0" />
+            <Label fx:id="numOfPages" prefHeight="30.0" prefWidth="30.0" text="/ 0" />
+            <ImageView fx:id="zoomDecrease" fitHeight="24.0" fitWidth="24.0" onMouseClicked="#handleZoomOut" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)">
+              <image>
+                <Image url="@/icons/toolbar/ZoomOut24.gif" preserveRatio="false" smooth="false" />
+              </image>
+            </ImageView>
+            <Slider fx:id="zoomSlider" blockIncrement="5.0" majorTickUnit="100.0" max="1000.0" minorTickCount="5" prefHeight="30.0" prefWidth="300.0" showTickLabels="true" showTickMarks="true" value="100.0" />
+            <ImageView fx:id="zoomIncrease" fitHeight="24.0" fitWidth="24.0" onMouseClicked="#handleZoomIn" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)">
+              <image>
+                <Image url="@/icons/toolbar/ZoomIn24.gif" preserveRatio="false" smooth="false" />
+              </image>
+            </ImageView>
+            <Button id="prev" fx:id="zoomFit" contentDisplay="GRAPHIC_ONLY" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onAction="#handleZoomFit" prefHeight="30.0" prefWidth="30.0" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="Zoom to fit document image">
+              <graphic>
+                <ImageView fitHeight="24.0" fitWidth="24.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@/icons/toolbar/ZoomFit.png" backgroundLoading="false" />
+                  </image>
+                </ImageView>
+              </graphic>
+              <tooltip>
+                <Tooltip text="Zoom to fit the document image" />
+              </tooltip>
+            </Button>
+            <ToggleButton fx:id="showBinarizedImage" contentDisplay="GRAPHIC_ONLY" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" onAction="#handleShowBinarized" prefHeight="30.0" prefWidth="30.0" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="Show binarized image">
+              <graphic>
+                <ImageView fitHeight="24.0" fitWidth="24.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                    <Image url="@/icons/toolbar/ShowBinarized24.png" preserveRatio="false" smooth="false" />
+                  </image>
+                </ImageView>
+              </graphic>
+              <tooltip>
+                <Tooltip text="Show binarized Document Image" />
+              </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="showLines" contentDisplay="LEFT" graphicTextGap="0.0" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" selected="true" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="L" textAlignment="LEFT" underline="false" wrapText="false">
+              <font>
+                <Font size="12.0" fx:id="x1" />
+              </font>
+              <tooltip>
+                <Tooltip text="Show all Lines" />
+              </tooltip>
+            </ToggleButton>
+            <ToggleButton fx:id="showGlyphs" contentDisplay="LEFT" font="$x1" graphicTextGap="0.0" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" selected="true" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="G">
+              <tooltip>
+                <Tooltip text="Show all Glyphs" />
+              </tooltip>
+            </ToggleButton>
+            <ToggleButton id="showGlyphs" fx:id="syncScroll" contentDisplay="LEFT" font="$x1" graphicTextGap="0.0" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" selected="true" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="S">
+              <tooltip>
+                <Tooltip text="Synchronize Scrollbars" />
+              </tooltip>
+            </ToggleButton>
+            <ToggleButton id="showGlyphs" fx:id="onlyFocused" contentDisplay="LEFT" font="$x1" graphicTextGap="0.0" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" selected="true" style="-fx-effect: dropshadow( two-pass-box, black, 10, 0.0, 0, 0)" text="F">
+              <tooltip>
+                <Tooltip text="Show Glyphs in focused Lines only" />
+              </tooltip>
+            </ToggleButton>
+            <Region fx:id="spacer" prefHeight="33.0" prefWidth="36.0" />
+            <ProgressIndicator fx:id="progressIndicator" prefHeight="33.0" prefWidth="36.0" progress="0.0" translateX="0.0" visible="false" />
+          </items>
+        </ToolBar>
+      </children>
+    </VBox>
+  </top>
+</BorderPane>

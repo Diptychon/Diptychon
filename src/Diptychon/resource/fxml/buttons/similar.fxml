@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="60.0" maxWidth="60.0" minHeight="85.0" minWidth="85.0" prefHeight="60.0" prefWidth="60.0" styleClass="shiny-orange" visible="true" xmlns:fx="http://javafx.com/fxml">
+  <children>
+    <Text fill="WHITE" layoutX="14.0" layoutY="45.0" scaleX="1.0" scaleY="1.0" strokeType="OUTSIDE" strokeWidth="0.0" text="SEARCHSIMILAR" textAlignment="CENTER" wrappingWidth="75.0">
+      <font>
+        <Font name="Arial" size="18.0" />
+      </font>
+    </Text>
+  </children>
+  <stylesheets>
+    <URL value="@/css/button.css" />
+  </stylesheets>
+</AnchorPane>

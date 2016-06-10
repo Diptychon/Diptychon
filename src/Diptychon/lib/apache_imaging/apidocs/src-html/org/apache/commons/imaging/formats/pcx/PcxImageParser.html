@@ -1,0 +1,640 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<FONT color="green">003</FONT>     * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<FONT color="green">004</FONT>     * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<FONT color="green">006</FONT>     * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<FONT color="green">007</FONT>     * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<FONT color="green">008</FONT>     *<a name="line.8"></a>
+<FONT color="green">009</FONT>     *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<FONT color="green">010</FONT>     *<a name="line.10"></a>
+<FONT color="green">011</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<FONT color="green">012</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<FONT color="green">013</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<FONT color="green">014</FONT>     * See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>     * limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    package org.apache.commons.imaging.formats.pcx;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import java.awt.Dimension;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.awt.Transparency;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.awt.color.ColorSpace;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.awt.image.BufferedImage;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.awt.image.ColorModel;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.awt.image.ComponentColorModel;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.awt.image.DataBuffer;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.awt.image.DataBufferByte;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import java.awt.image.IndexColorModel;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import java.awt.image.WritableRaster;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import java.io.File;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import java.io.IOException;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import java.io.InputStream;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import java.io.OutputStream;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import java.io.PrintWriter;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import java.util.ArrayList;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import java.util.Arrays;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import java.util.HashMap;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import java.util.Map;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import java.util.Properties;<a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>    import org.apache.commons.imaging.ImageFormat;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import org.apache.commons.imaging.ImageInfo;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import org.apache.commons.imaging.ImageParser;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import org.apache.commons.imaging.ImageReadException;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import org.apache.commons.imaging.ImageWriteException;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import org.apache.commons.imaging.common.ByteOrder;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import org.apache.commons.imaging.common.IImageMetadata;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import org.apache.commons.imaging.common.bytesource.ByteSource;<a name="line.47"></a>
+<FONT color="green">048</FONT>    <a name="line.48"></a>
+<FONT color="green">049</FONT>    public class PcxImageParser extends ImageParser implements PcxConstants {<a name="line.49"></a>
+<FONT color="green">050</FONT>        // ZSoft's official spec is at http://www.qzx.com/pc-gpe/pcx.txt<a name="line.50"></a>
+<FONT color="green">051</FONT>        // (among other places) but it's pretty thin. The fileformat.info document<a name="line.51"></a>
+<FONT color="green">052</FONT>        // at http://www.fileformat.info/format/pcx/egff.htm is a little better<a name="line.52"></a>
+<FONT color="green">053</FONT>        // but their gray sample image seems corrupt. PCX files themselves are<a name="line.53"></a>
+<FONT color="green">054</FONT>        // the ultimate test but pretty hard to find nowdays, so the best<a name="line.54"></a>
+<FONT color="green">055</FONT>        // test is against other image viewers (Irfanview is pretty good).<a name="line.55"></a>
+<FONT color="green">056</FONT>        //<a name="line.56"></a>
+<FONT color="green">057</FONT>        // Open source projects are generally poor at parsing PCX,<a name="line.57"></a>
+<FONT color="green">058</FONT>        // SDL_Image/gdk-pixbuf/Eye of Gnome/GIMP/F-Spot all only do some formats,<a name="line.58"></a>
+<FONT color="green">059</FONT>        // don't support uncompressed PCX, and/or don't handle black and white<a name="line.59"></a>
+<FONT color="green">060</FONT>        // images properly.<a name="line.60"></a>
+<FONT color="green">061</FONT>    <a name="line.61"></a>
+<FONT color="green">062</FONT>        public PcxImageParser() {<a name="line.62"></a>
+<FONT color="green">063</FONT>            super.setByteOrder(ByteOrder.LITTLE_ENDIAN);<a name="line.63"></a>
+<FONT color="green">064</FONT>        }<a name="line.64"></a>
+<FONT color="green">065</FONT>    <a name="line.65"></a>
+<FONT color="green">066</FONT>        @Override<a name="line.66"></a>
+<FONT color="green">067</FONT>        public String getName() {<a name="line.67"></a>
+<FONT color="green">068</FONT>            return "Pcx-Custom";<a name="line.68"></a>
+<FONT color="green">069</FONT>        }<a name="line.69"></a>
+<FONT color="green">070</FONT>    <a name="line.70"></a>
+<FONT color="green">071</FONT>        @Override<a name="line.71"></a>
+<FONT color="green">072</FONT>        public String getDefaultExtension() {<a name="line.72"></a>
+<FONT color="green">073</FONT>            return DEFAULT_EXTENSION;<a name="line.73"></a>
+<FONT color="green">074</FONT>        }<a name="line.74"></a>
+<FONT color="green">075</FONT>    <a name="line.75"></a>
+<FONT color="green">076</FONT>        private static final String DEFAULT_EXTENSION = ".pcx";<a name="line.76"></a>
+<FONT color="green">077</FONT>        private static final String ACCEPTED_EXTENSIONS[] = { ".pcx", ".pcc", };<a name="line.77"></a>
+<FONT color="green">078</FONT>    <a name="line.78"></a>
+<FONT color="green">079</FONT>        @Override<a name="line.79"></a>
+<FONT color="green">080</FONT>        protected String[] getAcceptedExtensions() {<a name="line.80"></a>
+<FONT color="green">081</FONT>            return ACCEPTED_EXTENSIONS;<a name="line.81"></a>
+<FONT color="green">082</FONT>        }<a name="line.82"></a>
+<FONT color="green">083</FONT>    <a name="line.83"></a>
+<FONT color="green">084</FONT>        @Override<a name="line.84"></a>
+<FONT color="green">085</FONT>        protected ImageFormat[] getAcceptedTypes() {<a name="line.85"></a>
+<FONT color="green">086</FONT>            return new ImageFormat[] { ImageFormat.IMAGE_FORMAT_PCX, //<a name="line.86"></a>
+<FONT color="green">087</FONT>            };<a name="line.87"></a>
+<FONT color="green">088</FONT>        }<a name="line.88"></a>
+<FONT color="green">089</FONT>    <a name="line.89"></a>
+<FONT color="green">090</FONT>        @Override<a name="line.90"></a>
+<FONT color="green">091</FONT>        public boolean embedICCProfile(final File src, final File dst, final byte profile[]) {<a name="line.91"></a>
+<FONT color="green">092</FONT>            return false;<a name="line.92"></a>
+<FONT color="green">093</FONT>        }<a name="line.93"></a>
+<FONT color="green">094</FONT>    <a name="line.94"></a>
+<FONT color="green">095</FONT>        @Override<a name="line.95"></a>
+<FONT color="green">096</FONT>        public IImageMetadata getMetadata(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.96"></a>
+<FONT color="green">097</FONT>                throws ImageReadException, IOException {<a name="line.97"></a>
+<FONT color="green">098</FONT>            return null;<a name="line.98"></a>
+<FONT color="green">099</FONT>        }<a name="line.99"></a>
+<FONT color="green">100</FONT>    <a name="line.100"></a>
+<FONT color="green">101</FONT>        @Override<a name="line.101"></a>
+<FONT color="green">102</FONT>        public ImageInfo getImageInfo(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.102"></a>
+<FONT color="green">103</FONT>                throws ImageReadException, IOException {<a name="line.103"></a>
+<FONT color="green">104</FONT>            final PcxHeader pcxHeader = readPcxHeader(byteSource);<a name="line.104"></a>
+<FONT color="green">105</FONT>            final Dimension size = getImageSize(byteSource, params);<a name="line.105"></a>
+<FONT color="green">106</FONT>            return new ImageInfo(<a name="line.106"></a>
+<FONT color="green">107</FONT>                    "PCX",<a name="line.107"></a>
+<FONT color="green">108</FONT>                    pcxHeader.nPlanes * pcxHeader.bitsPerPixel,<a name="line.108"></a>
+<FONT color="green">109</FONT>                    new ArrayList&lt;String&gt;(),<a name="line.109"></a>
+<FONT color="green">110</FONT>                    ImageFormat.IMAGE_FORMAT_PCX,<a name="line.110"></a>
+<FONT color="green">111</FONT>                    "ZSoft PCX Image",<a name="line.111"></a>
+<FONT color="green">112</FONT>                    size.height,<a name="line.112"></a>
+<FONT color="green">113</FONT>                    "image/x-pcx",<a name="line.113"></a>
+<FONT color="green">114</FONT>                    1,<a name="line.114"></a>
+<FONT color="green">115</FONT>                    pcxHeader.vDpi,<a name="line.115"></a>
+<FONT color="green">116</FONT>                    Math.round(size.getHeight() / pcxHeader.vDpi),<a name="line.116"></a>
+<FONT color="green">117</FONT>                    pcxHeader.hDpi,<a name="line.117"></a>
+<FONT color="green">118</FONT>                    Math.round(size.getWidth() / pcxHeader.hDpi),<a name="line.118"></a>
+<FONT color="green">119</FONT>                    size.width,<a name="line.119"></a>
+<FONT color="green">120</FONT>                    false,<a name="line.120"></a>
+<FONT color="green">121</FONT>                    false,<a name="line.121"></a>
+<FONT color="green">122</FONT>                    !(pcxHeader.nPlanes == 3 &amp;&amp; pcxHeader.bitsPerPixel == 8),<a name="line.122"></a>
+<FONT color="green">123</FONT>                    ImageInfo.COLOR_TYPE_RGB,<a name="line.123"></a>
+<FONT color="green">124</FONT>                    pcxHeader.encoding == PcxHeader.ENCODING_RLE ? ImageInfo.COMPRESSION_ALGORITHM_RLE<a name="line.124"></a>
+<FONT color="green">125</FONT>                            : ImageInfo.COMPRESSION_ALGORITHM_NONE);<a name="line.125"></a>
+<FONT color="green">126</FONT>        }<a name="line.126"></a>
+<FONT color="green">127</FONT>    <a name="line.127"></a>
+<FONT color="green">128</FONT>        @Override<a name="line.128"></a>
+<FONT color="green">129</FONT>        public Dimension getImageSize(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.129"></a>
+<FONT color="green">130</FONT>                throws ImageReadException, IOException {<a name="line.130"></a>
+<FONT color="green">131</FONT>            final PcxHeader pcxHeader = readPcxHeader(byteSource);<a name="line.131"></a>
+<FONT color="green">132</FONT>            final int xSize = pcxHeader.xMax - pcxHeader.xMin + 1;<a name="line.132"></a>
+<FONT color="green">133</FONT>            if (xSize &lt; 0) {<a name="line.133"></a>
+<FONT color="green">134</FONT>                throw new ImageReadException("Image width is negative");<a name="line.134"></a>
+<FONT color="green">135</FONT>            }<a name="line.135"></a>
+<FONT color="green">136</FONT>            final int ySize = pcxHeader.yMax - pcxHeader.yMin + 1;<a name="line.136"></a>
+<FONT color="green">137</FONT>            if (ySize &lt; 0) {<a name="line.137"></a>
+<FONT color="green">138</FONT>                throw new ImageReadException("Image height is negative");<a name="line.138"></a>
+<FONT color="green">139</FONT>            }<a name="line.139"></a>
+<FONT color="green">140</FONT>            return new Dimension(xSize, ySize);<a name="line.140"></a>
+<FONT color="green">141</FONT>        }<a name="line.141"></a>
+<FONT color="green">142</FONT>    <a name="line.142"></a>
+<FONT color="green">143</FONT>        @Override<a name="line.143"></a>
+<FONT color="green">144</FONT>        public byte[] getICCProfileBytes(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.144"></a>
+<FONT color="green">145</FONT>                throws ImageReadException, IOException {<a name="line.145"></a>
+<FONT color="green">146</FONT>            return null;<a name="line.146"></a>
+<FONT color="green">147</FONT>        }<a name="line.147"></a>
+<FONT color="green">148</FONT>    <a name="line.148"></a>
+<FONT color="green">149</FONT>        static class PcxHeader {<a name="line.149"></a>
+<FONT color="green">150</FONT>    <a name="line.150"></a>
+<FONT color="green">151</FONT>            public static final int ENCODING_UNCOMPRESSED = 0;<a name="line.151"></a>
+<FONT color="green">152</FONT>            public static final int ENCODING_RLE = 1;<a name="line.152"></a>
+<FONT color="green">153</FONT>            public static final int PALETTE_INFO_COLOR = 1;<a name="line.153"></a>
+<FONT color="green">154</FONT>            public static final int PALETTE_INFO_GRAYSCALE = 2;<a name="line.154"></a>
+<FONT color="green">155</FONT>            public final int manufacturer; // Always 10 = ZSoft .pcx<a name="line.155"></a>
+<FONT color="green">156</FONT>            public final int version; // 0 = PC Paintbrush 2.5<a name="line.156"></a>
+<FONT color="green">157</FONT>                                      // 2 = PC Paintbrush 2.8 with palette<a name="line.157"></a>
+<FONT color="green">158</FONT>                                      // 3 = PC Paintbrush 2.8 w/o palette<a name="line.158"></a>
+<FONT color="green">159</FONT>                                      // 4 = PC Paintbrush for Windows<a name="line.159"></a>
+<FONT color="green">160</FONT>                                      // 5 = PC Paintbrush &gt;= 3.0<a name="line.160"></a>
+<FONT color="green">161</FONT>            public final int encoding; // 0 = very old uncompressed format, 1 = .pcx<a name="line.161"></a>
+<FONT color="green">162</FONT>                                       // run length encoding<a name="line.162"></a>
+<FONT color="green">163</FONT>            public final int bitsPerPixel; // Bits ***PER PLANE*** for each pixel<a name="line.163"></a>
+<FONT color="green">164</FONT>            public final int xMin; // window<a name="line.164"></a>
+<FONT color="green">165</FONT>            public final int yMin;<a name="line.165"></a>
+<FONT color="green">166</FONT>            public final int xMax;<a name="line.166"></a>
+<FONT color="green">167</FONT>            public final int yMax;<a name="line.167"></a>
+<FONT color="green">168</FONT>            public final int hDpi; // horizontal dpi<a name="line.168"></a>
+<FONT color="green">169</FONT>            public final int vDpi; // vertical dpi<a name="line.169"></a>
+<FONT color="green">170</FONT>            public final int[] colormap; // palette for &lt;= 16 colors<a name="line.170"></a>
+<FONT color="green">171</FONT>            public final int reserved; // Always 0<a name="line.171"></a>
+<FONT color="green">172</FONT>            public final int nPlanes; // Number of color planes<a name="line.172"></a>
+<FONT color="green">173</FONT>            public final int bytesPerLine; // Number of bytes per scanline plane,<a name="line.173"></a>
+<FONT color="green">174</FONT>                                           // must be an even number.<a name="line.174"></a>
+<FONT color="green">175</FONT>            public final int paletteInfo; // 1 = Color/BW, 2 = Grayscale, ignored in<a name="line.175"></a>
+<FONT color="green">176</FONT>                                          // Paintbrush IV/IV+<a name="line.176"></a>
+<FONT color="green">177</FONT>            public final int hScreenSize; // horizontal screen size, in pixels.<a name="line.177"></a>
+<FONT color="green">178</FONT>                                          // PaintBrush &gt;= IV only.<a name="line.178"></a>
+<FONT color="green">179</FONT>            public final int vScreenSize; // vertical screen size, in pixels.<a name="line.179"></a>
+<FONT color="green">180</FONT>                                          // PaintBrush &gt;= IV only.<a name="line.180"></a>
+<FONT color="green">181</FONT>    <a name="line.181"></a>
+<FONT color="green">182</FONT>            public PcxHeader(final int manufacturer, final int version,<a name="line.182"></a>
+<FONT color="green">183</FONT>                    final int encoding, final int bitsPerPixel, final int xMin,<a name="line.183"></a>
+<FONT color="green">184</FONT>                    final int yMin, final int xMax, final int yMax, final int hDpi,<a name="line.184"></a>
+<FONT color="green">185</FONT>                    final int vDpi, final int[] colormap, final int reserved,<a name="line.185"></a>
+<FONT color="green">186</FONT>                    final int nPlanes, final int bytesPerLine,<a name="line.186"></a>
+<FONT color="green">187</FONT>                    final int paletteInfo, final int hScreenSize,<a name="line.187"></a>
+<FONT color="green">188</FONT>                    final int vScreenSize) {<a name="line.188"></a>
+<FONT color="green">189</FONT>                this.manufacturer = manufacturer;<a name="line.189"></a>
+<FONT color="green">190</FONT>                this.version = version;<a name="line.190"></a>
+<FONT color="green">191</FONT>                this.encoding = encoding;<a name="line.191"></a>
+<FONT color="green">192</FONT>                this.bitsPerPixel = bitsPerPixel;<a name="line.192"></a>
+<FONT color="green">193</FONT>                this.xMin = xMin;<a name="line.193"></a>
+<FONT color="green">194</FONT>                this.yMin = yMin;<a name="line.194"></a>
+<FONT color="green">195</FONT>                this.xMax = xMax;<a name="line.195"></a>
+<FONT color="green">196</FONT>                this.yMax = yMax;<a name="line.196"></a>
+<FONT color="green">197</FONT>                this.hDpi = hDpi;<a name="line.197"></a>
+<FONT color="green">198</FONT>                this.vDpi = vDpi;<a name="line.198"></a>
+<FONT color="green">199</FONT>                this.colormap = colormap;<a name="line.199"></a>
+<FONT color="green">200</FONT>                this.reserved = reserved;<a name="line.200"></a>
+<FONT color="green">201</FONT>                this.nPlanes = nPlanes;<a name="line.201"></a>
+<FONT color="green">202</FONT>                this.bytesPerLine = bytesPerLine;<a name="line.202"></a>
+<FONT color="green">203</FONT>                this.paletteInfo = paletteInfo;<a name="line.203"></a>
+<FONT color="green">204</FONT>                this.hScreenSize = hScreenSize;<a name="line.204"></a>
+<FONT color="green">205</FONT>                this.vScreenSize = vScreenSize;<a name="line.205"></a>
+<FONT color="green">206</FONT>            }<a name="line.206"></a>
+<FONT color="green">207</FONT>    <a name="line.207"></a>
+<FONT color="green">208</FONT>            public void dump(final PrintWriter pw) {<a name="line.208"></a>
+<FONT color="green">209</FONT>                pw.println("PcxHeader");<a name="line.209"></a>
+<FONT color="green">210</FONT>                pw.println("Manufacturer: " + manufacturer);<a name="line.210"></a>
+<FONT color="green">211</FONT>                pw.println("Version: " + version);<a name="line.211"></a>
+<FONT color="green">212</FONT>                pw.println("Encoding: " + encoding);<a name="line.212"></a>
+<FONT color="green">213</FONT>                pw.println("BitsPerPixel: " + bitsPerPixel);<a name="line.213"></a>
+<FONT color="green">214</FONT>                pw.println("xMin: " + xMin);<a name="line.214"></a>
+<FONT color="green">215</FONT>                pw.println("yMin: " + yMin);<a name="line.215"></a>
+<FONT color="green">216</FONT>                pw.println("xMax: " + xMax);<a name="line.216"></a>
+<FONT color="green">217</FONT>                pw.println("yMax: " + yMax);<a name="line.217"></a>
+<FONT color="green">218</FONT>                pw.println("hDpi: " + hDpi);<a name="line.218"></a>
+<FONT color="green">219</FONT>                pw.println("vDpi: " + vDpi);<a name="line.219"></a>
+<FONT color="green">220</FONT>                pw.print("ColorMap: ");<a name="line.220"></a>
+<FONT color="green">221</FONT>                for (int i = 0; i &lt; colormap.length; i++) {<a name="line.221"></a>
+<FONT color="green">222</FONT>                    if (i &gt; 0) {<a name="line.222"></a>
+<FONT color="green">223</FONT>                        pw.print(",");<a name="line.223"></a>
+<FONT color="green">224</FONT>                    }<a name="line.224"></a>
+<FONT color="green">225</FONT>                    pw.print("(" + (0xff &amp; (colormap[i] &gt;&gt; 16)) + ","<a name="line.225"></a>
+<FONT color="green">226</FONT>                            + (0xff &amp; (colormap[i] &gt;&gt; 8)) + ","<a name="line.226"></a>
+<FONT color="green">227</FONT>                            + (0xff &amp; colormap[i]) + ")");<a name="line.227"></a>
+<FONT color="green">228</FONT>                }<a name="line.228"></a>
+<FONT color="green">229</FONT>                pw.println();<a name="line.229"></a>
+<FONT color="green">230</FONT>                pw.println("Reserved: " + reserved);<a name="line.230"></a>
+<FONT color="green">231</FONT>                pw.println("nPlanes: " + nPlanes);<a name="line.231"></a>
+<FONT color="green">232</FONT>                pw.println("BytesPerLine: " + bytesPerLine);<a name="line.232"></a>
+<FONT color="green">233</FONT>                pw.println("PaletteInfo: " + paletteInfo);<a name="line.233"></a>
+<FONT color="green">234</FONT>                pw.println("hScreenSize: " + hScreenSize);<a name="line.234"></a>
+<FONT color="green">235</FONT>                pw.println("vScreenSize: " + vScreenSize);<a name="line.235"></a>
+<FONT color="green">236</FONT>                pw.println();<a name="line.236"></a>
+<FONT color="green">237</FONT>            }<a name="line.237"></a>
+<FONT color="green">238</FONT>        }<a name="line.238"></a>
+<FONT color="green">239</FONT>    <a name="line.239"></a>
+<FONT color="green">240</FONT>        private PcxHeader readPcxHeader(final ByteSource byteSource)<a name="line.240"></a>
+<FONT color="green">241</FONT>                throws ImageReadException, IOException {<a name="line.241"></a>
+<FONT color="green">242</FONT>            InputStream is = null;<a name="line.242"></a>
+<FONT color="green">243</FONT>            try {<a name="line.243"></a>
+<FONT color="green">244</FONT>                is = byteSource.getInputStream();<a name="line.244"></a>
+<FONT color="green">245</FONT>                return readPcxHeader(is, false);<a name="line.245"></a>
+<FONT color="green">246</FONT>            } finally {<a name="line.246"></a>
+<FONT color="green">247</FONT>                try {<a name="line.247"></a>
+<FONT color="green">248</FONT>                    if (is != null) {<a name="line.248"></a>
+<FONT color="green">249</FONT>                        is.close();<a name="line.249"></a>
+<FONT color="green">250</FONT>                    }<a name="line.250"></a>
+<FONT color="green">251</FONT>                } catch (final IOException ignored) {<a name="line.251"></a>
+<FONT color="green">252</FONT>                }<a name="line.252"></a>
+<FONT color="green">253</FONT>            }<a name="line.253"></a>
+<FONT color="green">254</FONT>        }<a name="line.254"></a>
+<FONT color="green">255</FONT>    <a name="line.255"></a>
+<FONT color="green">256</FONT>        private PcxHeader readPcxHeader(final InputStream is, final boolean isStrict)<a name="line.256"></a>
+<FONT color="green">257</FONT>                throws ImageReadException, IOException {<a name="line.257"></a>
+<FONT color="green">258</FONT>            final byte[] pcxHeaderBytes = readByteArray("PcxHeader", 128, is,<a name="line.258"></a>
+<FONT color="green">259</FONT>                    "Not a Valid PCX File");<a name="line.259"></a>
+<FONT color="green">260</FONT>            final int manufacturer = 0xff &amp; pcxHeaderBytes[0];<a name="line.260"></a>
+<FONT color="green">261</FONT>            final int version = 0xff &amp; pcxHeaderBytes[1];<a name="line.261"></a>
+<FONT color="green">262</FONT>            final int encoding = 0xff &amp; pcxHeaderBytes[2];<a name="line.262"></a>
+<FONT color="green">263</FONT>            final int bitsPerPixel = 0xff &amp; pcxHeaderBytes[3];<a name="line.263"></a>
+<FONT color="green">264</FONT>            final int xMin = convertByteArrayToShort("xMin", 4, pcxHeaderBytes,<a name="line.264"></a>
+<FONT color="green">265</FONT>                    ByteOrder.LITTLE_ENDIAN);<a name="line.265"></a>
+<FONT color="green">266</FONT>            final int yMin = convertByteArrayToShort("yMin", 6, pcxHeaderBytes,<a name="line.266"></a>
+<FONT color="green">267</FONT>                    ByteOrder.LITTLE_ENDIAN);<a name="line.267"></a>
+<FONT color="green">268</FONT>            final int xMax = convertByteArrayToShort("xMax", 8, pcxHeaderBytes,<a name="line.268"></a>
+<FONT color="green">269</FONT>                    ByteOrder.LITTLE_ENDIAN);<a name="line.269"></a>
+<FONT color="green">270</FONT>            final int yMax = convertByteArrayToShort("yMax", 10, pcxHeaderBytes,<a name="line.270"></a>
+<FONT color="green">271</FONT>                    ByteOrder.LITTLE_ENDIAN);<a name="line.271"></a>
+<FONT color="green">272</FONT>            final int hDpi = convertByteArrayToShort("hDpi", 12, pcxHeaderBytes,<a name="line.272"></a>
+<FONT color="green">273</FONT>                    ByteOrder.LITTLE_ENDIAN);<a name="line.273"></a>
+<FONT color="green">274</FONT>            final int vDpi = convertByteArrayToShort("vDpi", 14, pcxHeaderBytes,<a name="line.274"></a>
+<FONT color="green">275</FONT>                    ByteOrder.LITTLE_ENDIAN);<a name="line.275"></a>
+<FONT color="green">276</FONT>            final int[] colormap = new int[16];<a name="line.276"></a>
+<FONT color="green">277</FONT>            for (int i = 0; i &lt; 16; i++) {<a name="line.277"></a>
+<FONT color="green">278</FONT>                colormap[i] = 0xff000000<a name="line.278"></a>
+<FONT color="green">279</FONT>                        | ((0xff &amp; pcxHeaderBytes[16 + 3 * i]) &lt;&lt; 16)<a name="line.279"></a>
+<FONT color="green">280</FONT>                        | ((0xff &amp; pcxHeaderBytes[16 + 3 * i + 1]) &lt;&lt; 8)<a name="line.280"></a>
+<FONT color="green">281</FONT>                        | (0xff &amp; pcxHeaderBytes[16 + 3 * i + 2]);<a name="line.281"></a>
+<FONT color="green">282</FONT>            }<a name="line.282"></a>
+<FONT color="green">283</FONT>            final int reserved = 0xff &amp; pcxHeaderBytes[64];<a name="line.283"></a>
+<FONT color="green">284</FONT>            final int nPlanes = 0xff &amp; pcxHeaderBytes[65];<a name="line.284"></a>
+<FONT color="green">285</FONT>            final int bytesPerLine = convertByteArrayToShort("BytesPerLine", 66,<a name="line.285"></a>
+<FONT color="green">286</FONT>                    pcxHeaderBytes, ByteOrder.LITTLE_ENDIAN);<a name="line.286"></a>
+<FONT color="green">287</FONT>            final int paletteInfo = convertByteArrayToShort("PaletteInfo", 68,<a name="line.287"></a>
+<FONT color="green">288</FONT>                    pcxHeaderBytes, ByteOrder.LITTLE_ENDIAN);<a name="line.288"></a>
+<FONT color="green">289</FONT>            final int hScreenSize = convertByteArrayToShort("hScreenSize", 70,<a name="line.289"></a>
+<FONT color="green">290</FONT>                    pcxHeaderBytes, ByteOrder.LITTLE_ENDIAN);<a name="line.290"></a>
+<FONT color="green">291</FONT>            final int vScreenSize = convertByteArrayToShort("vScreenSize", 72,<a name="line.291"></a>
+<FONT color="green">292</FONT>                    pcxHeaderBytes, ByteOrder.LITTLE_ENDIAN);<a name="line.292"></a>
+<FONT color="green">293</FONT>    <a name="line.293"></a>
+<FONT color="green">294</FONT>            if (manufacturer != 10) {<a name="line.294"></a>
+<FONT color="green">295</FONT>                throw new ImageReadException(<a name="line.295"></a>
+<FONT color="green">296</FONT>                        "Not a Valid PCX File: manufacturer is " + manufacturer);<a name="line.296"></a>
+<FONT color="green">297</FONT>            }<a name="line.297"></a>
+<FONT color="green">298</FONT>            if (isStrict) {<a name="line.298"></a>
+<FONT color="green">299</FONT>                // Note that reserved is sometimes set to a non-zero value<a name="line.299"></a>
+<FONT color="green">300</FONT>                // by Paintbrush itself, so it shouldn't be enforced.<a name="line.300"></a>
+<FONT color="green">301</FONT>                if (bytesPerLine % 2 != 0) {<a name="line.301"></a>
+<FONT color="green">302</FONT>                    throw new ImageReadException(<a name="line.302"></a>
+<FONT color="green">303</FONT>                            "Not a Valid PCX File: bytesPerLine is odd");<a name="line.303"></a>
+<FONT color="green">304</FONT>                }<a name="line.304"></a>
+<FONT color="green">305</FONT>            }<a name="line.305"></a>
+<FONT color="green">306</FONT>    <a name="line.306"></a>
+<FONT color="green">307</FONT>            return new PcxHeader(manufacturer, version, encoding, bitsPerPixel,<a name="line.307"></a>
+<FONT color="green">308</FONT>                    xMin, yMin, xMax, yMax, hDpi, vDpi, colormap, reserved,<a name="line.308"></a>
+<FONT color="green">309</FONT>                    nPlanes, bytesPerLine, paletteInfo, hScreenSize, vScreenSize);<a name="line.309"></a>
+<FONT color="green">310</FONT>        }<a name="line.310"></a>
+<FONT color="green">311</FONT>    <a name="line.311"></a>
+<FONT color="green">312</FONT>        @Override<a name="line.312"></a>
+<FONT color="green">313</FONT>        public boolean dumpImageFile(final PrintWriter pw, final ByteSource byteSource)<a name="line.313"></a>
+<FONT color="green">314</FONT>                throws ImageReadException, IOException {<a name="line.314"></a>
+<FONT color="green">315</FONT>            readPcxHeader(byteSource).dump(pw);<a name="line.315"></a>
+<FONT color="green">316</FONT>            return true;<a name="line.316"></a>
+<FONT color="green">317</FONT>        }<a name="line.317"></a>
+<FONT color="green">318</FONT>    <a name="line.318"></a>
+<FONT color="green">319</FONT>        private void readScanLine(final PcxHeader pcxHeader, final InputStream is,<a name="line.319"></a>
+<FONT color="green">320</FONT>                final byte[] samples) throws IOException, ImageReadException {<a name="line.320"></a>
+<FONT color="green">321</FONT>            if (pcxHeader.encoding == PcxHeader.ENCODING_UNCOMPRESSED) {<a name="line.321"></a>
+<FONT color="green">322</FONT>                int r;<a name="line.322"></a>
+<FONT color="green">323</FONT>                for (int bytesRead = 0; bytesRead &lt; samples.length; bytesRead += r) {<a name="line.323"></a>
+<FONT color="green">324</FONT>                    r = is.read(samples, bytesRead, samples.length - bytesRead);<a name="line.324"></a>
+<FONT color="green">325</FONT>                    if (r &lt; 0) {<a name="line.325"></a>
+<FONT color="green">326</FONT>                        throw new ImageReadException(<a name="line.326"></a>
+<FONT color="green">327</FONT>                                "Premature end of file reading image data");<a name="line.327"></a>
+<FONT color="green">328</FONT>                    }<a name="line.328"></a>
+<FONT color="green">329</FONT>                }<a name="line.329"></a>
+<FONT color="green">330</FONT>            } else {<a name="line.330"></a>
+<FONT color="green">331</FONT>                if (pcxHeader.encoding == PcxHeader.ENCODING_RLE) {<a name="line.331"></a>
+<FONT color="green">332</FONT>                    for (int bytesRead = 0; bytesRead &lt; samples.length;) {<a name="line.332"></a>
+<FONT color="green">333</FONT>                        final byte b = readByte("Pixel", is, "Error reading image data");<a name="line.333"></a>
+<FONT color="green">334</FONT>                        int count;<a name="line.334"></a>
+<FONT color="green">335</FONT>                        byte sample;<a name="line.335"></a>
+<FONT color="green">336</FONT>                        if ((b &amp; 0xc0) == 0xc0) {<a name="line.336"></a>
+<FONT color="green">337</FONT>                            count = b &amp; 0x3f;<a name="line.337"></a>
+<FONT color="green">338</FONT>                            sample = readByte("Pixel", is,<a name="line.338"></a>
+<FONT color="green">339</FONT>                                    "Error reading image data");<a name="line.339"></a>
+<FONT color="green">340</FONT>                        } else {<a name="line.340"></a>
+<FONT color="green">341</FONT>                            count = 1;<a name="line.341"></a>
+<FONT color="green">342</FONT>                            sample = b;<a name="line.342"></a>
+<FONT color="green">343</FONT>                        }<a name="line.343"></a>
+<FONT color="green">344</FONT>                        for (int i = 0; i &lt; count &amp;&amp; bytesRead + i &lt; samples.length; i++) {<a name="line.344"></a>
+<FONT color="green">345</FONT>                            samples[bytesRead + i] = sample;<a name="line.345"></a>
+<FONT color="green">346</FONT>                        }<a name="line.346"></a>
+<FONT color="green">347</FONT>                        bytesRead += count;<a name="line.347"></a>
+<FONT color="green">348</FONT>                    }<a name="line.348"></a>
+<FONT color="green">349</FONT>                } else {<a name="line.349"></a>
+<FONT color="green">350</FONT>                    throw new ImageReadException("Invalid PCX encoding "<a name="line.350"></a>
+<FONT color="green">351</FONT>                            + pcxHeader.encoding);<a name="line.351"></a>
+<FONT color="green">352</FONT>                }<a name="line.352"></a>
+<FONT color="green">353</FONT>            }<a name="line.353"></a>
+<FONT color="green">354</FONT>        }<a name="line.354"></a>
+<FONT color="green">355</FONT>    <a name="line.355"></a>
+<FONT color="green">356</FONT>        private int[] read256ColorPalette(final InputStream stream) throws IOException {<a name="line.356"></a>
+<FONT color="green">357</FONT>            final byte[] paletteBytes = readByteArray("Palette", 769, stream,<a name="line.357"></a>
+<FONT color="green">358</FONT>                    "Error reading palette");<a name="line.358"></a>
+<FONT color="green">359</FONT>            if (paletteBytes[0] != 12) {<a name="line.359"></a>
+<FONT color="green">360</FONT>                return null;<a name="line.360"></a>
+<FONT color="green">361</FONT>            }<a name="line.361"></a>
+<FONT color="green">362</FONT>            final int[] palette = new int[256];<a name="line.362"></a>
+<FONT color="green">363</FONT>            for (int i = 0; i &lt; palette.length; i++) {<a name="line.363"></a>
+<FONT color="green">364</FONT>                palette[i] = ((0xff &amp; paletteBytes[1 + 3 * i]) &lt;&lt; 16)<a name="line.364"></a>
+<FONT color="green">365</FONT>                        | ((0xff &amp; paletteBytes[1 + 3 * i + 1]) &lt;&lt; 8)<a name="line.365"></a>
+<FONT color="green">366</FONT>                        | (0xff &amp; paletteBytes[1 + 3 * i + 2]);<a name="line.366"></a>
+<FONT color="green">367</FONT>            }<a name="line.367"></a>
+<FONT color="green">368</FONT>            return palette;<a name="line.368"></a>
+<FONT color="green">369</FONT>        }<a name="line.369"></a>
+<FONT color="green">370</FONT>    <a name="line.370"></a>
+<FONT color="green">371</FONT>        private int[] read256ColorPaletteFromEndOfFile(final ByteSource byteSource)<a name="line.371"></a>
+<FONT color="green">372</FONT>                throws IOException {<a name="line.372"></a>
+<FONT color="green">373</FONT>            InputStream stream = null;<a name="line.373"></a>
+<FONT color="green">374</FONT>            try {<a name="line.374"></a>
+<FONT color="green">375</FONT>                stream = byteSource.getInputStream();<a name="line.375"></a>
+<FONT color="green">376</FONT>                final long toSkip = byteSource.getLength() - 769;<a name="line.376"></a>
+<FONT color="green">377</FONT>                skipBytes(stream, (int) toSkip);<a name="line.377"></a>
+<FONT color="green">378</FONT>                return read256ColorPalette(stream);<a name="line.378"></a>
+<FONT color="green">379</FONT>            } finally {<a name="line.379"></a>
+<FONT color="green">380</FONT>                try {<a name="line.380"></a>
+<FONT color="green">381</FONT>                    if (stream != null) {<a name="line.381"></a>
+<FONT color="green">382</FONT>                        stream.close();<a name="line.382"></a>
+<FONT color="green">383</FONT>                    }<a name="line.383"></a>
+<FONT color="green">384</FONT>                } catch (final IOException closeException) {<a name="line.384"></a>
+<FONT color="green">385</FONT>                }<a name="line.385"></a>
+<FONT color="green">386</FONT>            }<a name="line.386"></a>
+<FONT color="green">387</FONT>        }<a name="line.387"></a>
+<FONT color="green">388</FONT>    <a name="line.388"></a>
+<FONT color="green">389</FONT>        private BufferedImage readImage(final PcxHeader pcxHeader, final InputStream is,<a name="line.389"></a>
+<FONT color="green">390</FONT>                final ByteSource byteSource) throws ImageReadException, IOException {<a name="line.390"></a>
+<FONT color="green">391</FONT>            final int xSize = pcxHeader.xMax - pcxHeader.xMin + 1;<a name="line.391"></a>
+<FONT color="green">392</FONT>            if (xSize &lt; 0) {<a name="line.392"></a>
+<FONT color="green">393</FONT>                throw new ImageReadException("Image width is negative");<a name="line.393"></a>
+<FONT color="green">394</FONT>            }<a name="line.394"></a>
+<FONT color="green">395</FONT>            final int ySize = pcxHeader.yMax - pcxHeader.yMin + 1;<a name="line.395"></a>
+<FONT color="green">396</FONT>            if (ySize &lt; 0) {<a name="line.396"></a>
+<FONT color="green">397</FONT>                throw new ImageReadException("Image height is negative");<a name="line.397"></a>
+<FONT color="green">398</FONT>            }<a name="line.398"></a>
+<FONT color="green">399</FONT>    <a name="line.399"></a>
+<FONT color="green">400</FONT>            final int scanlineLength = pcxHeader.bytesPerLine * pcxHeader.nPlanes;<a name="line.400"></a>
+<FONT color="green">401</FONT>            final byte[] scanline = new byte[scanlineLength];<a name="line.401"></a>
+<FONT color="green">402</FONT>            if ((pcxHeader.bitsPerPixel == 1 || pcxHeader.bitsPerPixel == 2<a name="line.402"></a>
+<FONT color="green">403</FONT>                    || pcxHeader.bitsPerPixel == 4 || pcxHeader.bitsPerPixel == 8)<a name="line.403"></a>
+<FONT color="green">404</FONT>                    &amp;&amp; pcxHeader.nPlanes == 1) {<a name="line.404"></a>
+<FONT color="green">405</FONT>                final int bytesPerImageRow = (xSize * pcxHeader.bitsPerPixel + 7) / 8;<a name="line.405"></a>
+<FONT color="green">406</FONT>                final byte[] image = new byte[ySize * bytesPerImageRow];<a name="line.406"></a>
+<FONT color="green">407</FONT>                for (int y = 0; y &lt; ySize; y++) {<a name="line.407"></a>
+<FONT color="green">408</FONT>                    readScanLine(pcxHeader, is, scanline);<a name="line.408"></a>
+<FONT color="green">409</FONT>                    System.arraycopy(scanline, 0, image, y * bytesPerImageRow,<a name="line.409"></a>
+<FONT color="green">410</FONT>                            bytesPerImageRow);<a name="line.410"></a>
+<FONT color="green">411</FONT>                }<a name="line.411"></a>
+<FONT color="green">412</FONT>                final DataBufferByte dataBuffer = new DataBufferByte(image, image.length);<a name="line.412"></a>
+<FONT color="green">413</FONT>                int[] palette;<a name="line.413"></a>
+<FONT color="green">414</FONT>                if (pcxHeader.bitsPerPixel == 1) {<a name="line.414"></a>
+<FONT color="green">415</FONT>                    palette = new int[] { 0x000000, 0xffffff };<a name="line.415"></a>
+<FONT color="green">416</FONT>                } else if (pcxHeader.bitsPerPixel == 8) {<a name="line.416"></a>
+<FONT color="green">417</FONT>                    // Normally the palette is read 769 bytes from the end of the<a name="line.417"></a>
+<FONT color="green">418</FONT>                    // file.<a name="line.418"></a>
+<FONT color="green">419</FONT>                    // However DCX files have multiple PCX images in one file, so<a name="line.419"></a>
+<FONT color="green">420</FONT>                    // there could be extra data before the end! So try look for the<a name="line.420"></a>
+<FONT color="green">421</FONT>                    // palette<a name="line.421"></a>
+<FONT color="green">422</FONT>                    // immediately after the image data first.<a name="line.422"></a>
+<FONT color="green">423</FONT>                    palette = read256ColorPalette(is);<a name="line.423"></a>
+<FONT color="green">424</FONT>                    if (palette == null) {<a name="line.424"></a>
+<FONT color="green">425</FONT>                        palette = read256ColorPaletteFromEndOfFile(byteSource);<a name="line.425"></a>
+<FONT color="green">426</FONT>                    }<a name="line.426"></a>
+<FONT color="green">427</FONT>                    if (palette == null) {<a name="line.427"></a>
+<FONT color="green">428</FONT>                        throw new ImageReadException(<a name="line.428"></a>
+<FONT color="green">429</FONT>                                "No 256 color palette found in image that needs it");<a name="line.429"></a>
+<FONT color="green">430</FONT>                    }<a name="line.430"></a>
+<FONT color="green">431</FONT>                } else {<a name="line.431"></a>
+<FONT color="green">432</FONT>                    palette = pcxHeader.colormap;<a name="line.432"></a>
+<FONT color="green">433</FONT>                }<a name="line.433"></a>
+<FONT color="green">434</FONT>                WritableRaster raster;<a name="line.434"></a>
+<FONT color="green">435</FONT>                if (pcxHeader.bitsPerPixel == 8) {<a name="line.435"></a>
+<FONT color="green">436</FONT>                    raster = WritableRaster.createInterleavedRaster(dataBuffer,<a name="line.436"></a>
+<FONT color="green">437</FONT>                            xSize, ySize, bytesPerImageRow, 1, new int[] { 0 },<a name="line.437"></a>
+<FONT color="green">438</FONT>                            null);<a name="line.438"></a>
+<FONT color="green">439</FONT>                } else {<a name="line.439"></a>
+<FONT color="green">440</FONT>                    raster = WritableRaster.createPackedRaster(dataBuffer, xSize,<a name="line.440"></a>
+<FONT color="green">441</FONT>                            ySize, pcxHeader.bitsPerPixel, null);<a name="line.441"></a>
+<FONT color="green">442</FONT>                }<a name="line.442"></a>
+<FONT color="green">443</FONT>                final IndexColorModel colorModel = new IndexColorModel(<a name="line.443"></a>
+<FONT color="green">444</FONT>                        pcxHeader.bitsPerPixel, 1 &lt;&lt; pcxHeader.bitsPerPixel,<a name="line.444"></a>
+<FONT color="green">445</FONT>                        palette, 0, false, -1, DataBuffer.TYPE_BYTE);<a name="line.445"></a>
+<FONT color="green">446</FONT>                return new BufferedImage(colorModel, raster,<a name="line.446"></a>
+<FONT color="green">447</FONT>                        colorModel.isAlphaPremultiplied(), new Properties());<a name="line.447"></a>
+<FONT color="green">448</FONT>            } else if (pcxHeader.bitsPerPixel == 1 &amp;&amp; 2 &lt;= pcxHeader.nPlanes<a name="line.448"></a>
+<FONT color="green">449</FONT>                    &amp;&amp; pcxHeader.nPlanes &lt;= 4) {<a name="line.449"></a>
+<FONT color="green">450</FONT>                final IndexColorModel colorModel = new IndexColorModel(pcxHeader.nPlanes,<a name="line.450"></a>
+<FONT color="green">451</FONT>                        1 &lt;&lt; pcxHeader.nPlanes, pcxHeader.colormap, 0, false, -1,<a name="line.451"></a>
+<FONT color="green">452</FONT>                        DataBuffer.TYPE_BYTE);<a name="line.452"></a>
+<FONT color="green">453</FONT>                final BufferedImage image = new BufferedImage(xSize, ySize,<a name="line.453"></a>
+<FONT color="green">454</FONT>                        BufferedImage.TYPE_BYTE_BINARY, colorModel);<a name="line.454"></a>
+<FONT color="green">455</FONT>                final byte[] unpacked = new byte[xSize];<a name="line.455"></a>
+<FONT color="green">456</FONT>                for (int y = 0; y &lt; ySize; y++) {<a name="line.456"></a>
+<FONT color="green">457</FONT>                    readScanLine(pcxHeader, is, scanline);<a name="line.457"></a>
+<FONT color="green">458</FONT>                    int nextByte = 0;<a name="line.458"></a>
+<FONT color="green">459</FONT>                    Arrays.fill(unpacked, (byte) 0);<a name="line.459"></a>
+<FONT color="green">460</FONT>                    for (int plane = 0; plane &lt; pcxHeader.nPlanes; plane++) {<a name="line.460"></a>
+<FONT color="green">461</FONT>                        for (int i = 0; i &lt; pcxHeader.bytesPerLine; i++) {<a name="line.461"></a>
+<FONT color="green">462</FONT>                            final int b = 0xff &amp; scanline[nextByte++];<a name="line.462"></a>
+<FONT color="green">463</FONT>                            for (int j = 0; j &lt; 8 &amp;&amp; 8 * i + j &lt; unpacked.length; j++) {<a name="line.463"></a>
+<FONT color="green">464</FONT>                                unpacked[8 * i + j] |= (byte) (((b &gt;&gt; (7 - j)) &amp; 0x1) &lt;&lt; plane);<a name="line.464"></a>
+<FONT color="green">465</FONT>                            }<a name="line.465"></a>
+<FONT color="green">466</FONT>                        }<a name="line.466"></a>
+<FONT color="green">467</FONT>                    }<a name="line.467"></a>
+<FONT color="green">468</FONT>                    image.getRaster().setDataElements(0, y, xSize, 1, unpacked);<a name="line.468"></a>
+<FONT color="green">469</FONT>                }<a name="line.469"></a>
+<FONT color="green">470</FONT>                return image;<a name="line.470"></a>
+<FONT color="green">471</FONT>            } else if (pcxHeader.bitsPerPixel == 8 &amp;&amp; pcxHeader.nPlanes == 3) {<a name="line.471"></a>
+<FONT color="green">472</FONT>                final byte[][] image = new byte[3][];<a name="line.472"></a>
+<FONT color="green">473</FONT>                image[0] = new byte[xSize * ySize];<a name="line.473"></a>
+<FONT color="green">474</FONT>                image[1] = new byte[xSize * ySize];<a name="line.474"></a>
+<FONT color="green">475</FONT>                image[2] = new byte[xSize * ySize];<a name="line.475"></a>
+<FONT color="green">476</FONT>                for (int y = 0; y &lt; ySize; y++) {<a name="line.476"></a>
+<FONT color="green">477</FONT>                    readScanLine(pcxHeader, is, scanline);<a name="line.477"></a>
+<FONT color="green">478</FONT>                    System.arraycopy(scanline, 0, image[0], y * xSize, xSize);<a name="line.478"></a>
+<FONT color="green">479</FONT>                    System.arraycopy(scanline, pcxHeader.bytesPerLine, image[1], y<a name="line.479"></a>
+<FONT color="green">480</FONT>                            * xSize, xSize);<a name="line.480"></a>
+<FONT color="green">481</FONT>                    System.arraycopy(scanline, 2 * pcxHeader.bytesPerLine,<a name="line.481"></a>
+<FONT color="green">482</FONT>                            image[2], y * xSize, xSize);<a name="line.482"></a>
+<FONT color="green">483</FONT>                }<a name="line.483"></a>
+<FONT color="green">484</FONT>                final DataBufferByte dataBuffer = new DataBufferByte(image,<a name="line.484"></a>
+<FONT color="green">485</FONT>                        image[0].length);<a name="line.485"></a>
+<FONT color="green">486</FONT>                final WritableRaster raster = WritableRaster.createBandedRaster(<a name="line.486"></a>
+<FONT color="green">487</FONT>                        dataBuffer, xSize, ySize, xSize, new int[] { 0, 1, 2 },<a name="line.487"></a>
+<FONT color="green">488</FONT>                        new int[] { 0, 0, 0 }, null);<a name="line.488"></a>
+<FONT color="green">489</FONT>                final ColorModel colorModel = new ComponentColorModel(<a name="line.489"></a>
+<FONT color="green">490</FONT>                        ColorSpace.getInstance(ColorSpace.CS_sRGB), false, false,<a name="line.490"></a>
+<FONT color="green">491</FONT>                        Transparency.OPAQUE, DataBuffer.TYPE_BYTE);<a name="line.491"></a>
+<FONT color="green">492</FONT>                return new BufferedImage(colorModel, raster,<a name="line.492"></a>
+<FONT color="green">493</FONT>                        colorModel.isAlphaPremultiplied(), new Properties());<a name="line.493"></a>
+<FONT color="green">494</FONT>            } else if ((pcxHeader.bitsPerPixel == 24 &amp;&amp; pcxHeader.nPlanes == 1)<a name="line.494"></a>
+<FONT color="green">495</FONT>                    || (pcxHeader.bitsPerPixel == 32 &amp;&amp; pcxHeader.nPlanes == 1)) {<a name="line.495"></a>
+<FONT color="green">496</FONT>                final int rowLength = 3 * xSize;<a name="line.496"></a>
+<FONT color="green">497</FONT>                final byte[] image = new byte[rowLength * ySize];<a name="line.497"></a>
+<FONT color="green">498</FONT>                for (int y = 0; y &lt; ySize; y++) {<a name="line.498"></a>
+<FONT color="green">499</FONT>                    readScanLine(pcxHeader, is, scanline);<a name="line.499"></a>
+<FONT color="green">500</FONT>                    if (pcxHeader.bitsPerPixel == 24) {<a name="line.500"></a>
+<FONT color="green">501</FONT>                        System.arraycopy(scanline, 0, image, y * rowLength,<a name="line.501"></a>
+<FONT color="green">502</FONT>                                rowLength);<a name="line.502"></a>
+<FONT color="green">503</FONT>                    } else {<a name="line.503"></a>
+<FONT color="green">504</FONT>                        for (int x = 0; x &lt; xSize; x++) {<a name="line.504"></a>
+<FONT color="green">505</FONT>                            image[y * rowLength + 3 * x] = scanline[4 * x];<a name="line.505"></a>
+<FONT color="green">506</FONT>                            image[y * rowLength + 3 * x + 1] = scanline[4 * x + 1];<a name="line.506"></a>
+<FONT color="green">507</FONT>                            image[y * rowLength + 3 * x + 2] = scanline[4 * x + 2];<a name="line.507"></a>
+<FONT color="green">508</FONT>                        }<a name="line.508"></a>
+<FONT color="green">509</FONT>                    }<a name="line.509"></a>
+<FONT color="green">510</FONT>                }<a name="line.510"></a>
+<FONT color="green">511</FONT>                final DataBufferByte dataBuffer = new DataBufferByte(image, image.length);<a name="line.511"></a>
+<FONT color="green">512</FONT>                final WritableRaster raster = WritableRaster.createInterleavedRaster(<a name="line.512"></a>
+<FONT color="green">513</FONT>                        dataBuffer, xSize, ySize, rowLength, 3,<a name="line.513"></a>
+<FONT color="green">514</FONT>                        new int[] { 2, 1, 0 }, null);<a name="line.514"></a>
+<FONT color="green">515</FONT>                final ColorModel colorModel = new ComponentColorModel(<a name="line.515"></a>
+<FONT color="green">516</FONT>                        ColorSpace.getInstance(ColorSpace.CS_sRGB), false, false,<a name="line.516"></a>
+<FONT color="green">517</FONT>                        Transparency.OPAQUE, DataBuffer.TYPE_BYTE);<a name="line.517"></a>
+<FONT color="green">518</FONT>                return new BufferedImage(colorModel, raster,<a name="line.518"></a>
+<FONT color="green">519</FONT>                        colorModel.isAlphaPremultiplied(), new Properties());<a name="line.519"></a>
+<FONT color="green">520</FONT>            } else {<a name="line.520"></a>
+<FONT color="green">521</FONT>                throw new ImageReadException(<a name="line.521"></a>
+<FONT color="green">522</FONT>                        "Invalid/unsupported image with bitsPerPixel "<a name="line.522"></a>
+<FONT color="green">523</FONT>                                + pcxHeader.bitsPerPixel + " and planes "<a name="line.523"></a>
+<FONT color="green">524</FONT>                                + pcxHeader.nPlanes);<a name="line.524"></a>
+<FONT color="green">525</FONT>            }<a name="line.525"></a>
+<FONT color="green">526</FONT>        }<a name="line.526"></a>
+<FONT color="green">527</FONT>    <a name="line.527"></a>
+<FONT color="green">528</FONT>        @Override<a name="line.528"></a>
+<FONT color="green">529</FONT>        public final BufferedImage getBufferedImage(final ByteSource byteSource,<a name="line.529"></a>
+<FONT color="green">530</FONT>                Map&lt;String,Object&gt; params) throws ImageReadException, IOException {<a name="line.530"></a>
+<FONT color="green">531</FONT>            params = (params == null) ? new HashMap&lt;String,Object&gt;() : new HashMap&lt;String,Object&gt;(params);<a name="line.531"></a>
+<FONT color="green">532</FONT>            boolean isStrict = false;<a name="line.532"></a>
+<FONT color="green">533</FONT>            final Object strictness = params.get(PARAM_KEY_STRICT);<a name="line.533"></a>
+<FONT color="green">534</FONT>            if (strictness != null) {<a name="line.534"></a>
+<FONT color="green">535</FONT>                isStrict = ((Boolean) strictness).booleanValue();<a name="line.535"></a>
+<FONT color="green">536</FONT>            }<a name="line.536"></a>
+<FONT color="green">537</FONT>    <a name="line.537"></a>
+<FONT color="green">538</FONT>            InputStream is = null;<a name="line.538"></a>
+<FONT color="green">539</FONT>            try {<a name="line.539"></a>
+<FONT color="green">540</FONT>                is = byteSource.getInputStream();<a name="line.540"></a>
+<FONT color="green">541</FONT>                final PcxHeader pcxHeader = readPcxHeader(is, isStrict);<a name="line.541"></a>
+<FONT color="green">542</FONT>                return readImage(pcxHeader, is, byteSource);<a name="line.542"></a>
+<FONT color="green">543</FONT>            } finally {<a name="line.543"></a>
+<FONT color="green">544</FONT>                try {<a name="line.544"></a>
+<FONT color="green">545</FONT>                    if (is != null) {<a name="line.545"></a>
+<FONT color="green">546</FONT>                        is.close();<a name="line.546"></a>
+<FONT color="green">547</FONT>                    }<a name="line.547"></a>
+<FONT color="green">548</FONT>                } catch (final IOException ignored) {<a name="line.548"></a>
+<FONT color="green">549</FONT>                }<a name="line.549"></a>
+<FONT color="green">550</FONT>            }<a name="line.550"></a>
+<FONT color="green">551</FONT>        }<a name="line.551"></a>
+<FONT color="green">552</FONT>    <a name="line.552"></a>
+<FONT color="green">553</FONT>        @Override<a name="line.553"></a>
+<FONT color="green">554</FONT>        public void writeImage(final BufferedImage src, final OutputStream os, final Map&lt;String,Object&gt; params)<a name="line.554"></a>
+<FONT color="green">555</FONT>                throws ImageWriteException, IOException {<a name="line.555"></a>
+<FONT color="green">556</FONT>            new PcxWriter(params).writeImage(src, os);<a name="line.556"></a>
+<FONT color="green">557</FONT>        }<a name="line.557"></a>
+<FONT color="green">558</FONT>    <a name="line.558"></a>
+<FONT color="green">559</FONT>        /**<a name="line.559"></a>
+<FONT color="green">560</FONT>         * Extracts embedded XML metadata as XML string.<a name="line.560"></a>
+<FONT color="green">561</FONT>         * &lt;p&gt;<a name="line.561"></a>
+<FONT color="green">562</FONT>         * <a name="line.562"></a>
+<FONT color="green">563</FONT>         * @param byteSource<a name="line.563"></a>
+<FONT color="green">564</FONT>         *            File containing image data.<a name="line.564"></a>
+<FONT color="green">565</FONT>         * @param params<a name="line.565"></a>
+<FONT color="green">566</FONT>         *            Map of optional parameters, defined in SanselanConstants.<a name="line.566"></a>
+<FONT color="green">567</FONT>         * @return Xmp Xml as String, if present. Otherwise, returns null.<a name="line.567"></a>
+<FONT color="green">568</FONT>         */<a name="line.568"></a>
+<FONT color="green">569</FONT>        @Override<a name="line.569"></a>
+<FONT color="green">570</FONT>        public String getXmpXml(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.570"></a>
+<FONT color="green">571</FONT>                throws ImageReadException, IOException {<a name="line.571"></a>
+<FONT color="green">572</FONT>            return null;<a name="line.572"></a>
+<FONT color="green">573</FONT>        }<a name="line.573"></a>
+<FONT color="green">574</FONT>    }<a name="line.574"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

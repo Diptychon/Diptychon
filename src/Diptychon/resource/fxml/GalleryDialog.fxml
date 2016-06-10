@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<VBox fx:id="root" alignment="CENTER" prefHeight="547.0" prefWidth="948.0" styleClass="modal-dialog-background, rootGreen" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.GalleryDialog">
+  <children>
+    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Glyph Gallery">
+      <font>
+        <Font size="20.0" />
+      </font>
+    </Text>
+    <Label fx:id="freq" alignment="CENTER_LEFT" contentDisplay="LEFT" text="0">
+      <graphic>
+        <Label alignment="CENTER_LEFT" contentDisplay="LEFT" text="Frequency:">
+          <graphic>
+            <Label id="char" fx:id="character" alignment="CENTER_LEFT" contentDisplay="LEFT" text="_">
+              <graphic>
+                <Label alignment="CENTER_LEFT" contentDisplay="LEFT" text="Character:" />
+              </graphic>
+            </Label>
+          </graphic>
+        </Label>
+      </graphic>
+    </Label>
+    <HBox prefHeight="100.0" prefWidth="200.0">
+      <children>
+        <VBox fx:id="galleryVBox" alignment="TOP_CENTER" maxHeight="350.0" maxWidth="545.0" minHeight="350.0" minWidth="300.0" prefHeight="350.0" prefWidth="434.0" styleClass="rootGreen, modal-dialog-imageview">
+          <children>
+            <ScrollPane blendMode="DARKEN" opacity="1.0" pannable="false" prefHeight="311.0" prefWidth="506.0" visible="true">
+              <content>
+                <AnchorPane id="Content" fx:id="gallery" minHeight="0.0" minWidth="0.0" opacity="1.0" prefHeight="285.0" prefWidth="364.2646484375" />
+              </content>
+            </ScrollPane>
+          </children>
+        </VBox>
+        <VBox prefHeight="350.0" prefWidth="234.0" styleClass="rootGreen, modal-dialog-imageview">
+          <children>
+            <ImageView fx:id="ivl" fitHeight="300.0" fitWidth="169.83338928222656" pickOnBounds="true" preserveRatio="true" />
+          </children>
+        </VBox>
+        <VBox prefHeight="350.0" prefWidth="234.0" styleClass="rootGreen, modal-dialog-imageview">
+          <children>
+            <ImageView fx:id="ivr" fitHeight="300.0" fitWidth="169.83338928222656" pickOnBounds="true" preserveRatio="true" />
+          </children>
+        </VBox>
+      </children>
+    </HBox>
+    <HBox alignment="CENTER" minHeight="100.0" prefHeight="100.0" prefWidth="200.0" styleClass="rootGreen, modal-dialog">
+      <children>
+        <Button defaultButton="true" mnemonicParsing="false" onAction="#apply" styleClass="modal-button-text-small" text="Close" />
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

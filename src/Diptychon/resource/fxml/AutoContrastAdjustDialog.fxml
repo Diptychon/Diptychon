@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<VBox fx:id="root" alignment="CENTER" maxHeight="465.0" maxWidth="600.0" minHeight="465.0" minWidth="600.0" prefHeight="465.0" prefWidth="600.0" spacing="10.0" styleClass="modal-dialog-background, rootGreen" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.AutoContrastAdjustDialog">
+  <children>
+    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Adjust Contrast">
+      <font>
+        <Font size="20.0" />
+      </font>
+    </Text>
+    <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0" styleClass="rootGreen, modal-dialog">
+      <children>
+        <BarChart fx:id="barChart" alternativeRowFillVisible="true" animated="true" barGap="0.0" categoryGap="0.0" horizontalGridLinesVisible="true" horizontalZeroLineVisible="true" legendVisible="false" titleSide="RIGHT" verticalGridLinesVisible="true" verticalZeroLineVisible="true">
+          <xAxis>
+            <CategoryAxis autoRanging="true" label="" side="BOTTOM">
+              <categories>
+                <FXCollections fx:factory="observableArrayList" />
+              </categories>
+            </CategoryAxis>
+          </xAxis>
+          <yAxis>
+            <NumberAxis forceZeroInRange="false" minorTickCount="0" minorTickLength="0.0" minorTickVisible="false" side="LEFT" tickLabelGap="0.0" tickLabelsVisible="false" tickLength="0.0" tickMarkVisible="false" tickUnit="0.0" />
+          </yAxis>
+        </BarChart>
+        <Label text="Minimum" />
+        <Slider id="minimum" fx:id="minSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
+        <Label text="Maximum" />
+        <Slider id="maximum" fx:id="maxSlider" max="255.0" showTickLabels="true" showTickMarks="true" value="255.0" />
+        <HBox alignment="CENTER" prefHeight="-1.0" prefWidth="-1.0">
+          <children>
+            <Label alignment="CENTER" text="Saturation left   " HBox.hgrow="ALWAYS" />
+            <TextField fx:id="saturationLeft" alignment="CENTER" prefWidth="50.0" text="0,0" />
+            <Label alignment="CENTER" text="\%   Saturation right   " />
+            <TextField fx:id="saturationRight" alignment="CENTER" prefWidth="50.0" text="0,0" />
+            <Label alignment="CENTER" text="\%" />
+          </children>
+        </HBox>
+      </children>
+    </VBox>
+    <HBox alignment="CENTER" prefHeight="28.0" prefWidth="264.0" spacing="5.0">
+      <children>
+        <Button mnemonicParsing="false" onAction="#preview" styleClass="modal-button-text-small" text="Preview" />
+        <Button mnemonicParsing="false" onAction="#apply" styleClass="modal-button-text-small" text="Apply" />
+        <Button mnemonicParsing="false" onAction="#cancel" styleClass="modal-button-text-small" text="Cancel" />
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

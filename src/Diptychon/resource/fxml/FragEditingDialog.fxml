@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?scenebuilder-stylesheet ../css/modal-dialog.css?>
+
+<VBox id="VBox" fx:id="root" alignment="CENTER" minWidth="358.0" prefHeight="212.0" prefWidth="358.0" spacing="5.0" styleClass="modal-dialog, rootGreen" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.FragEditingDialog">
+  <children>
+    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Fragment Editing">
+      <font>
+        <Font size="20.0" />
+      </font>
+    </Text>
+    <VBox id="VBox" alignment="CENTER" minHeight="42.0" minWidth="297.693359375" prefHeight="80.0" prefWidth="297.693359375" spacing="5.0" styleClass="modal-dialog, rootGreen">
+      <children>
+        <Label text="Fragments" />
+        <HBox id="HBox" alignment="CENTER" spacing="5.0">
+          <children>
+            <Label fx:id="fragsLeft" text="0" />
+            <Label text="/" />
+            <Label fx:id="chars" text="0" />
+          </children>
+        </HBox>
+      </children>
+    </VBox>
+    <HBox id="HBox" alignment="CENTER" disable="false" spacing="5.0">
+      <children>
+        <Button fx:id="applyButton" defaultButton="true" disable="false" mnemonicParsing="false" onAction="#apply" styleClass="modal-button-text-small" text="Apply" />
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" styleClass="modal-button-text-small" text="Discard" />
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

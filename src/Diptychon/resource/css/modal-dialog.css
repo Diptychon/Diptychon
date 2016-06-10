@@ -1,0 +1,151 @@
+.rootGreen {
+  -fx-glass-color: rgba(255, 255, 255, 0.9);
+}
+
+.rootBlue {
+  -fx-glass-color: rgba(50, 50, 50, 1.0);
+}
+
+.modal-dialog-imageview {
+  -fx-padding: 10;
+  -fx-spacing: 10;
+  -fx-alignment: top-center;
+  -fx-font-size: 16;
+  -fx-background-color: linear-gradient(to bottom, derive(-fx-glass-color, 20%), -fx-glass-color);
+  -fx-border-color: rgba(184, 134, 11, 0.3);
+  -fx-border-width: 5;
+  -fx-background-insets: 12;
+  -fx-border-insets: 10;
+  -fx-border-radius: 27;
+  -fx-background-radius: 27;
+}
+
+.modal-dialog-align-left {
+  -fx-padding: 10;
+  -fx-spacing: 0;
+  -fx-font-size: 16;
+  -fx-background-color: linear-gradient(to bottom, derive(-fx-glass-color, 20%), -fx-glass-color);
+  -fx-border-color: rgba(184, 134, 11, 0.3);
+  -fx-border-width: 5;
+  -fx-background-insets: 10;
+  -fx-border-insets: 10;
+  -fx-border-radius: 27;
+  -fx-background-radius: 27;
+}
+
+.modal-dialog {
+  -fx-padding: 10;
+  -fx-spacing: 10;
+  -fx-alignment: center;
+  -fx-font-size: 14;
+  -fx-background-color: linear-gradient(to bottom, derive(-fx-glass-color, 20%), -fx-glass-color);
+  -fx-border-color: rgba(184, 134, 11, 0.3);
+  -fx-border-width: 5;
+  -fx-background-insets: 12;
+  -fx-border-insets: 10;
+  -fx-border-radius: 27;
+  -fx-background-radius: 27;
+}
+
+.modal-dialog-title {
+  -fx-padding: 10;
+  -fx-spacing: 10;
+  -fx-alignment: center;
+  -fx-font-size: 21
+}
+
+
+.modal-dialog-label-small {
+  -fx-alignment: center;
+  -fx-spacing: 10;
+}
+
+.modal-dialog-small {
+  -fx-padding: 10;
+  -fx-spacing: 10;
+  -fx-alignment: center;
+  -fx-font-size: 16;
+  -fx-background-color: linear-gradient(to bottom, derive(-fx-glass-color, 20%), -fx-glass-color);
+  -fx-border-color: rgba(184, 134, 11, 0.3);
+  -fx-border-width: 5;
+  -fx-background-insets: 12;
+  -fx-border-insets: 10;
+  -fx-border-radius: 27;
+  -fx-background-radius: 27;
+}
+
+.modal-dialog-smallB {
+  -fx-padding: 10;
+  -fx-spacing: 10;
+  -fx-alignment: center;
+  -fx-background-color: linear-gradient(to bottom, derive(-fx-glass-color, 20%), -fx-glass-color);
+  -fx-border-color: rgba(184, 134, 11, 0.3);
+  -fx-border-width: 5;
+  -fx-background-insets: 12;
+  -fx-border-insets: 10;
+  -fx-border-radius: 27;
+  -fx-background-radius: 27;
+}
+
+.modal-dialog-label {
+  -fx-font-size: 16;  
+}
+
+.modal-button-text-small {
+  -fx-background-color:
+        #ecebe9,
+        rgba(0,0,0,0.05),
+        linear-gradient(#dcca8a, #c7a740),
+        linear-gradient(#f9f2d6 0%, #f4e5bc 20%, #e6c75d 80%, #e2c045 100%),
+        linear-gradient(#f6ebbe, #e6c34d);
+    -fx-font-size: 14px;
+    -fx-text-fill: #311c09;
+}
+.modal-button-text-small:hover {
+    -fx-background-color:
+        linear-gradient(from 0% 93% to 0% 100%, #a7d9f5 0%, #a7d9f5 100%),
+        #a7d9f5,
+        #a7d9f5,
+        radial-gradient(center 50% 50%, radius 100%, #a7d9f5, #e6c34d);
+}
+
+.modal-button-text-small:selected {
+  -fx-background-color:
+        #ecebe9,
+        rgba(0,0,0,0.05),
+        linear-gradient(#dcca8a, #c7a740),
+        linear-gradient(#f9f2d6 0%, #f4e5bc 20%, #e6c75d 80%, #e2c045 100%),
+        linear-gradient(#f6ebbe, #d86e3a);
+        -fx-background-insets: 2 0 0 0,2 0 3 0, 2 0 4 0, 2 0 5 0;
+}
+
+.modal-button-text-small:pressed {
+    -fx-background-insets: 2 0 0 0,2 0 3 0, 2 0 4 0, 2 0 5 0;
+}
+.modal-dialog-background {
+  -fx-padding: 10;
+  -fx-spacing: 10;
+  -fx-alignment: center;
+  -fx-font-size: 16;
+  -fx-background-color: linear-gradient(to bottom, derive(-fx-glass-color, 20%), -fx-glass-color);
+  -fx-border-color: rgba(184, 134, 11, 0.3);
+  -fx-border-width: 5;
+  -fx-background-insets: 10;
+  -fx-border-insets: 10;
+  -fx-border-radius: 27;
+  -fx-background-radius: 27;
+}
+
+.modal-dialog-background-red {
+  -fx-padding: 10;
+  -fx-spacing: 10;
+  -fx-alignment: center;
+  -fx-font-size: 16;
+  -fx-background-color: linear-gradient(to bottom, derive(-fx-glass-color, 20%), -fx-glass-color);
+  -fx-border-color: rgba(255, 0, 0, 0.9);
+  -fx-border-width: 5;
+  -fx-background-insets: 10;
+  -fx-border-insets: 10;
+  -fx-border-radius: 27;
+  -fx-background-radius: 27;
+}

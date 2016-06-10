@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?scenebuilder-stylesheet ../css/modal-dialog.css?>
+
+<VBox id="VBox" fx:id="root" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="524.0" prefWidth="598.0" spacing="5.0" styleClass="modal-dialog, rootGreen" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.FragSettingsDialog">
+  <children>
+    <Label styleClass="modal-dialog-title" text="Fragmentation Settings" />
+    <VBox maxWidth="524.0" minWidth="25.0" prefHeight="353.0" prefWidth="524.0" styleClass="rootGreen, modal-dialog-small">
+      <children>
+        <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
+          <children>
+            <Label prefWidth="182.0" text="Manual Space Extraction">
+              <tooltip>
+                <Tooltip text="The initial word separation helps the fragmentation algorithm to create more appropriate fragments" />
+              </tooltip>
+            </Label>
+            <CheckBox fx:id="SplitLineCheckBox" mnemonicParsing="false" selected="true" text="">
+              <tooltip>
+                <Tooltip text="The initial line splitting helps the fragmentation algorithm to create more appropriate fragments" />
+              </tooltip>
+            </CheckBox>
+          </children>
+        </HBox>
+        <Separator prefHeight="25.0" prefWidth="428.0" />
+        <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
+          <children>
+            <Label prefWidth="182.0" text="Minimum Fragment Size">
+              <tooltip>
+                <Tooltip text="Defines the minimum size of fragments [pixels]" />
+              </tooltip>
+            </Label>
+            <Slider fx:id="FragSizeSlider" blockIncrement="1.0" majorTickUnit="14.0" max="100.0" min="1.0" prefHeight="39.0" prefWidth="203.0" showTickLabels="true" showTickMarks="true">
+              <tooltip>
+                <Tooltip text="Defines the minimum size of fragments [pixels]" />
+              </tooltip>
+            </Slider>
+            <Separator orientation="VERTICAL" prefHeight="38.0" prefWidth="26.0" visible="false" />
+            <Label id="FragSizeValue" fx:id="FragSizeLabel" prefWidth="28.0" text="0" />
+          </children>
+        </HBox>
+        <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
+          <children>
+            <Label prefWidth="182.0" text="Fragmentation Strength">
+              <tooltip>
+                <Tooltip prefWidth="500.0" text="The initial amount of fragments for every word will be at least  [characters in a word] * [Fragmentation Strength], or [total characters in line] * [Fragmentation Strength] if the initial line splitting is deactivated" wrapText="true" />
+              </tooltip>
+            </Label>
+            <Slider fx:id="FragCountSlider" blockIncrement="0.1" majorTickUnit="1.0" max="10.0" min="1.0" minorTickCount="9" prefHeight="44.0" prefWidth="203.0" showTickLabels="true" showTickMarks="true">
+              <tooltip>
+                <Tooltip prefWidth="500.0" text="The initial amount of fragments for every word will be at least  [characters in a word] * [Fragmentation Strength], or [total characters in line] * [Fragmentation Strength] if the initial line splitting is deactivated" wrapText="true" />
+              </tooltip>
+            </Slider>
+            <Separator orientation="VERTICAL" prefHeight="41.0" prefWidth="26.0" visible="false" />
+            <Label id="FragCountValue" fx:id="FragCountLabel" prefWidth="38.0" text="0" />
+          </children>
+        </HBox>
+        <Separator prefHeight="25.0" prefWidth="428.0" />
+        <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
+          <children>
+            <Label prefWidth="182.0" text="Burst Size">
+              <tooltip>
+                <Tooltip text="Defines the size of resulting square fragments when bursting a fragment" />
+              </tooltip>
+            </Label>
+            <Slider fx:id="BurstSizeSlider" blockIncrement="1.0" majorTickUnit="4.0" max="25.0" min="1.0" minorTickCount="3" prefHeight="34.0" prefWidth="203.0" showTickLabels="true" showTickMarks="true">
+              <tooltip>
+                <Tooltip text="Defines the size of resulting square fragments when bursting a fragment" />
+              </tooltip>
+            </Slider>
+            <Separator orientation="VERTICAL" prefHeight="44.0" prefWidth="26.0" visible="false" />
+            <Label id="BurstSizeValue" fx:id="BurstSizeLabel" prefWidth="26.0" text="0" />
+          </children>
+        </HBox>
+        <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="0.0">
+          <children>
+            <Label prefWidth="182.0" text="Fragment Noise Size">
+              <tooltip>
+                <Tooltip text="Defines the fragment area threshold for removing fragment noise" />
+              </tooltip>
+            </Label>
+            <Slider id="BurstSizeSlider" fx:id="FragNoiseSlider" blockIncrement="1.0" majorTickUnit="14.0" max="100.0" min="1.0" minorTickCount="3" prefHeight="34.0" prefWidth="203.0" showTickLabels="true" showTickMarks="true">
+              <tooltip>
+                <Tooltip text="Defines the fragment area threshold for removing fragment noise" />
+              </tooltip>
+            </Slider>
+            <Separator orientation="VERTICAL" prefHeight="44.0" prefWidth="26.0" visible="false" />
+            <Label id="BurstSizeValue" fx:id="FragNoiseLabel" prefWidth="26.0" text="0" />
+          </children>
+        </HBox>
+      </children>
+    </VBox>
+    <HBox id="HBox" alignment="CENTER" spacing="5.0">
+      <children>
+        <Button defaultButton="true" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#apply" prefWidth="80.0" styleClass="modal-button-text-small" text="Apply" />
+        <Button defaultButton="false" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#setDefault" prefWidth="80.0" styleClass="modal-button-text-small" text="Default">
+          <HBox.margin>
+            <Insets />
+          </HBox.margin>
+        </Button>
+        <Button cancelButton="true" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#cancel" prefWidth="80.0" styleClass="modal-button-text-small" text="Cancel" />
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

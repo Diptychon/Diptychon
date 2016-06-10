@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?scenebuilder-stylesheet ../css/modal-dialog.css?>
+
+<VBox id="VBox" fx:id="root" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="281.9999000000025" prefWidth="400.0" spacing="5.0" styleClass="modal-dialog, rootGreen" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.FindDialog">
+  <children>
+    <Label fx:id="findTitle" text="Find">
+      <VBox.margin>
+        <Insets />
+      </VBox.margin>
+    </Label>
+    <VBox id="VBox" alignment="CENTER" spacing="5.0" styleClass="modal-dialog, rootGreen">
+      <children>
+        <TextField fx:id="searchField" maxHeight="25.0" maxWidth="250.0" minHeight="40.0" minWidth="250.0" onKeyReleased="#handleInput" prefHeight="25.0" prefWidth="250.0" />
+        <CheckBox fx:id="caseSensitive" mnemonicParsing="false" onAction="#caseSensitiveChanged" styleClass="modal-button-text-small" text="Case sensitive" />
+        <Label fx:id="resultsLabel" styleClass="modal-dialog-label-small" text="" textAlignment="CENTER" textFill="BLACK" />
+      </children>
+    </VBox>
+    <HBox id="HBox" alignment="CENTER" spacing="5.0">
+      <children>
+        <Button defaultButton="true" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#preview" prefWidth="80.0" styleClass="modal-button-text-small" text="Next" />
+        <Button defaultButton="false" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#apply" prefWidth="80.0" styleClass="modal-button-text-small" text="Previous">
+          <HBox.margin>
+            <Insets />
+          </HBox.margin>
+        </Button>
+        <Button cancelButton="true" maxWidth="80.0" minWidth="80.0" mnemonicParsing="false" onAction="#cancel" prefWidth="80.0" styleClass="modal-button-text-small" text="Close" />
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

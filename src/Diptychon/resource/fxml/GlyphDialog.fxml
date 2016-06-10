@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<VBox fx:id="root" alignment="CENTER" prefHeight="350.0" prefWidth="600.0" styleClass="modal-dialog-background, rootGreen" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.GlyphDialog">
+  <children>
+    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Glyph Editor">
+      <font>
+        <Font size="20.0" />
+      </font>
+    </Text>
+    <HBox alignment="CENTER" prefHeight="250.0" prefWidth="200.0">
+      <children>
+        <VBox alignment="TOP_CENTER" maxHeight="350.0" maxWidth="300.0" minHeight="350.0" minWidth="300.0" prefHeight="350.0" prefWidth="300.0" styleClass="rootGreen, modal-dialog-imageview">
+          <children>
+            <Label text="Original" />
+            <Group fx:id="originalGroup">
+              <children>
+                <ImageView fx:id="original" cache="true" onMouseClicked="#handleMouseClick" onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" onMouseReleased="#handleMouseReleased" pickOnBounds="true" preserveRatio="true" smooth="false" />
+              </children>
+            </Group>
+          </children>
+        </VBox>
+        <VBox alignment="CENTER" maxHeight="350.0" maxWidth="300.0" minHeight="350.0" minWidth="300.0" prefHeight="350.0" prefWidth="300.0" styleClass="rootGreen, modal-dialog-imageview">
+          <children>
+            <Label text="Grayscale" />
+            <Group fx:id="grayscaleGroup">
+              <children>
+                <ImageView fx:id="grayscale" cache="true" onMouseClicked="#handleMouseClick" onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" onMouseReleased="#handleMouseReleased" pickOnBounds="true" preserveRatio="true" smooth="false" />
+              </children>
+            </Group>
+          </children>
+        </VBox>
+        <VBox alignment="CENTER" maxHeight="350.0" maxWidth="300.0" minHeight="350.0" minWidth="300.0" prefHeight="350.0" prefWidth="300.0" styleClass="rootGreen, modal-dialog-imageview">
+          <children>
+            <Label text="Binarized" />
+            <Group fx:id="binarizedGroup">
+              <children>
+                <ImageView fx:id="binarized" cache="true" onMouseClicked="#handleMouseClick" onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" onMouseReleased="#handleMouseReleased" pickOnBounds="true" preserveRatio="true" smooth="false" />
+              </children>
+            </Group>
+          </children>
+        </VBox>
+      </children>
+    </HBox>
+    <HBox alignment="CENTER" minHeight="100.0" prefHeight="100.0" prefWidth="200.0" styleClass="rootGreen, modal-dialog">
+      <children>
+        <Label fx:id="idLabel" text="Line ID" visible="false" />
+        <TextField fx:id="idTextField" prefWidth="56.0" visible="false" />
+        <Label prefWidth="98.0" text="Transcription:" />
+        <TextField fx:id="transcript" prefWidth="150.0" />
+        <ToggleButton fx:id="singlePixel" mnemonicParsing="false" styleClass="modal-button-text-small" text="SinglePixel" />
+        <ToggleButton fx:id="linePixels" mnemonicParsing="false" onMouseClicked="#handleMouseClickGoggle" styleClass="modal-button-text-small" text="LinePixels" />
+        <ToggleButton fx:id="chunkPixels" mnemonicParsing="false" onMouseClicked="#handleMouseClickGoggle" styleClass="modal-button-text-small" text="ChunkPixels" />
+        <ComboBox fx:id="numPixels" styleClass="modal-button-text-small">
+          <items>
+            <FXCollections fx:factory="observableArrayList">
+              <String fx:value="2" />
+              <String fx:value="4" />
+              <String fx:value="6" />
+              <String fx:value="9" />
+            </FXCollections>
+          </items>
+        </ComboBox>
+        <ToggleButton fx:id="eraseToggle" minWidth="31.0" mnemonicParsing="false" prefWidth="35.0" text="E">
+          <tooltip>
+            <Tooltip text="Toggles if ChunkPixels erases pixels" />
+          </tooltip>
+        </ToggleButton>
+      </children>
+    </HBox>
+    <HBox alignment="CENTER" minHeight="100.0" prefHeight="100.0" prefWidth="200.0" styleClass="rootGreen, modal-dialog">
+      <children>
+        <Button defaultButton="true" mnemonicParsing="false" onAction="#apply" styleClass="modal-button-text-small" text="Ok" />
+        <Button cancelButton="true" mnemonicParsing="false" onAction="#cancel" styleClass="modal-button-text-small" text="Cancel" />
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

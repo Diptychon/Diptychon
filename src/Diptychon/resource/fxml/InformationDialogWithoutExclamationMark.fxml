@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<VBox fx:id="root" alignment="CENTER" maxWidth="-1.0" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="375.0" spacing="10.0" styleClass="rootGreen, modal-dialog-background" xmlns:fx="http://javafx.com/fxml" fx:controller="de.diptychon.ui.views.dialogs.InformationDialog">
+  <children>
+    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="About Diptychon">
+      <font>
+        <Font size="20.0" />
+      </font>
+    </Text>
+    <HBox id="HBox" alignment="CENTER_LEFT" prefWidth="-1.0" spacing="5.0" styleClass="modal-dialog-align-left">
+      <children>
+        <Label fx:id="infoText" labelFor="$root" maxWidth="-1.0" styleClass="modal-dialog-label-small" text="" wrapText="true" />
+      </children>
+    </HBox>
+    <HBox id="HBox2" alignment="CENTER" spacing="5.0">
+      <children>
+        <Button contentDisplay="CENTER" defaultButton="true" maxHeight="30.0" maxWidth="75.0" minHeight="30.0" minWidth="75.0" mnemonicParsing="false" onAction="#accept" prefHeight="30.0" prefWidth="75.0" styleClass="modal-button-text-small" text="Ok" textAlignment="CENTER" wrapText="true" />
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@/css/modal-dialog.css" />
+  </stylesheets>
+</VBox>

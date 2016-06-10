@@ -1,0 +1,358 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<FONT color="green">003</FONT>     * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<FONT color="green">004</FONT>     * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<FONT color="green">006</FONT>     * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<FONT color="green">007</FONT>     * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<FONT color="green">008</FONT>     *<a name="line.8"></a>
+<FONT color="green">009</FONT>     *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<FONT color="green">010</FONT>     *<a name="line.10"></a>
+<FONT color="green">011</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<FONT color="green">012</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<FONT color="green">013</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<FONT color="green">014</FONT>     * See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>     * limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    package org.apache.commons.imaging.formats.icns;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import java.awt.image.BufferedImage;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.util.ArrayList;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.util.List;<a name="line.21"></a>
+<FONT color="green">022</FONT>    <a name="line.22"></a>
+<FONT color="green">023</FONT>    import org.apache.commons.imaging.ImageReadException;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import org.apache.commons.imaging.common.ImageBuilder;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import org.apache.commons.imaging.formats.icns.IcnsImageParser.IcnsElement;<a name="line.25"></a>
+<FONT color="green">026</FONT>    <a name="line.26"></a>
+<FONT color="green">027</FONT>    public class IcnsDecoder {<a name="line.27"></a>
+<FONT color="green">028</FONT>        private static final int[] palette_4bpp = { 0xffffffff, 0xfffcf305,<a name="line.28"></a>
+<FONT color="green">029</FONT>                0xffff6402, 0xffdd0806, 0xfff20884, 0xff4600a5, 0xff0000d4,<a name="line.29"></a>
+<FONT color="green">030</FONT>                0xff02abea, 0xff1fb714, 0xff006411, 0xff562c05, 0xff90713a,<a name="line.30"></a>
+<FONT color="green">031</FONT>                0xffc0c0c0, 0xff808080, 0xff404040, 0xff000000 };<a name="line.31"></a>
+<FONT color="green">032</FONT>    <a name="line.32"></a>
+<FONT color="green">033</FONT>        private static final int[] palette_8bpp = { 0xFFFFFFFF, 0xFFFFFFCC,<a name="line.33"></a>
+<FONT color="green">034</FONT>                0xFFFFFF99, 0xFFFFFF66, 0xFFFFFF33, 0xFFFFFF00, 0xFFFFCCFF,<a name="line.34"></a>
+<FONT color="green">035</FONT>                0xFFFFCCCC, 0xFFFFCC99, 0xFFFFCC66, 0xFFFFCC33, 0xFFFFCC00,<a name="line.35"></a>
+<FONT color="green">036</FONT>                0xFFFF99FF, 0xFFFF99CC, 0xFFFF9999, 0xFFFF9966, 0xFFFF9933,<a name="line.36"></a>
+<FONT color="green">037</FONT>                0xFFFF9900, 0xFFFF66FF, 0xFFFF66CC, 0xFFFF6699, 0xFFFF6666,<a name="line.37"></a>
+<FONT color="green">038</FONT>                0xFFFF6633, 0xFFFF6600, 0xFFFF33FF, 0xFFFF33CC, 0xFFFF3399,<a name="line.38"></a>
+<FONT color="green">039</FONT>                0xFFFF3366, 0xFFFF3333, 0xFFFF3300, 0xFFFF00FF, 0xFFFF00CC,<a name="line.39"></a>
+<FONT color="green">040</FONT>                0xFFFF0099, 0xFFFF0066, 0xFFFF0033, 0xFFFF0000, 0xFFCCFFFF,<a name="line.40"></a>
+<FONT color="green">041</FONT>                0xFFCCFFCC, 0xFFCCFF99, 0xFFCCFF66, 0xFFCCFF33, 0xFFCCFF00,<a name="line.41"></a>
+<FONT color="green">042</FONT>                0xFFCCCCFF, 0xFFCCCCCC, 0xFFCCCC99, 0xFFCCCC66, 0xFFCCCC33,<a name="line.42"></a>
+<FONT color="green">043</FONT>                0xFFCCCC00, 0xFFCC99FF, 0xFFCC99CC, 0xFFCC9999, 0xFFCC9966,<a name="line.43"></a>
+<FONT color="green">044</FONT>                0xFFCC9933, 0xFFCC9900, 0xFFCC66FF, 0xFFCC66CC, 0xFFCC6699,<a name="line.44"></a>
+<FONT color="green">045</FONT>                0xFFCC6666, 0xFFCC6633, 0xFFCC6600, 0xFFCC33FF, 0xFFCC33CC,<a name="line.45"></a>
+<FONT color="green">046</FONT>                0xFFCC3399, 0xFFCC3366, 0xFFCC3333, 0xFFCC3300, 0xFFCC00FF,<a name="line.46"></a>
+<FONT color="green">047</FONT>                0xFFCC00CC, 0xFFCC0099, 0xFFCC0066, 0xFFCC0033, 0xFFCC0000,<a name="line.47"></a>
+<FONT color="green">048</FONT>                0xFF99FFFF, 0xFF99FFCC, 0xFF99FF99, 0xFF99FF66, 0xFF99FF33,<a name="line.48"></a>
+<FONT color="green">049</FONT>                0xFF99FF00, 0xFF99CCFF, 0xFF99CCCC, 0xFF99CC99, 0xFF99CC66,<a name="line.49"></a>
+<FONT color="green">050</FONT>                0xFF99CC33, 0xFF99CC00, 0xFF9999FF, 0xFF9999CC, 0xFF999999,<a name="line.50"></a>
+<FONT color="green">051</FONT>                0xFF999966, 0xFF999933, 0xFF999900, 0xFF9966FF, 0xFF9966CC,<a name="line.51"></a>
+<FONT color="green">052</FONT>                0xFF996699, 0xFF996666, 0xFF996633, 0xFF996600, 0xFF9933FF,<a name="line.52"></a>
+<FONT color="green">053</FONT>                0xFF9933CC, 0xFF993399, 0xFF993366, 0xFF993333, 0xFF993300,<a name="line.53"></a>
+<FONT color="green">054</FONT>                0xFF9900FF, 0xFF9900CC, 0xFF990099, 0xFF990066, 0xFF990033,<a name="line.54"></a>
+<FONT color="green">055</FONT>                0xFF990000, 0xFF66FFFF, 0xFF66FFCC, 0xFF66FF99, 0xFF66FF66,<a name="line.55"></a>
+<FONT color="green">056</FONT>                0xFF66FF33, 0xFF66FF00, 0xFF66CCFF, 0xFF66CCCC, 0xFF66CC99,<a name="line.56"></a>
+<FONT color="green">057</FONT>                0xFF66CC66, 0xFF66CC33, 0xFF66CC00, 0xFF6699FF, 0xFF6699CC,<a name="line.57"></a>
+<FONT color="green">058</FONT>                0xFF669999, 0xFF669966, 0xFF669933, 0xFF669900, 0xFF6666FF,<a name="line.58"></a>
+<FONT color="green">059</FONT>                0xFF6666CC, 0xFF666699, 0xFF666666, 0xFF666633, 0xFF666600,<a name="line.59"></a>
+<FONT color="green">060</FONT>                0xFF6633FF, 0xFF6633CC, 0xFF663399, 0xFF663366, 0xFF663333,<a name="line.60"></a>
+<FONT color="green">061</FONT>                0xFF663300, 0xFF6600FF, 0xFF6600CC, 0xFF660099, 0xFF660066,<a name="line.61"></a>
+<FONT color="green">062</FONT>                0xFF660033, 0xFF660000, 0xFF33FFFF, 0xFF33FFCC, 0xFF33FF99,<a name="line.62"></a>
+<FONT color="green">063</FONT>                0xFF33FF66, 0xFF33FF33, 0xFF33FF00, 0xFF33CCFF, 0xFF33CCCC,<a name="line.63"></a>
+<FONT color="green">064</FONT>                0xFF33CC99, 0xFF33CC66, 0xFF33CC33, 0xFF33CC00, 0xFF3399FF,<a name="line.64"></a>
+<FONT color="green">065</FONT>                0xFF3399CC, 0xFF339999, 0xFF339966, 0xFF339933, 0xFF339900,<a name="line.65"></a>
+<FONT color="green">066</FONT>                0xFF3366FF, 0xFF3366CC, 0xFF336699, 0xFF336666, 0xFF336633,<a name="line.66"></a>
+<FONT color="green">067</FONT>                0xFF336600, 0xFF3333FF, 0xFF3333CC, 0xFF333399, 0xFF333366,<a name="line.67"></a>
+<FONT color="green">068</FONT>                0xFF333333, 0xFF333300, 0xFF3300FF, 0xFF3300CC, 0xFF330099,<a name="line.68"></a>
+<FONT color="green">069</FONT>                0xFF330066, 0xFF330033, 0xFF330000, 0xFF00FFFF, 0xFF00FFCC,<a name="line.69"></a>
+<FONT color="green">070</FONT>                0xFF00FF99, 0xFF00FF66, 0xFF00FF33, 0xFF00FF00, 0xFF00CCFF,<a name="line.70"></a>
+<FONT color="green">071</FONT>                0xFF00CCCC, 0xFF00CC99, 0xFF00CC66, 0xFF00CC33, 0xFF00CC00,<a name="line.71"></a>
+<FONT color="green">072</FONT>                0xFF0099FF, 0xFF0099CC, 0xFF009999, 0xFF009966, 0xFF009933,<a name="line.72"></a>
+<FONT color="green">073</FONT>                0xFF009900, 0xFF0066FF, 0xFF0066CC, 0xFF006699, 0xFF006666,<a name="line.73"></a>
+<FONT color="green">074</FONT>                0xFF006633, 0xFF006600, 0xFF0033FF, 0xFF0033CC, 0xFF003399,<a name="line.74"></a>
+<FONT color="green">075</FONT>                0xFF003366, 0xFF003333, 0xFF003300, 0xFF0000FF, 0xFF0000CC,<a name="line.75"></a>
+<FONT color="green">076</FONT>                0xFF000099, 0xFF000066, 0xFF000033, 0xFFEE0000, 0xFFDD0000,<a name="line.76"></a>
+<FONT color="green">077</FONT>                0xFFBB0000, 0xFFAA0000, 0xFF880000, 0xFF770000, 0xFF550000,<a name="line.77"></a>
+<FONT color="green">078</FONT>                0xFF440000, 0xFF220000, 0xFF110000, 0xFF00EE00, 0xFF00DD00,<a name="line.78"></a>
+<FONT color="green">079</FONT>                0xFF00BB00, 0xFF00AA00, 0xFF008800, 0xFF007700, 0xFF005500,<a name="line.79"></a>
+<FONT color="green">080</FONT>                0xFF004400, 0xFF002200, 0xFF001100, 0xFF0000EE, 0xFF0000DD,<a name="line.80"></a>
+<FONT color="green">081</FONT>                0xFF0000BB, 0xFF0000AA, 0xFF000088, 0xFF000077, 0xFF000055,<a name="line.81"></a>
+<FONT color="green">082</FONT>                0xFF000044, 0xFF000022, 0xFF000011, 0xFFEEEEEE, 0xFFDDDDDD,<a name="line.82"></a>
+<FONT color="green">083</FONT>                0xFFBBBBBB, 0xFFAAAAAA, 0xFF888888, 0xFF777777, 0xFF555555,<a name="line.83"></a>
+<FONT color="green">084</FONT>                0xFF444444, 0xFF222222, 0xFF111111, 0xFF000000 };<a name="line.84"></a>
+<FONT color="green">085</FONT>    <a name="line.85"></a>
+<FONT color="green">086</FONT>        private static void decode1BPPImage(final IcnsType imageType, final byte[] imageData,<a name="line.86"></a>
+<FONT color="green">087</FONT>                final ImageBuilder image) {<a name="line.87"></a>
+<FONT color="green">088</FONT>            int position = 0;<a name="line.88"></a>
+<FONT color="green">089</FONT>            int bitsLeft = 0;<a name="line.89"></a>
+<FONT color="green">090</FONT>            int value = 0;<a name="line.90"></a>
+<FONT color="green">091</FONT>            for (int y = 0; y &lt; imageType.getHeight(); y++) {<a name="line.91"></a>
+<FONT color="green">092</FONT>                for (int x = 0; x &lt; imageType.getWidth(); x++) {<a name="line.92"></a>
+<FONT color="green">093</FONT>                    if (bitsLeft == 0) {<a name="line.93"></a>
+<FONT color="green">094</FONT>                        value = 0xff &amp; imageData[position++];<a name="line.94"></a>
+<FONT color="green">095</FONT>                        bitsLeft = 8;<a name="line.95"></a>
+<FONT color="green">096</FONT>                    }<a name="line.96"></a>
+<FONT color="green">097</FONT>                    int argb;<a name="line.97"></a>
+<FONT color="green">098</FONT>                    if ((value &amp; 0x80) != 0) {<a name="line.98"></a>
+<FONT color="green">099</FONT>                        argb = 0xff000000;<a name="line.99"></a>
+<FONT color="green">100</FONT>                    } else {<a name="line.100"></a>
+<FONT color="green">101</FONT>                        argb = 0xffffffff;<a name="line.101"></a>
+<FONT color="green">102</FONT>                    }<a name="line.102"></a>
+<FONT color="green">103</FONT>                    value &lt;&lt;= 1;<a name="line.103"></a>
+<FONT color="green">104</FONT>                    bitsLeft--;<a name="line.104"></a>
+<FONT color="green">105</FONT>                    image.setRGB(x, y, argb);<a name="line.105"></a>
+<FONT color="green">106</FONT>                }<a name="line.106"></a>
+<FONT color="green">107</FONT>            }<a name="line.107"></a>
+<FONT color="green">108</FONT>        }<a name="line.108"></a>
+<FONT color="green">109</FONT>    <a name="line.109"></a>
+<FONT color="green">110</FONT>        private static void decode4BPPImage(final IcnsType imageType, final byte[] imageData,<a name="line.110"></a>
+<FONT color="green">111</FONT>                final ImageBuilder image) {<a name="line.111"></a>
+<FONT color="green">112</FONT>            int i = 0;<a name="line.112"></a>
+<FONT color="green">113</FONT>            boolean visited = false;<a name="line.113"></a>
+<FONT color="green">114</FONT>            for (int y = 0; y &lt; imageType.getHeight(); y++) {<a name="line.114"></a>
+<FONT color="green">115</FONT>                for (int x = 0; x &lt; imageType.getWidth(); x++) {<a name="line.115"></a>
+<FONT color="green">116</FONT>                    int index;<a name="line.116"></a>
+<FONT color="green">117</FONT>                    if (!visited) {<a name="line.117"></a>
+<FONT color="green">118</FONT>                        index = 0xf &amp; (imageData[i] &gt;&gt; 4);<a name="line.118"></a>
+<FONT color="green">119</FONT>                    } else {<a name="line.119"></a>
+<FONT color="green">120</FONT>                        index = 0xf &amp; imageData[i++];<a name="line.120"></a>
+<FONT color="green">121</FONT>                    }<a name="line.121"></a>
+<FONT color="green">122</FONT>                    visited = !visited;<a name="line.122"></a>
+<FONT color="green">123</FONT>                    image.setRGB(x, y, palette_4bpp[index]);<a name="line.123"></a>
+<FONT color="green">124</FONT>                }<a name="line.124"></a>
+<FONT color="green">125</FONT>            }<a name="line.125"></a>
+<FONT color="green">126</FONT>        }<a name="line.126"></a>
+<FONT color="green">127</FONT>    <a name="line.127"></a>
+<FONT color="green">128</FONT>        private static void decode8BPPImage(final IcnsType imageType, final byte[] imageData,<a name="line.128"></a>
+<FONT color="green">129</FONT>                final ImageBuilder image) {<a name="line.129"></a>
+<FONT color="green">130</FONT>            for (int y = 0; y &lt; imageType.getHeight(); y++) {<a name="line.130"></a>
+<FONT color="green">131</FONT>                for (int x = 0; x &lt; imageType.getWidth(); x++) {<a name="line.131"></a>
+<FONT color="green">132</FONT>                    final int index = 0xff &amp; imageData[y * imageType.getWidth() + x];<a name="line.132"></a>
+<FONT color="green">133</FONT>                    image.setRGB(x, y, palette_8bpp[index]);<a name="line.133"></a>
+<FONT color="green">134</FONT>                }<a name="line.134"></a>
+<FONT color="green">135</FONT>            }<a name="line.135"></a>
+<FONT color="green">136</FONT>        }<a name="line.136"></a>
+<FONT color="green">137</FONT>    <a name="line.137"></a>
+<FONT color="green">138</FONT>        private static void decode32BPPImage(final IcnsType imageType, final byte[] imageData,<a name="line.138"></a>
+<FONT color="green">139</FONT>                final ImageBuilder image) {<a name="line.139"></a>
+<FONT color="green">140</FONT>            for (int y = 0; y &lt; imageType.getHeight(); y++) {<a name="line.140"></a>
+<FONT color="green">141</FONT>                for (int x = 0; x &lt; imageType.getWidth(); x++) {<a name="line.141"></a>
+<FONT color="green">142</FONT>                    final int argb = 0xff000000 /* the "alpha" is ignored */<a name="line.142"></a>
+<FONT color="green">143</FONT>                            | ((0xff &amp; imageData[4 * (y * imageType.getWidth() + x) + 1]) &lt;&lt; 16)<a name="line.143"></a>
+<FONT color="green">144</FONT>                            | ((0xff &amp; imageData[4 * (y * imageType.getWidth() + x) + 2]) &lt;&lt; 8)<a name="line.144"></a>
+<FONT color="green">145</FONT>                            | (0xff &amp; imageData[4 * (y * imageType.getWidth() + x) + 3]);<a name="line.145"></a>
+<FONT color="green">146</FONT>                    image.setRGB(x, y, argb);<a name="line.146"></a>
+<FONT color="green">147</FONT>                }<a name="line.147"></a>
+<FONT color="green">148</FONT>            }<a name="line.148"></a>
+<FONT color="green">149</FONT>        }<a name="line.149"></a>
+<FONT color="green">150</FONT>    <a name="line.150"></a>
+<FONT color="green">151</FONT>        private static void apply1BPPMask(final byte[] maskData, final ImageBuilder image)<a name="line.151"></a>
+<FONT color="green">152</FONT>                throws ImageReadException {<a name="line.152"></a>
+<FONT color="green">153</FONT>            int position = 0;<a name="line.153"></a>
+<FONT color="green">154</FONT>            int bitsLeft = 0;<a name="line.154"></a>
+<FONT color="green">155</FONT>            int value = 0;<a name="line.155"></a>
+<FONT color="green">156</FONT>    <a name="line.156"></a>
+<FONT color="green">157</FONT>            // 1 bit icon types have image data followed by mask data in the same<a name="line.157"></a>
+<FONT color="green">158</FONT>            // entry<a name="line.158"></a>
+<FONT color="green">159</FONT>            final int totalBytes = (image.getWidth() * image.getHeight() + 7) / 8;<a name="line.159"></a>
+<FONT color="green">160</FONT>            if (maskData.length &gt;= 2 * totalBytes) {<a name="line.160"></a>
+<FONT color="green">161</FONT>                position = totalBytes;<a name="line.161"></a>
+<FONT color="green">162</FONT>            } else {<a name="line.162"></a>
+<FONT color="green">163</FONT>                throw new ImageReadException(<a name="line.163"></a>
+<FONT color="green">164</FONT>                        "1 BPP mask underrun parsing ICNS file");<a name="line.164"></a>
+<FONT color="green">165</FONT>            }<a name="line.165"></a>
+<FONT color="green">166</FONT>    <a name="line.166"></a>
+<FONT color="green">167</FONT>            for (int y = 0; y &lt; image.getHeight(); y++) {<a name="line.167"></a>
+<FONT color="green">168</FONT>                for (int x = 0; x &lt; image.getWidth(); x++) {<a name="line.168"></a>
+<FONT color="green">169</FONT>                    if (bitsLeft == 0) {<a name="line.169"></a>
+<FONT color="green">170</FONT>                        value = 0xff &amp; maskData[position++];<a name="line.170"></a>
+<FONT color="green">171</FONT>                        bitsLeft = 8;<a name="line.171"></a>
+<FONT color="green">172</FONT>                    }<a name="line.172"></a>
+<FONT color="green">173</FONT>                    int alpha;<a name="line.173"></a>
+<FONT color="green">174</FONT>                    if ((value &amp; 0x80) != 0) {<a name="line.174"></a>
+<FONT color="green">175</FONT>                        alpha = 0xff;<a name="line.175"></a>
+<FONT color="green">176</FONT>                    } else {<a name="line.176"></a>
+<FONT color="green">177</FONT>                        alpha = 0x00;<a name="line.177"></a>
+<FONT color="green">178</FONT>                    }<a name="line.178"></a>
+<FONT color="green">179</FONT>                    value &lt;&lt;= 1;<a name="line.179"></a>
+<FONT color="green">180</FONT>                    bitsLeft--;<a name="line.180"></a>
+<FONT color="green">181</FONT>                    image.setRGB(x, y,<a name="line.181"></a>
+<FONT color="green">182</FONT>                            (alpha &lt;&lt; 24) | (0xffffff &amp; image.getRGB(x, y)));<a name="line.182"></a>
+<FONT color="green">183</FONT>                }<a name="line.183"></a>
+<FONT color="green">184</FONT>            }<a name="line.184"></a>
+<FONT color="green">185</FONT>        }<a name="line.185"></a>
+<FONT color="green">186</FONT>    <a name="line.186"></a>
+<FONT color="green">187</FONT>        private static void apply8BPPMask(final byte[] maskData, final ImageBuilder image) {<a name="line.187"></a>
+<FONT color="green">188</FONT>            for (int y = 0; y &lt; image.getHeight(); y++) {<a name="line.188"></a>
+<FONT color="green">189</FONT>                for (int x = 0; x &lt; image.getWidth(); x++) {<a name="line.189"></a>
+<FONT color="green">190</FONT>                    final int alpha = 0xff &amp; maskData[y * image.getWidth() + x];<a name="line.190"></a>
+<FONT color="green">191</FONT>                    image.setRGB(x, y,<a name="line.191"></a>
+<FONT color="green">192</FONT>                            (alpha &lt;&lt; 24) | (0xffffff &amp; image.getRGB(x, y)));<a name="line.192"></a>
+<FONT color="green">193</FONT>                }<a name="line.193"></a>
+<FONT color="green">194</FONT>            }<a name="line.194"></a>
+<FONT color="green">195</FONT>        }<a name="line.195"></a>
+<FONT color="green">196</FONT>    <a name="line.196"></a>
+<FONT color="green">197</FONT>        public static List&lt;BufferedImage&gt; decodeAllImages(<a name="line.197"></a>
+<FONT color="green">198</FONT>                final IcnsImageParser.IcnsElement[] icnsElements)<a name="line.198"></a>
+<FONT color="green">199</FONT>                throws ImageReadException {<a name="line.199"></a>
+<FONT color="green">200</FONT>            final List&lt;BufferedImage&gt; result = new ArrayList&lt;BufferedImage&gt;();<a name="line.200"></a>
+<FONT color="green">201</FONT>            for (final IcnsElement imageElement : icnsElements) {<a name="line.201"></a>
+<FONT color="green">202</FONT>                final IcnsType imageType = IcnsType.findImageType(imageElement.type);<a name="line.202"></a>
+<FONT color="green">203</FONT>                if (imageType == null) {<a name="line.203"></a>
+<FONT color="green">204</FONT>                    continue;<a name="line.204"></a>
+<FONT color="green">205</FONT>                }<a name="line.205"></a>
+<FONT color="green">206</FONT>    <a name="line.206"></a>
+<FONT color="green">207</FONT>                IcnsType maskType = null;<a name="line.207"></a>
+<FONT color="green">208</FONT>                IcnsImageParser.IcnsElement maskElement = null;<a name="line.208"></a>
+<FONT color="green">209</FONT>                if (imageType.hasMask()) {<a name="line.209"></a>
+<FONT color="green">210</FONT>                    maskType = imageType;<a name="line.210"></a>
+<FONT color="green">211</FONT>                    maskElement = imageElement;<a name="line.211"></a>
+<FONT color="green">212</FONT>                } else {<a name="line.212"></a>
+<FONT color="green">213</FONT>                    maskType = IcnsType.find8BPPMaskType(imageType);<a name="line.213"></a>
+<FONT color="green">214</FONT>                    if (maskType != null) {<a name="line.214"></a>
+<FONT color="green">215</FONT>                        for (final IcnsElement icnsElement : icnsElements) {<a name="line.215"></a>
+<FONT color="green">216</FONT>                            if (icnsElement.type == maskType.getType()) {<a name="line.216"></a>
+<FONT color="green">217</FONT>                                maskElement = icnsElement;<a name="line.217"></a>
+<FONT color="green">218</FONT>                                break;<a name="line.218"></a>
+<FONT color="green">219</FONT>                            }<a name="line.219"></a>
+<FONT color="green">220</FONT>                        }<a name="line.220"></a>
+<FONT color="green">221</FONT>                    }<a name="line.221"></a>
+<FONT color="green">222</FONT>                    if (maskElement == null) {<a name="line.222"></a>
+<FONT color="green">223</FONT>                        maskType = IcnsType.find1BPPMaskType(imageType);<a name="line.223"></a>
+<FONT color="green">224</FONT>                        if (maskType != null) {<a name="line.224"></a>
+<FONT color="green">225</FONT>                            for (final IcnsElement icnsElement : icnsElements) {<a name="line.225"></a>
+<FONT color="green">226</FONT>                                if (icnsElement.type == maskType.getType()) {<a name="line.226"></a>
+<FONT color="green">227</FONT>                                    maskElement = icnsElement;<a name="line.227"></a>
+<FONT color="green">228</FONT>                                    break;<a name="line.228"></a>
+<FONT color="green">229</FONT>                                }<a name="line.229"></a>
+<FONT color="green">230</FONT>                            }<a name="line.230"></a>
+<FONT color="green">231</FONT>                        }<a name="line.231"></a>
+<FONT color="green">232</FONT>                    }<a name="line.232"></a>
+<FONT color="green">233</FONT>                }<a name="line.233"></a>
+<FONT color="green">234</FONT>    <a name="line.234"></a>
+<FONT color="green">235</FONT>                // FIXME: don't skip these when JPEG 2000 support is added:<a name="line.235"></a>
+<FONT color="green">236</FONT>                if (imageType == IcnsType.ICNS_256x256_32BIT_ARGB_IMAGE<a name="line.236"></a>
+<FONT color="green">237</FONT>                        || imageType == IcnsType.ICNS_512x512_32BIT_ARGB_IMAGE) {<a name="line.237"></a>
+<FONT color="green">238</FONT>                    continue;<a name="line.238"></a>
+<FONT color="green">239</FONT>                }<a name="line.239"></a>
+<FONT color="green">240</FONT>    <a name="line.240"></a>
+<FONT color="green">241</FONT>                final int expectedSize = (imageType.getWidth() * imageType.getHeight()<a name="line.241"></a>
+<FONT color="green">242</FONT>                        * imageType.getBitsPerPixel() + 7) / 8;<a name="line.242"></a>
+<FONT color="green">243</FONT>                byte[] imageData;<a name="line.243"></a>
+<FONT color="green">244</FONT>                if (imageElement.data.length &lt; expectedSize) {<a name="line.244"></a>
+<FONT color="green">245</FONT>                    if (imageType.getBitsPerPixel() == 32) {<a name="line.245"></a>
+<FONT color="green">246</FONT>                        imageData = Rle24Compression.decompress(<a name="line.246"></a>
+<FONT color="green">247</FONT>                                imageType.getWidth(), imageType.getHeight(),<a name="line.247"></a>
+<FONT color="green">248</FONT>                                imageElement.data);<a name="line.248"></a>
+<FONT color="green">249</FONT>                    } else {<a name="line.249"></a>
+<FONT color="green">250</FONT>                        throw new ImageReadException(<a name="line.250"></a>
+<FONT color="green">251</FONT>                                "Short image data but not a 32 bit compressed type");<a name="line.251"></a>
+<FONT color="green">252</FONT>                    }<a name="line.252"></a>
+<FONT color="green">253</FONT>                } else {<a name="line.253"></a>
+<FONT color="green">254</FONT>                    imageData = imageElement.data;<a name="line.254"></a>
+<FONT color="green">255</FONT>                }<a name="line.255"></a>
+<FONT color="green">256</FONT>    <a name="line.256"></a>
+<FONT color="green">257</FONT>                final ImageBuilder imageBuilder = new ImageBuilder(imageType.getWidth(),<a name="line.257"></a>
+<FONT color="green">258</FONT>                        imageType.getHeight(), true);<a name="line.258"></a>
+<FONT color="green">259</FONT>                switch (imageType.getBitsPerPixel()) {<a name="line.259"></a>
+<FONT color="green">260</FONT>                case 1:<a name="line.260"></a>
+<FONT color="green">261</FONT>                    decode1BPPImage(imageType, imageData, imageBuilder);<a name="line.261"></a>
+<FONT color="green">262</FONT>                    break;<a name="line.262"></a>
+<FONT color="green">263</FONT>                case 4:<a name="line.263"></a>
+<FONT color="green">264</FONT>                    decode4BPPImage(imageType, imageData, imageBuilder);<a name="line.264"></a>
+<FONT color="green">265</FONT>                    break;<a name="line.265"></a>
+<FONT color="green">266</FONT>                case 8:<a name="line.266"></a>
+<FONT color="green">267</FONT>                    decode8BPPImage(imageType, imageData, imageBuilder);<a name="line.267"></a>
+<FONT color="green">268</FONT>                    break;<a name="line.268"></a>
+<FONT color="green">269</FONT>                case 32:<a name="line.269"></a>
+<FONT color="green">270</FONT>                    decode32BPPImage(imageType, imageData, imageBuilder);<a name="line.270"></a>
+<FONT color="green">271</FONT>                    break;<a name="line.271"></a>
+<FONT color="green">272</FONT>                default:<a name="line.272"></a>
+<FONT color="green">273</FONT>                    throw new ImageReadException("Unsupported bit depth "<a name="line.273"></a>
+<FONT color="green">274</FONT>                            + imageType.getBitsPerPixel());<a name="line.274"></a>
+<FONT color="green">275</FONT>                }<a name="line.275"></a>
+<FONT color="green">276</FONT>    <a name="line.276"></a>
+<FONT color="green">277</FONT>                if (maskElement != null) {<a name="line.277"></a>
+<FONT color="green">278</FONT>                    if (maskType.getBitsPerPixel() == 1) {<a name="line.278"></a>
+<FONT color="green">279</FONT>                        apply1BPPMask(maskElement.data, imageBuilder);<a name="line.279"></a>
+<FONT color="green">280</FONT>                    } else if (maskType.getBitsPerPixel() == 8) {<a name="line.280"></a>
+<FONT color="green">281</FONT>                        apply8BPPMask(maskElement.data, imageBuilder);<a name="line.281"></a>
+<FONT color="green">282</FONT>                    } else {<a name="line.282"></a>
+<FONT color="green">283</FONT>                        throw new ImageReadException("Unsupport mask bit depth "<a name="line.283"></a>
+<FONT color="green">284</FONT>                                + maskType.getBitsPerPixel());<a name="line.284"></a>
+<FONT color="green">285</FONT>                    }<a name="line.285"></a>
+<FONT color="green">286</FONT>                }<a name="line.286"></a>
+<FONT color="green">287</FONT>    <a name="line.287"></a>
+<FONT color="green">288</FONT>                result.add(imageBuilder.getBufferedImage());<a name="line.288"></a>
+<FONT color="green">289</FONT>            }<a name="line.289"></a>
+<FONT color="green">290</FONT>            return result;<a name="line.290"></a>
+<FONT color="green">291</FONT>        }<a name="line.291"></a>
+<FONT color="green">292</FONT>    }<a name="line.292"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

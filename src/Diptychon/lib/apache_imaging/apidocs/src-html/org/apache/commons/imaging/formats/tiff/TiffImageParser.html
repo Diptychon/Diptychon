@@ -1,0 +1,695 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<FONT color="green">003</FONT>     * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<FONT color="green">004</FONT>     * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<FONT color="green">006</FONT>     * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<FONT color="green">007</FONT>     * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<FONT color="green">008</FONT>     *<a name="line.8"></a>
+<FONT color="green">009</FONT>     *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<FONT color="green">010</FONT>     *<a name="line.10"></a>
+<FONT color="green">011</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<FONT color="green">012</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<FONT color="green">013</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<FONT color="green">014</FONT>     * See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>     * limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    package org.apache.commons.imaging.formats.tiff;<a name="line.17"></a>
+<FONT color="green">018</FONT>    <a name="line.18"></a>
+<FONT color="green">019</FONT>    import java.awt.Dimension;<a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.awt.image.BufferedImage;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.io.File;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.io.IOException;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.io.OutputStream;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.io.PrintWriter;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.io.UnsupportedEncodingException;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.util.ArrayList;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import java.util.List;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import java.util.Map;<a name="line.28"></a>
+<FONT color="green">029</FONT>    <a name="line.29"></a>
+<FONT color="green">030</FONT>    import org.apache.commons.imaging.FormatCompliance;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import org.apache.commons.imaging.ImageFormat;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import org.apache.commons.imaging.ImageInfo;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import org.apache.commons.imaging.ImageParser;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import org.apache.commons.imaging.ImageReadException;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import org.apache.commons.imaging.ImageWriteException;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import org.apache.commons.imaging.common.ByteOrder;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import org.apache.commons.imaging.common.IImageMetadata;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import org.apache.commons.imaging.common.ImageBuilder;<a name="line.38"></a>
+<FONT color="green">039</FONT>    import org.apache.commons.imaging.common.bytesource.ByteSource;<a name="line.39"></a>
+<FONT color="green">040</FONT>    import org.apache.commons.imaging.formats.tiff.TiffDirectory.ImageDataElement;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import org.apache.commons.imaging.formats.tiff.constants.AllTagConstants;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import org.apache.commons.imaging.formats.tiff.constants.TiffConstants;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import org.apache.commons.imaging.formats.tiff.constants.TiffTagConstants;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import org.apache.commons.imaging.formats.tiff.datareaders.DataReader;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreter;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterBiLevel;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterCieLab;<a name="line.47"></a>
+<FONT color="green">048</FONT>    import org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterCmyk;<a name="line.48"></a>
+<FONT color="green">049</FONT>    import org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterLogLuv;<a name="line.49"></a>
+<FONT color="green">050</FONT>    import org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterPalette;<a name="line.50"></a>
+<FONT color="green">051</FONT>    import org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterRgb;<a name="line.51"></a>
+<FONT color="green">052</FONT>    import org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterYCbCr;<a name="line.52"></a>
+<FONT color="green">053</FONT>    import org.apache.commons.imaging.formats.tiff.write.TiffImageWriterLossy;<a name="line.53"></a>
+<FONT color="green">054</FONT>    <a name="line.54"></a>
+<FONT color="green">055</FONT>    public class TiffImageParser extends ImageParser implements TiffConstants {<a name="line.55"></a>
+<FONT color="green">056</FONT>        public TiffImageParser() {<a name="line.56"></a>
+<FONT color="green">057</FONT>            // setDebug(true);<a name="line.57"></a>
+<FONT color="green">058</FONT>        }<a name="line.58"></a>
+<FONT color="green">059</FONT>    <a name="line.59"></a>
+<FONT color="green">060</FONT>        @Override<a name="line.60"></a>
+<FONT color="green">061</FONT>        public String getName() {<a name="line.61"></a>
+<FONT color="green">062</FONT>            return "Tiff-Custom";<a name="line.62"></a>
+<FONT color="green">063</FONT>        }<a name="line.63"></a>
+<FONT color="green">064</FONT>    <a name="line.64"></a>
+<FONT color="green">065</FONT>        @Override<a name="line.65"></a>
+<FONT color="green">066</FONT>        public String getDefaultExtension() {<a name="line.66"></a>
+<FONT color="green">067</FONT>            return DEFAULT_EXTENSION;<a name="line.67"></a>
+<FONT color="green">068</FONT>        }<a name="line.68"></a>
+<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">070</FONT>        private static final String DEFAULT_EXTENSION = ".tif";<a name="line.70"></a>
+<FONT color="green">071</FONT>    <a name="line.71"></a>
+<FONT color="green">072</FONT>        private static final String ACCEPTED_EXTENSIONS[] = { ".tif", ".tiff", };<a name="line.72"></a>
+<FONT color="green">073</FONT>    <a name="line.73"></a>
+<FONT color="green">074</FONT>        @Override<a name="line.74"></a>
+<FONT color="green">075</FONT>        protected String[] getAcceptedExtensions() {<a name="line.75"></a>
+<FONT color="green">076</FONT>            return ACCEPTED_EXTENSIONS;<a name="line.76"></a>
+<FONT color="green">077</FONT>        }<a name="line.77"></a>
+<FONT color="green">078</FONT>    <a name="line.78"></a>
+<FONT color="green">079</FONT>        @Override<a name="line.79"></a>
+<FONT color="green">080</FONT>        protected ImageFormat[] getAcceptedTypes() {<a name="line.80"></a>
+<FONT color="green">081</FONT>            return new ImageFormat[] { ImageFormat.IMAGE_FORMAT_TIFF, //<a name="line.81"></a>
+<FONT color="green">082</FONT>            };<a name="line.82"></a>
+<FONT color="green">083</FONT>        }<a name="line.83"></a>
+<FONT color="green">084</FONT>    <a name="line.84"></a>
+<FONT color="green">085</FONT>        @Override<a name="line.85"></a>
+<FONT color="green">086</FONT>        public byte[] getICCProfileBytes(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.86"></a>
+<FONT color="green">087</FONT>                throws ImageReadException, IOException {<a name="line.87"></a>
+<FONT color="green">088</FONT>            final FormatCompliance formatCompliance = FormatCompliance.getDefault();<a name="line.88"></a>
+<FONT color="green">089</FONT>            final TiffContents contents = new TiffReader(isStrict(params))<a name="line.89"></a>
+<FONT color="green">090</FONT>                    .readFirstDirectory(byteSource, params, false, formatCompliance);<a name="line.90"></a>
+<FONT color="green">091</FONT>            final TiffDirectory directory = contents.directories.get(0);<a name="line.91"></a>
+<FONT color="green">092</FONT>    <a name="line.92"></a>
+<FONT color="green">093</FONT>            return directory.getFieldValue(AllTagConstants.EXIF_TAG_INTER_COLOR_PROFILE,<a name="line.93"></a>
+<FONT color="green">094</FONT>                    false);<a name="line.94"></a>
+<FONT color="green">095</FONT>        }<a name="line.95"></a>
+<FONT color="green">096</FONT>    <a name="line.96"></a>
+<FONT color="green">097</FONT>        @Override<a name="line.97"></a>
+<FONT color="green">098</FONT>        public Dimension getImageSize(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.98"></a>
+<FONT color="green">099</FONT>                throws ImageReadException, IOException {<a name="line.99"></a>
+<FONT color="green">100</FONT>            final FormatCompliance formatCompliance = FormatCompliance.getDefault();<a name="line.100"></a>
+<FONT color="green">101</FONT>            final TiffContents contents = new TiffReader(isStrict(params))<a name="line.101"></a>
+<FONT color="green">102</FONT>                    .readFirstDirectory(byteSource, params, false, formatCompliance);<a name="line.102"></a>
+<FONT color="green">103</FONT>            final TiffDirectory directory = contents.directories.get(0);<a name="line.103"></a>
+<FONT color="green">104</FONT>    <a name="line.104"></a>
+<FONT color="green">105</FONT>            final TiffField widthField = directory.findField(<a name="line.105"></a>
+<FONT color="green">106</FONT>                    TiffTagConstants.TIFF_TAG_IMAGE_WIDTH, true);<a name="line.106"></a>
+<FONT color="green">107</FONT>            final TiffField heightField = directory.findField(<a name="line.107"></a>
+<FONT color="green">108</FONT>                    TiffTagConstants.TIFF_TAG_IMAGE_LENGTH, true);<a name="line.108"></a>
+<FONT color="green">109</FONT>    <a name="line.109"></a>
+<FONT color="green">110</FONT>            if ((widthField == null) || (heightField == null)) {<a name="line.110"></a>
+<FONT color="green">111</FONT>                throw new ImageReadException("TIFF image missing size info.");<a name="line.111"></a>
+<FONT color="green">112</FONT>            }<a name="line.112"></a>
+<FONT color="green">113</FONT>    <a name="line.113"></a>
+<FONT color="green">114</FONT>            final int height = heightField.getIntValue();<a name="line.114"></a>
+<FONT color="green">115</FONT>            final int width = widthField.getIntValue();<a name="line.115"></a>
+<FONT color="green">116</FONT>    <a name="line.116"></a>
+<FONT color="green">117</FONT>            return new Dimension(width, height);<a name="line.117"></a>
+<FONT color="green">118</FONT>        }<a name="line.118"></a>
+<FONT color="green">119</FONT>    <a name="line.119"></a>
+<FONT color="green">120</FONT>        public byte[] embedICCProfile(final byte image[], final byte profile[]) {<a name="line.120"></a>
+<FONT color="green">121</FONT>            return null;<a name="line.121"></a>
+<FONT color="green">122</FONT>        }<a name="line.122"></a>
+<FONT color="green">123</FONT>    <a name="line.123"></a>
+<FONT color="green">124</FONT>        @Override<a name="line.124"></a>
+<FONT color="green">125</FONT>        public boolean embedICCProfile(final File src, final File dst, final byte profile[]) {<a name="line.125"></a>
+<FONT color="green">126</FONT>            return false;<a name="line.126"></a>
+<FONT color="green">127</FONT>        }<a name="line.127"></a>
+<FONT color="green">128</FONT>    <a name="line.128"></a>
+<FONT color="green">129</FONT>        @Override<a name="line.129"></a>
+<FONT color="green">130</FONT>        public IImageMetadata getMetadata(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.130"></a>
+<FONT color="green">131</FONT>                throws ImageReadException, IOException {<a name="line.131"></a>
+<FONT color="green">132</FONT>            final FormatCompliance formatCompliance = FormatCompliance.getDefault();<a name="line.132"></a>
+<FONT color="green">133</FONT>            final TiffReader tiffReader = new TiffReader(isStrict(params));<a name="line.133"></a>
+<FONT color="green">134</FONT>            final TiffContents contents = tiffReader.readContents(byteSource, params,<a name="line.134"></a>
+<FONT color="green">135</FONT>                    formatCompliance);<a name="line.135"></a>
+<FONT color="green">136</FONT>    <a name="line.136"></a>
+<FONT color="green">137</FONT>            final List&lt;TiffDirectory&gt; directories = contents.directories;<a name="line.137"></a>
+<FONT color="green">138</FONT>    <a name="line.138"></a>
+<FONT color="green">139</FONT>            final TiffImageMetadata result = new TiffImageMetadata(contents);<a name="line.139"></a>
+<FONT color="green">140</FONT>    <a name="line.140"></a>
+<FONT color="green">141</FONT>            for (int i = 0; i &lt; directories.size(); i++) {<a name="line.141"></a>
+<FONT color="green">142</FONT>                final TiffDirectory dir = directories.get(i);<a name="line.142"></a>
+<FONT color="green">143</FONT>    <a name="line.143"></a>
+<FONT color="green">144</FONT>                final TiffImageMetadata.Directory metadataDirectory = new TiffImageMetadata.Directory(<a name="line.144"></a>
+<FONT color="green">145</FONT>                        tiffReader.getByteOrder(), dir);<a name="line.145"></a>
+<FONT color="green">146</FONT>    <a name="line.146"></a>
+<FONT color="green">147</FONT>                final List&lt;TiffField&gt; entries = dir.getDirectoryEntrys();<a name="line.147"></a>
+<FONT color="green">148</FONT>    <a name="line.148"></a>
+<FONT color="green">149</FONT>                for (int j = 0; j &lt; entries.size(); j++) {<a name="line.149"></a>
+<FONT color="green">150</FONT>                    final TiffField entry = entries.get(j);<a name="line.150"></a>
+<FONT color="green">151</FONT>                    metadataDirectory.add(entry);<a name="line.151"></a>
+<FONT color="green">152</FONT>                }<a name="line.152"></a>
+<FONT color="green">153</FONT>    <a name="line.153"></a>
+<FONT color="green">154</FONT>                result.add(metadataDirectory);<a name="line.154"></a>
+<FONT color="green">155</FONT>            }<a name="line.155"></a>
+<FONT color="green">156</FONT>    <a name="line.156"></a>
+<FONT color="green">157</FONT>            return result;<a name="line.157"></a>
+<FONT color="green">158</FONT>        }<a name="line.158"></a>
+<FONT color="green">159</FONT>    <a name="line.159"></a>
+<FONT color="green">160</FONT>        @Override<a name="line.160"></a>
+<FONT color="green">161</FONT>        public ImageInfo getImageInfo(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.161"></a>
+<FONT color="green">162</FONT>                throws ImageReadException, IOException {<a name="line.162"></a>
+<FONT color="green">163</FONT>            final FormatCompliance formatCompliance = FormatCompliance.getDefault();<a name="line.163"></a>
+<FONT color="green">164</FONT>            final TiffContents contents = new TiffReader(isStrict(params))<a name="line.164"></a>
+<FONT color="green">165</FONT>                    .readDirectories(byteSource, false, formatCompliance);<a name="line.165"></a>
+<FONT color="green">166</FONT>            final TiffDirectory directory = contents.directories.get(0);<a name="line.166"></a>
+<FONT color="green">167</FONT>    <a name="line.167"></a>
+<FONT color="green">168</FONT>            final TiffField widthField = directory.findField(<a name="line.168"></a>
+<FONT color="green">169</FONT>                    TiffTagConstants.TIFF_TAG_IMAGE_WIDTH, true);<a name="line.169"></a>
+<FONT color="green">170</FONT>            final TiffField heightField = directory.findField(<a name="line.170"></a>
+<FONT color="green">171</FONT>                    TiffTagConstants.TIFF_TAG_IMAGE_LENGTH, true);<a name="line.171"></a>
+<FONT color="green">172</FONT>    <a name="line.172"></a>
+<FONT color="green">173</FONT>            if ((widthField == null) || (heightField == null)) {<a name="line.173"></a>
+<FONT color="green">174</FONT>                throw new ImageReadException("TIFF image missing size info.");<a name="line.174"></a>
+<FONT color="green">175</FONT>            }<a name="line.175"></a>
+<FONT color="green">176</FONT>    <a name="line.176"></a>
+<FONT color="green">177</FONT>            final int height = heightField.getIntValue();<a name="line.177"></a>
+<FONT color="green">178</FONT>            final int width = widthField.getIntValue();<a name="line.178"></a>
+<FONT color="green">179</FONT>    <a name="line.179"></a>
+<FONT color="green">180</FONT>            // -------------------<a name="line.180"></a>
+<FONT color="green">181</FONT>    <a name="line.181"></a>
+<FONT color="green">182</FONT>            final TiffField resolutionUnitField = directory<a name="line.182"></a>
+<FONT color="green">183</FONT>                    .findField(TiffTagConstants.TIFF_TAG_RESOLUTION_UNIT);<a name="line.183"></a>
+<FONT color="green">184</FONT>            int resolutionUnit = 2; // Inch<a name="line.184"></a>
+<FONT color="green">185</FONT>            if ((resolutionUnitField != null)<a name="line.185"></a>
+<FONT color="green">186</FONT>                    &amp;&amp; (resolutionUnitField.getValue() != null)) {<a name="line.186"></a>
+<FONT color="green">187</FONT>                resolutionUnit = resolutionUnitField.getIntValue();<a name="line.187"></a>
+<FONT color="green">188</FONT>            }<a name="line.188"></a>
+<FONT color="green">189</FONT>    <a name="line.189"></a>
+<FONT color="green">190</FONT>            double unitsPerInch = -1;<a name="line.190"></a>
+<FONT color="green">191</FONT>            switch (resolutionUnit) {<a name="line.191"></a>
+<FONT color="green">192</FONT>            case 1:<a name="line.192"></a>
+<FONT color="green">193</FONT>                break;<a name="line.193"></a>
+<FONT color="green">194</FONT>            case 2: // Inch<a name="line.194"></a>
+<FONT color="green">195</FONT>                unitsPerInch = 1.0;<a name="line.195"></a>
+<FONT color="green">196</FONT>                break;<a name="line.196"></a>
+<FONT color="green">197</FONT>            case 3: // Centimeter<a name="line.197"></a>
+<FONT color="green">198</FONT>                unitsPerInch = 2.54;<a name="line.198"></a>
+<FONT color="green">199</FONT>                break;<a name="line.199"></a>
+<FONT color="green">200</FONT>            default:<a name="line.200"></a>
+<FONT color="green">201</FONT>                break;<a name="line.201"></a>
+<FONT color="green">202</FONT>    <a name="line.202"></a>
+<FONT color="green">203</FONT>            }<a name="line.203"></a>
+<FONT color="green">204</FONT>            final TiffField xResolutionField = directory<a name="line.204"></a>
+<FONT color="green">205</FONT>                    .findField(TiffTagConstants.TIFF_TAG_XRESOLUTION);<a name="line.205"></a>
+<FONT color="green">206</FONT>            final TiffField yResolutionField = directory<a name="line.206"></a>
+<FONT color="green">207</FONT>                    .findField(TiffTagConstants.TIFF_TAG_YRESOLUTION);<a name="line.207"></a>
+<FONT color="green">208</FONT>    <a name="line.208"></a>
+<FONT color="green">209</FONT>            int physicalWidthDpi = -1;<a name="line.209"></a>
+<FONT color="green">210</FONT>            float physicalWidthInch = -1;<a name="line.210"></a>
+<FONT color="green">211</FONT>            int physicalHeightDpi = -1;<a name="line.211"></a>
+<FONT color="green">212</FONT>            float physicalHeightInch = -1;<a name="line.212"></a>
+<FONT color="green">213</FONT>    <a name="line.213"></a>
+<FONT color="green">214</FONT>            if (unitsPerInch &gt; 0) {<a name="line.214"></a>
+<FONT color="green">215</FONT>                if ((xResolutionField != null)<a name="line.215"></a>
+<FONT color="green">216</FONT>                        &amp;&amp; (xResolutionField.getValue() != null)) {<a name="line.216"></a>
+<FONT color="green">217</FONT>                    final double XResolutionPixelsPerUnit = xResolutionField<a name="line.217"></a>
+<FONT color="green">218</FONT>                            .getDoubleValue();<a name="line.218"></a>
+<FONT color="green">219</FONT>                    physicalWidthDpi = (int) Math<a name="line.219"></a>
+<FONT color="green">220</FONT>                            .round((XResolutionPixelsPerUnit * unitsPerInch));<a name="line.220"></a>
+<FONT color="green">221</FONT>                    physicalWidthInch = (float) (width / (XResolutionPixelsPerUnit * unitsPerInch));<a name="line.221"></a>
+<FONT color="green">222</FONT>                }<a name="line.222"></a>
+<FONT color="green">223</FONT>                if ((yResolutionField != null)<a name="line.223"></a>
+<FONT color="green">224</FONT>                        &amp;&amp; (yResolutionField.getValue() != null)) {<a name="line.224"></a>
+<FONT color="green">225</FONT>                    final double YResolutionPixelsPerUnit = yResolutionField<a name="line.225"></a>
+<FONT color="green">226</FONT>                            .getDoubleValue();<a name="line.226"></a>
+<FONT color="green">227</FONT>                    physicalHeightDpi = (int) Math<a name="line.227"></a>
+<FONT color="green">228</FONT>                            .round((YResolutionPixelsPerUnit * unitsPerInch));<a name="line.228"></a>
+<FONT color="green">229</FONT>                    physicalHeightInch = (float) (height / (YResolutionPixelsPerUnit * unitsPerInch));<a name="line.229"></a>
+<FONT color="green">230</FONT>                }<a name="line.230"></a>
+<FONT color="green">231</FONT>            }<a name="line.231"></a>
+<FONT color="green">232</FONT>    <a name="line.232"></a>
+<FONT color="green">233</FONT>            // -------------------<a name="line.233"></a>
+<FONT color="green">234</FONT>    <a name="line.234"></a>
+<FONT color="green">235</FONT>            final TiffField bitsPerSampleField = directory<a name="line.235"></a>
+<FONT color="green">236</FONT>                    .findField(TiffTagConstants.TIFF_TAG_BITS_PER_SAMPLE);<a name="line.236"></a>
+<FONT color="green">237</FONT>    <a name="line.237"></a>
+<FONT color="green">238</FONT>            int bitsPerSample = 1;<a name="line.238"></a>
+<FONT color="green">239</FONT>            if ((bitsPerSampleField != null)<a name="line.239"></a>
+<FONT color="green">240</FONT>                    &amp;&amp; (bitsPerSampleField.getValue() != null)) {<a name="line.240"></a>
+<FONT color="green">241</FONT>                bitsPerSample = bitsPerSampleField.getIntValueOrArraySum();<a name="line.241"></a>
+<FONT color="green">242</FONT>            }<a name="line.242"></a>
+<FONT color="green">243</FONT>    <a name="line.243"></a>
+<FONT color="green">244</FONT>            final int bitsPerPixel = bitsPerSample; // assume grayscale;<a name="line.244"></a>
+<FONT color="green">245</FONT>            // dunno if this handles colormapped images correctly.<a name="line.245"></a>
+<FONT color="green">246</FONT>    <a name="line.246"></a>
+<FONT color="green">247</FONT>            // -------------------<a name="line.247"></a>
+<FONT color="green">248</FONT>    <a name="line.248"></a>
+<FONT color="green">249</FONT>            final List&lt;String&gt; comments = new ArrayList&lt;String&gt;();<a name="line.249"></a>
+<FONT color="green">250</FONT>            final List&lt;TiffField&gt; entries = directory.entries;<a name="line.250"></a>
+<FONT color="green">251</FONT>            for (int i = 0; i &lt; entries.size(); i++) {<a name="line.251"></a>
+<FONT color="green">252</FONT>                final TiffField field = entries.get(i);<a name="line.252"></a>
+<FONT color="green">253</FONT>                final String comment = field.toString();<a name="line.253"></a>
+<FONT color="green">254</FONT>                comments.add(comment);<a name="line.254"></a>
+<FONT color="green">255</FONT>            }<a name="line.255"></a>
+<FONT color="green">256</FONT>    <a name="line.256"></a>
+<FONT color="green">257</FONT>            final ImageFormat format = ImageFormat.IMAGE_FORMAT_TIFF;<a name="line.257"></a>
+<FONT color="green">258</FONT>            final String formatName = "TIFF Tag-based Image File Format";<a name="line.258"></a>
+<FONT color="green">259</FONT>            final String mimeType = "image/tiff";<a name="line.259"></a>
+<FONT color="green">260</FONT>            final int numberOfImages = contents.directories.size();<a name="line.260"></a>
+<FONT color="green">261</FONT>            // not accurate ... only reflects first<a name="line.261"></a>
+<FONT color="green">262</FONT>            final boolean isProgressive = false;<a name="line.262"></a>
+<FONT color="green">263</FONT>            // is TIFF ever interlaced/progressive?<a name="line.263"></a>
+<FONT color="green">264</FONT>    <a name="line.264"></a>
+<FONT color="green">265</FONT>            final String formatDetails = "Tiff v." + contents.header.tiffVersion;<a name="line.265"></a>
+<FONT color="green">266</FONT>    <a name="line.266"></a>
+<FONT color="green">267</FONT>            final boolean isTransparent = false; // TODO: wrong<a name="line.267"></a>
+<FONT color="green">268</FONT>            boolean usesPalette = false;<a name="line.268"></a>
+<FONT color="green">269</FONT>            final TiffField colorMapField = directory<a name="line.269"></a>
+<FONT color="green">270</FONT>                    .findField(TiffTagConstants.TIFF_TAG_COLOR_MAP);<a name="line.270"></a>
+<FONT color="green">271</FONT>            if (colorMapField != null) {<a name="line.271"></a>
+<FONT color="green">272</FONT>                usesPalette = true;<a name="line.272"></a>
+<FONT color="green">273</FONT>            }<a name="line.273"></a>
+<FONT color="green">274</FONT>    <a name="line.274"></a>
+<FONT color="green">275</FONT>            final int colorType = ImageInfo.COLOR_TYPE_RGB;<a name="line.275"></a>
+<FONT color="green">276</FONT>    <a name="line.276"></a>
+<FONT color="green">277</FONT>            final int compression = 0xffff &amp; directory<a name="line.277"></a>
+<FONT color="green">278</FONT>                    .getSingleFieldValue(TiffTagConstants.TIFF_TAG_COMPRESSION);<a name="line.278"></a>
+<FONT color="green">279</FONT>            String compressionAlgorithm;<a name="line.279"></a>
+<FONT color="green">280</FONT>    <a name="line.280"></a>
+<FONT color="green">281</FONT>            switch (compression) {<a name="line.281"></a>
+<FONT color="green">282</FONT>            case TIFF_COMPRESSION_UNCOMPRESSED_1:<a name="line.282"></a>
+<FONT color="green">283</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_NONE;<a name="line.283"></a>
+<FONT color="green">284</FONT>                break;<a name="line.284"></a>
+<FONT color="green">285</FONT>            case TIFF_COMPRESSION_CCITT_1D:<a name="line.285"></a>
+<FONT color="green">286</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_CCITT_1D;<a name="line.286"></a>
+<FONT color="green">287</FONT>                break;<a name="line.287"></a>
+<FONT color="green">288</FONT>            case TIFF_COMPRESSION_CCITT_GROUP_3:<a name="line.288"></a>
+<FONT color="green">289</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_CCITT_GROUP_3;<a name="line.289"></a>
+<FONT color="green">290</FONT>                break;<a name="line.290"></a>
+<FONT color="green">291</FONT>            case TIFF_COMPRESSION_CCITT_GROUP_4:<a name="line.291"></a>
+<FONT color="green">292</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_CCITT_GROUP_4;<a name="line.292"></a>
+<FONT color="green">293</FONT>                break;<a name="line.293"></a>
+<FONT color="green">294</FONT>            case TIFF_COMPRESSION_LZW:<a name="line.294"></a>
+<FONT color="green">295</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_LZW;<a name="line.295"></a>
+<FONT color="green">296</FONT>                break;<a name="line.296"></a>
+<FONT color="green">297</FONT>            case TIFF_COMPRESSION_JPEG:<a name="line.297"></a>
+<FONT color="green">298</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_JPEG;<a name="line.298"></a>
+<FONT color="green">299</FONT>                break;<a name="line.299"></a>
+<FONT color="green">300</FONT>            case TIFF_COMPRESSION_UNCOMPRESSED_2:<a name="line.300"></a>
+<FONT color="green">301</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_NONE;<a name="line.301"></a>
+<FONT color="green">302</FONT>                break;<a name="line.302"></a>
+<FONT color="green">303</FONT>            case TIFF_COMPRESSION_PACKBITS:<a name="line.303"></a>
+<FONT color="green">304</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_PACKBITS;<a name="line.304"></a>
+<FONT color="green">305</FONT>                break;<a name="line.305"></a>
+<FONT color="green">306</FONT>            default:<a name="line.306"></a>
+<FONT color="green">307</FONT>                compressionAlgorithm = ImageInfo.COMPRESSION_ALGORITHM_UNKNOWN;<a name="line.307"></a>
+<FONT color="green">308</FONT>                break;<a name="line.308"></a>
+<FONT color="green">309</FONT>            }<a name="line.309"></a>
+<FONT color="green">310</FONT>    <a name="line.310"></a>
+<FONT color="green">311</FONT>            final ImageInfo result = new ImageInfo(formatDetails, bitsPerPixel, comments,<a name="line.311"></a>
+<FONT color="green">312</FONT>                    format, formatName, height, mimeType, numberOfImages,<a name="line.312"></a>
+<FONT color="green">313</FONT>                    physicalHeightDpi, physicalHeightInch, physicalWidthDpi,<a name="line.313"></a>
+<FONT color="green">314</FONT>                    physicalWidthInch, width, isProgressive, isTransparent,<a name="line.314"></a>
+<FONT color="green">315</FONT>                    usesPalette, colorType, compressionAlgorithm);<a name="line.315"></a>
+<FONT color="green">316</FONT>    <a name="line.316"></a>
+<FONT color="green">317</FONT>            return result;<a name="line.317"></a>
+<FONT color="green">318</FONT>        }<a name="line.318"></a>
+<FONT color="green">319</FONT>    <a name="line.319"></a>
+<FONT color="green">320</FONT>        @Override<a name="line.320"></a>
+<FONT color="green">321</FONT>        public String getXmpXml(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.321"></a>
+<FONT color="green">322</FONT>                throws ImageReadException, IOException {<a name="line.322"></a>
+<FONT color="green">323</FONT>            final FormatCompliance formatCompliance = FormatCompliance.getDefault();<a name="line.323"></a>
+<FONT color="green">324</FONT>            final TiffContents contents = new TiffReader(isStrict(params))<a name="line.324"></a>
+<FONT color="green">325</FONT>                    .readDirectories(byteSource, false, formatCompliance);<a name="line.325"></a>
+<FONT color="green">326</FONT>            final TiffDirectory directory = contents.directories.get(0);<a name="line.326"></a>
+<FONT color="green">327</FONT>    <a name="line.327"></a>
+<FONT color="green">328</FONT>            final byte bytes[] = directory.getFieldValue(TiffTagConstants.TIFF_TAG_XMP,<a name="line.328"></a>
+<FONT color="green">329</FONT>                    false);<a name="line.329"></a>
+<FONT color="green">330</FONT>            if (bytes == null) {<a name="line.330"></a>
+<FONT color="green">331</FONT>                return null;<a name="line.331"></a>
+<FONT color="green">332</FONT>            }<a name="line.332"></a>
+<FONT color="green">333</FONT>    <a name="line.333"></a>
+<FONT color="green">334</FONT>            try {<a name="line.334"></a>
+<FONT color="green">335</FONT>                // segment data is UTF-8 encoded xml.<a name="line.335"></a>
+<FONT color="green">336</FONT>                final String xml = new String(bytes, "utf-8");<a name="line.336"></a>
+<FONT color="green">337</FONT>                return xml;<a name="line.337"></a>
+<FONT color="green">338</FONT>            } catch (final UnsupportedEncodingException e) {<a name="line.338"></a>
+<FONT color="green">339</FONT>                throw new ImageReadException("Invalid JPEG XMP Segment.");<a name="line.339"></a>
+<FONT color="green">340</FONT>            }<a name="line.340"></a>
+<FONT color="green">341</FONT>        }<a name="line.341"></a>
+<FONT color="green">342</FONT>    <a name="line.342"></a>
+<FONT color="green">343</FONT>        @Override<a name="line.343"></a>
+<FONT color="green">344</FONT>        public boolean dumpImageFile(final PrintWriter pw, final ByteSource byteSource)<a name="line.344"></a>
+<FONT color="green">345</FONT>                throws ImageReadException, IOException {<a name="line.345"></a>
+<FONT color="green">346</FONT>            try {<a name="line.346"></a>
+<FONT color="green">347</FONT>                pw.println("tiff.dumpImageFile");<a name="line.347"></a>
+<FONT color="green">348</FONT>    <a name="line.348"></a>
+<FONT color="green">349</FONT>                {<a name="line.349"></a>
+<FONT color="green">350</FONT>                    final ImageInfo imageData = getImageInfo(byteSource);<a name="line.350"></a>
+<FONT color="green">351</FONT>                    if (imageData == null) {<a name="line.351"></a>
+<FONT color="green">352</FONT>                        return false;<a name="line.352"></a>
+<FONT color="green">353</FONT>                    }<a name="line.353"></a>
+<FONT color="green">354</FONT>    <a name="line.354"></a>
+<FONT color="green">355</FONT>                    imageData.toString(pw, "");<a name="line.355"></a>
+<FONT color="green">356</FONT>                }<a name="line.356"></a>
+<FONT color="green">357</FONT>    <a name="line.357"></a>
+<FONT color="green">358</FONT>                pw.println("");<a name="line.358"></a>
+<FONT color="green">359</FONT>    <a name="line.359"></a>
+<FONT color="green">360</FONT>                // try<a name="line.360"></a>
+<FONT color="green">361</FONT>                {<a name="line.361"></a>
+<FONT color="green">362</FONT>                    final FormatCompliance formatCompliance = FormatCompliance<a name="line.362"></a>
+<FONT color="green">363</FONT>                            .getDefault();<a name="line.363"></a>
+<FONT color="green">364</FONT>                    final Map&lt;String,Object&gt; params = null;<a name="line.364"></a>
+<FONT color="green">365</FONT>                    final TiffContents contents = new TiffReader(true).readContents(<a name="line.365"></a>
+<FONT color="green">366</FONT>                            byteSource, params, formatCompliance);<a name="line.366"></a>
+<FONT color="green">367</FONT>    <a name="line.367"></a>
+<FONT color="green">368</FONT>                    final List&lt;TiffDirectory&gt; directories = contents.directories;<a name="line.368"></a>
+<FONT color="green">369</FONT>    <a name="line.369"></a>
+<FONT color="green">370</FONT>                    if (directories == null) {<a name="line.370"></a>
+<FONT color="green">371</FONT>                        return false;<a name="line.371"></a>
+<FONT color="green">372</FONT>                    }<a name="line.372"></a>
+<FONT color="green">373</FONT>    <a name="line.373"></a>
+<FONT color="green">374</FONT>                    for (int d = 0; d &lt; directories.size(); d++) {<a name="line.374"></a>
+<FONT color="green">375</FONT>                        final TiffDirectory directory = directories.get(d);<a name="line.375"></a>
+<FONT color="green">376</FONT>    <a name="line.376"></a>
+<FONT color="green">377</FONT>                        final List&lt;TiffField&gt; entries = directory.entries;<a name="line.377"></a>
+<FONT color="green">378</FONT>    <a name="line.378"></a>
+<FONT color="green">379</FONT>                        if (entries == null) {<a name="line.379"></a>
+<FONT color="green">380</FONT>                            return false;<a name="line.380"></a>
+<FONT color="green">381</FONT>                        }<a name="line.381"></a>
+<FONT color="green">382</FONT>    <a name="line.382"></a>
+<FONT color="green">383</FONT>                        // Debug.debug("directory offset", directory.offset);<a name="line.383"></a>
+<FONT color="green">384</FONT>    <a name="line.384"></a>
+<FONT color="green">385</FONT>                        for (int i = 0; i &lt; entries.size(); i++) {<a name="line.385"></a>
+<FONT color="green">386</FONT>                            final TiffField field = entries.get(i);<a name="line.386"></a>
+<FONT color="green">387</FONT>    <a name="line.387"></a>
+<FONT color="green">388</FONT>                            field.dump(pw, d + "");<a name="line.388"></a>
+<FONT color="green">389</FONT>                        }<a name="line.389"></a>
+<FONT color="green">390</FONT>                    }<a name="line.390"></a>
+<FONT color="green">391</FONT>    <a name="line.391"></a>
+<FONT color="green">392</FONT>                    pw.println("");<a name="line.392"></a>
+<FONT color="green">393</FONT>                }<a name="line.393"></a>
+<FONT color="green">394</FONT>                // catch (Exception e)<a name="line.394"></a>
+<FONT color="green">395</FONT>                // {<a name="line.395"></a>
+<FONT color="green">396</FONT>                // Debug.debug(e);<a name="line.396"></a>
+<FONT color="green">397</FONT>                // pw.println("");<a name="line.397"></a>
+<FONT color="green">398</FONT>                // return false;<a name="line.398"></a>
+<FONT color="green">399</FONT>                // }<a name="line.399"></a>
+<FONT color="green">400</FONT>    <a name="line.400"></a>
+<FONT color="green">401</FONT>                return true;<a name="line.401"></a>
+<FONT color="green">402</FONT>            } finally {<a name="line.402"></a>
+<FONT color="green">403</FONT>                pw.println("");<a name="line.403"></a>
+<FONT color="green">404</FONT>            }<a name="line.404"></a>
+<FONT color="green">405</FONT>        }<a name="line.405"></a>
+<FONT color="green">406</FONT>    <a name="line.406"></a>
+<FONT color="green">407</FONT>        @Override<a name="line.407"></a>
+<FONT color="green">408</FONT>        public FormatCompliance getFormatCompliance(final ByteSource byteSource)<a name="line.408"></a>
+<FONT color="green">409</FONT>                throws ImageReadException, IOException {<a name="line.409"></a>
+<FONT color="green">410</FONT>            final FormatCompliance formatCompliance = FormatCompliance.getDefault();<a name="line.410"></a>
+<FONT color="green">411</FONT>            final Map&lt;String,Object&gt; params = null;<a name="line.411"></a>
+<FONT color="green">412</FONT>            new TiffReader(isStrict(params)).readContents(byteSource, params,<a name="line.412"></a>
+<FONT color="green">413</FONT>                    formatCompliance);<a name="line.413"></a>
+<FONT color="green">414</FONT>            return formatCompliance;<a name="line.414"></a>
+<FONT color="green">415</FONT>        }<a name="line.415"></a>
+<FONT color="green">416</FONT>    <a name="line.416"></a>
+<FONT color="green">417</FONT>        public List&lt;byte[]&gt; collectRawImageData(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.417"></a>
+<FONT color="green">418</FONT>                throws ImageReadException, IOException {<a name="line.418"></a>
+<FONT color="green">419</FONT>            final FormatCompliance formatCompliance = FormatCompliance.getDefault();<a name="line.419"></a>
+<FONT color="green">420</FONT>            final TiffContents contents = new TiffReader(isStrict(params))<a name="line.420"></a>
+<FONT color="green">421</FONT>                    .readDirectories(byteSource, true, formatCompliance);<a name="line.421"></a>
+<FONT color="green">422</FONT>    <a name="line.422"></a>
+<FONT color="green">423</FONT>            final List&lt;byte[]&gt; result = new ArrayList&lt;byte[]&gt;();<a name="line.423"></a>
+<FONT color="green">424</FONT>            for (int i = 0; i &lt; contents.directories.size(); i++) {<a name="line.424"></a>
+<FONT color="green">425</FONT>                final TiffDirectory directory = contents.directories.get(i);<a name="line.425"></a>
+<FONT color="green">426</FONT>                final List&lt;ImageDataElement&gt; dataElements = directory<a name="line.426"></a>
+<FONT color="green">427</FONT>                        .getTiffRawImageDataElements();<a name="line.427"></a>
+<FONT color="green">428</FONT>                for (int j = 0; j &lt; dataElements.size(); j++) {<a name="line.428"></a>
+<FONT color="green">429</FONT>                    final TiffDirectory.ImageDataElement element = dataElements.get(j);<a name="line.429"></a>
+<FONT color="green">430</FONT>                    final byte bytes[] = byteSource.getBlock(element.offset,<a name="line.430"></a>
+<FONT color="green">431</FONT>                            element.length);<a name="line.431"></a>
+<FONT color="green">432</FONT>                    result.add(bytes);<a name="line.432"></a>
+<FONT color="green">433</FONT>                }<a name="line.433"></a>
+<FONT color="green">434</FONT>            }<a name="line.434"></a>
+<FONT color="green">435</FONT>            return result;<a name="line.435"></a>
+<FONT color="green">436</FONT>        }<a name="line.436"></a>
+<FONT color="green">437</FONT>    <a name="line.437"></a>
+<FONT color="green">438</FONT>        @Override<a name="line.438"></a>
+<FONT color="green">439</FONT>        public BufferedImage getBufferedImage(final ByteSource byteSource, final Map&lt;String,Object&gt; params)<a name="line.439"></a>
+<FONT color="green">440</FONT>                throws ImageReadException, IOException {<a name="line.440"></a>
+<FONT color="green">441</FONT>            final FormatCompliance formatCompliance = FormatCompliance.getDefault();<a name="line.441"></a>
+<FONT color="green">442</FONT>            final TiffReader reader = new TiffReader(isStrict(params));<a name="line.442"></a>
+<FONT color="green">443</FONT>            final TiffContents contents = reader.readFirstDirectory(byteSource, params,<a name="line.443"></a>
+<FONT color="green">444</FONT>                    true, formatCompliance);<a name="line.444"></a>
+<FONT color="green">445</FONT>            final ByteOrder byteOrder = reader.getByteOrder();<a name="line.445"></a>
+<FONT color="green">446</FONT>            final TiffDirectory directory = contents.directories.get(0);<a name="line.446"></a>
+<FONT color="green">447</FONT>            final BufferedImage result = directory.getTiffImage(byteOrder, params);<a name="line.447"></a>
+<FONT color="green">448</FONT>            if (null == result) {<a name="line.448"></a>
+<FONT color="green">449</FONT>                throw new ImageReadException("TIFF does not contain an image.");<a name="line.449"></a>
+<FONT color="green">450</FONT>            }<a name="line.450"></a>
+<FONT color="green">451</FONT>            return result;<a name="line.451"></a>
+<FONT color="green">452</FONT>        }<a name="line.452"></a>
+<FONT color="green">453</FONT>    <a name="line.453"></a>
+<FONT color="green">454</FONT>        @Override<a name="line.454"></a>
+<FONT color="green">455</FONT>        public List&lt;BufferedImage&gt; getAllBufferedImages(final ByteSource byteSource)<a name="line.455"></a>
+<FONT color="green">456</FONT>                throws ImageReadException, IOException {<a name="line.456"></a>
+<FONT color="green">457</FONT>            final FormatCompliance formatCompliance = FormatCompliance.getDefault();<a name="line.457"></a>
+<FONT color="green">458</FONT>            final TiffReader tiffReader = new TiffReader(true);<a name="line.458"></a>
+<FONT color="green">459</FONT>            final TiffContents contents = tiffReader.readDirectories(byteSource, true,<a name="line.459"></a>
+<FONT color="green">460</FONT>                    formatCompliance);<a name="line.460"></a>
+<FONT color="green">461</FONT>            final List&lt;BufferedImage&gt; results = new ArrayList&lt;BufferedImage&gt;();<a name="line.461"></a>
+<FONT color="green">462</FONT>            for (int i = 0; i &lt; contents.directories.size(); i++) {<a name="line.462"></a>
+<FONT color="green">463</FONT>                final TiffDirectory directory = contents.directories.get(i);<a name="line.463"></a>
+<FONT color="green">464</FONT>                final BufferedImage result = directory.getTiffImage(<a name="line.464"></a>
+<FONT color="green">465</FONT>                        tiffReader.getByteOrder(), null);<a name="line.465"></a>
+<FONT color="green">466</FONT>                if (result != null) {<a name="line.466"></a>
+<FONT color="green">467</FONT>                    results.add(result);<a name="line.467"></a>
+<FONT color="green">468</FONT>                }<a name="line.468"></a>
+<FONT color="green">469</FONT>            }<a name="line.469"></a>
+<FONT color="green">470</FONT>            return results;<a name="line.470"></a>
+<FONT color="green">471</FONT>        }<a name="line.471"></a>
+<FONT color="green">472</FONT>    <a name="line.472"></a>
+<FONT color="green">473</FONT>        protected BufferedImage getBufferedImage(final TiffDirectory directory,<a name="line.473"></a>
+<FONT color="green">474</FONT>                final ByteOrder byteOrder, final Map&lt;String,Object&gt; params) throws ImageReadException, IOException {<a name="line.474"></a>
+<FONT color="green">475</FONT>            final List&lt;TiffField&gt; entries = directory.entries;<a name="line.475"></a>
+<FONT color="green">476</FONT>    <a name="line.476"></a>
+<FONT color="green">477</FONT>            if (entries == null) {<a name="line.477"></a>
+<FONT color="green">478</FONT>                throw new ImageReadException("TIFF missing entries");<a name="line.478"></a>
+<FONT color="green">479</FONT>            }<a name="line.479"></a>
+<FONT color="green">480</FONT>    <a name="line.480"></a>
+<FONT color="green">481</FONT>            final int photometricInterpretation = 0xffff &amp; directory<a name="line.481"></a>
+<FONT color="green">482</FONT>                    .getSingleFieldValue(TiffTagConstants.TIFF_TAG_PHOTOMETRIC_INTERPRETATION);<a name="line.482"></a>
+<FONT color="green">483</FONT>            final int compression = 0xffff &amp; directory<a name="line.483"></a>
+<FONT color="green">484</FONT>                    .getSingleFieldValue(TiffTagConstants.TIFF_TAG_COMPRESSION);<a name="line.484"></a>
+<FONT color="green">485</FONT>            final int width = directory.findField(TiffTagConstants.TIFF_TAG_IMAGE_WIDTH,<a name="line.485"></a>
+<FONT color="green">486</FONT>                    true).getIntValue();<a name="line.486"></a>
+<FONT color="green">487</FONT>            final int height = directory.findField(<a name="line.487"></a>
+<FONT color="green">488</FONT>                    TiffTagConstants.TIFF_TAG_IMAGE_LENGTH, true).getIntValue();<a name="line.488"></a>
+<FONT color="green">489</FONT>            int samplesPerPixel = 1;<a name="line.489"></a>
+<FONT color="green">490</FONT>            final TiffField samplesPerPixelField = directory<a name="line.490"></a>
+<FONT color="green">491</FONT>                    .findField(TiffTagConstants.TIFF_TAG_SAMPLES_PER_PIXEL);<a name="line.491"></a>
+<FONT color="green">492</FONT>            if (samplesPerPixelField != null) {<a name="line.492"></a>
+<FONT color="green">493</FONT>                samplesPerPixel = samplesPerPixelField.getIntValue();<a name="line.493"></a>
+<FONT color="green">494</FONT>            }<a name="line.494"></a>
+<FONT color="green">495</FONT>            int bitsPerSample[] = { 1 };<a name="line.495"></a>
+<FONT color="green">496</FONT>            int bitsPerPixel = samplesPerPixel;<a name="line.496"></a>
+<FONT color="green">497</FONT>            final TiffField bitsPerSampleField = directory<a name="line.497"></a>
+<FONT color="green">498</FONT>                    .findField(TiffTagConstants.TIFF_TAG_BITS_PER_SAMPLE);<a name="line.498"></a>
+<FONT color="green">499</FONT>            if (bitsPerSampleField != null) {<a name="line.499"></a>
+<FONT color="green">500</FONT>                bitsPerSample = bitsPerSampleField.getIntArrayValue();<a name="line.500"></a>
+<FONT color="green">501</FONT>                bitsPerPixel = bitsPerSampleField.getIntValueOrArraySum();<a name="line.501"></a>
+<FONT color="green">502</FONT>            }<a name="line.502"></a>
+<FONT color="green">503</FONT>    <a name="line.503"></a>
+<FONT color="green">504</FONT>            // int bitsPerPixel = getTagAsValueOrArraySum(entries,<a name="line.504"></a>
+<FONT color="green">505</FONT>            // TIFF_TAG_BITS_PER_SAMPLE);<a name="line.505"></a>
+<FONT color="green">506</FONT>    <a name="line.506"></a>
+<FONT color="green">507</FONT>            int predictor = -1;<a name="line.507"></a>
+<FONT color="green">508</FONT>            {<a name="line.508"></a>
+<FONT color="green">509</FONT>                // dumpOptionalNumberTag(entries, TIFF_TAG_FILL_ORDER);<a name="line.509"></a>
+<FONT color="green">510</FONT>                // dumpOptionalNumberTag(entries, TIFF_TAG_FREE_BYTE_COUNTS);<a name="line.510"></a>
+<FONT color="green">511</FONT>                // dumpOptionalNumberTag(entries, TIFF_TAG_FREE_OFFSETS);<a name="line.511"></a>
+<FONT color="green">512</FONT>                // dumpOptionalNumberTag(entries, TIFF_TAG_ORIENTATION);<a name="line.512"></a>
+<FONT color="green">513</FONT>                // dumpOptionalNumberTag(entries, TIFF_TAG_PLANAR_CONFIGURATION);<a name="line.513"></a>
+<FONT color="green">514</FONT>                final TiffField predictorField = directory<a name="line.514"></a>
+<FONT color="green">515</FONT>                        .findField(TiffTagConstants.TIFF_TAG_PREDICTOR);<a name="line.515"></a>
+<FONT color="green">516</FONT>                if (null != predictorField) {<a name="line.516"></a>
+<FONT color="green">517</FONT>                    predictor = predictorField.getIntValueOrArraySum();<a name="line.517"></a>
+<FONT color="green">518</FONT>                }<a name="line.518"></a>
+<FONT color="green">519</FONT>            }<a name="line.519"></a>
+<FONT color="green">520</FONT>    <a name="line.520"></a>
+<FONT color="green">521</FONT>            if (samplesPerPixel != bitsPerSample.length) {<a name="line.521"></a>
+<FONT color="green">522</FONT>                throw new ImageReadException("Tiff: samplesPerPixel ("<a name="line.522"></a>
+<FONT color="green">523</FONT>                        + samplesPerPixel + ")!=fBitsPerSample.length ("<a name="line.523"></a>
+<FONT color="green">524</FONT>                        + bitsPerSample.length + ")");<a name="line.524"></a>
+<FONT color="green">525</FONT>            }<a name="line.525"></a>
+<FONT color="green">526</FONT>    <a name="line.526"></a>
+<FONT color="green">527</FONT>            final boolean hasAlpha = false;<a name="line.527"></a>
+<FONT color="green">528</FONT>            final ImageBuilder imageBuilder = new ImageBuilder(width, height, hasAlpha);<a name="line.528"></a>
+<FONT color="green">529</FONT>    <a name="line.529"></a>
+<FONT color="green">530</FONT>            final PhotometricInterpreter photometricInterpreter = getPhotometricInterpreter(<a name="line.530"></a>
+<FONT color="green">531</FONT>                    directory, photometricInterpretation, bitsPerPixel,<a name="line.531"></a>
+<FONT color="green">532</FONT>                    bitsPerSample, predictor, samplesPerPixel, width, height);<a name="line.532"></a>
+<FONT color="green">533</FONT>    <a name="line.533"></a>
+<FONT color="green">534</FONT>            final TiffImageData imageData = directory.getTiffImageData();<a name="line.534"></a>
+<FONT color="green">535</FONT>    <a name="line.535"></a>
+<FONT color="green">536</FONT>            final DataReader dataReader = imageData.getDataReader(directory,<a name="line.536"></a>
+<FONT color="green">537</FONT>                    photometricInterpreter, bitsPerPixel, bitsPerSample, predictor,<a name="line.537"></a>
+<FONT color="green">538</FONT>                    samplesPerPixel, width, height, compression, byteOrder);<a name="line.538"></a>
+<FONT color="green">539</FONT>    <a name="line.539"></a>
+<FONT color="green">540</FONT>            dataReader.readImageData(imageBuilder);<a name="line.540"></a>
+<FONT color="green">541</FONT>    <a name="line.541"></a>
+<FONT color="green">542</FONT>            photometricInterpreter.dumpstats();<a name="line.542"></a>
+<FONT color="green">543</FONT>    <a name="line.543"></a>
+<FONT color="green">544</FONT>            return imageBuilder.getBufferedImage();<a name="line.544"></a>
+<FONT color="green">545</FONT>        }<a name="line.545"></a>
+<FONT color="green">546</FONT>    <a name="line.546"></a>
+<FONT color="green">547</FONT>        private PhotometricInterpreter getPhotometricInterpreter(<a name="line.547"></a>
+<FONT color="green">548</FONT>                final TiffDirectory directory, final int photometricInterpretation,<a name="line.548"></a>
+<FONT color="green">549</FONT>                final int bitsPerPixel, final int bitsPerSample[], final int predictor,<a name="line.549"></a>
+<FONT color="green">550</FONT>                final int samplesPerPixel, final int width, final int height)<a name="line.550"></a>
+<FONT color="green">551</FONT>                throws ImageReadException {<a name="line.551"></a>
+<FONT color="green">552</FONT>            switch (photometricInterpretation) {<a name="line.552"></a>
+<FONT color="green">553</FONT>            case 0:<a name="line.553"></a>
+<FONT color="green">554</FONT>            case 1:<a name="line.554"></a>
+<FONT color="green">555</FONT>                final boolean invert = photometricInterpretation == 0;<a name="line.555"></a>
+<FONT color="green">556</FONT>    <a name="line.556"></a>
+<FONT color="green">557</FONT>                return new PhotometricInterpreterBiLevel(bitsPerPixel,<a name="line.557"></a>
+<FONT color="green">558</FONT>                        samplesPerPixel, bitsPerSample, predictor, width, height,<a name="line.558"></a>
+<FONT color="green">559</FONT>                        invert);<a name="line.559"></a>
+<FONT color="green">560</FONT>            case 3: // Palette<a name="line.560"></a>
+<FONT color="green">561</FONT>            {<a name="line.561"></a>
+<FONT color="green">562</FONT>                final int colorMap[] = directory.findField(<a name="line.562"></a>
+<FONT color="green">563</FONT>                        TiffTagConstants.TIFF_TAG_COLOR_MAP, true)<a name="line.563"></a>
+<FONT color="green">564</FONT>                        .getIntArrayValue();<a name="line.564"></a>
+<FONT color="green">565</FONT>    <a name="line.565"></a>
+<FONT color="green">566</FONT>                final int expected_colormap_size = 3 * (1 &lt;&lt; bitsPerPixel);<a name="line.566"></a>
+<FONT color="green">567</FONT>    <a name="line.567"></a>
+<FONT color="green">568</FONT>                if (colorMap.length != expected_colormap_size) {<a name="line.568"></a>
+<FONT color="green">569</FONT>                    throw new ImageReadException("Tiff: fColorMap.length ("<a name="line.569"></a>
+<FONT color="green">570</FONT>                            + colorMap.length + ")!=expected_colormap_size ("<a name="line.570"></a>
+<FONT color="green">571</FONT>                            + expected_colormap_size + ")");<a name="line.571"></a>
+<FONT color="green">572</FONT>                }<a name="line.572"></a>
+<FONT color="green">573</FONT>    <a name="line.573"></a>
+<FONT color="green">574</FONT>                return new PhotometricInterpreterPalette(samplesPerPixel,<a name="line.574"></a>
+<FONT color="green">575</FONT>                        bitsPerSample, predictor, width, height, colorMap);<a name="line.575"></a>
+<FONT color="green">576</FONT>            }<a name="line.576"></a>
+<FONT color="green">577</FONT>            case 2: // RGB<a name="line.577"></a>
+<FONT color="green">578</FONT>                return new PhotometricInterpreterRgb(samplesPerPixel,<a name="line.578"></a>
+<FONT color="green">579</FONT>                        bitsPerSample, predictor, width, height);<a name="line.579"></a>
+<FONT color="green">580</FONT>            case 5: // CMYK<a name="line.580"></a>
+<FONT color="green">581</FONT>                return new PhotometricInterpreterCmyk(samplesPerPixel,<a name="line.581"></a>
+<FONT color="green">582</FONT>                        bitsPerSample, predictor, width, height);<a name="line.582"></a>
+<FONT color="green">583</FONT>            case 6: //<a name="line.583"></a>
+<FONT color="green">584</FONT>            {<a name="line.584"></a>
+<FONT color="green">585</FONT>                final double yCbCrCoefficients[] = directory.findField(<a name="line.585"></a>
+<FONT color="green">586</FONT>                        TiffTagConstants.TIFF_TAG_YCBCR_COEFFICIENTS, true)<a name="line.586"></a>
+<FONT color="green">587</FONT>                        .getDoubleArrayValue();<a name="line.587"></a>
+<FONT color="green">588</FONT>    <a name="line.588"></a>
+<FONT color="green">589</FONT>                final int yCbCrPositioning[] = directory.findField(<a name="line.589"></a>
+<FONT color="green">590</FONT>                        TiffTagConstants.TIFF_TAG_YCBCR_POSITIONING, true)<a name="line.590"></a>
+<FONT color="green">591</FONT>                        .getIntArrayValue();<a name="line.591"></a>
+<FONT color="green">592</FONT>                final int yCbCrSubSampling[] = directory.findField(<a name="line.592"></a>
+<FONT color="green">593</FONT>                        TiffTagConstants.TIFF_TAG_YCBCR_SUB_SAMPLING, true)<a name="line.593"></a>
+<FONT color="green">594</FONT>                        .getIntArrayValue();<a name="line.594"></a>
+<FONT color="green">595</FONT>    <a name="line.595"></a>
+<FONT color="green">596</FONT>                final double referenceBlackWhite[] = directory.findField(<a name="line.596"></a>
+<FONT color="green">597</FONT>                        TiffTagConstants.TIFF_TAG_REFERENCE_BLACK_WHITE, true)<a name="line.597"></a>
+<FONT color="green">598</FONT>                        .getDoubleArrayValue();<a name="line.598"></a>
+<FONT color="green">599</FONT>    <a name="line.599"></a>
+<FONT color="green">600</FONT>                return new PhotometricInterpreterYCbCr(yCbCrCoefficients,<a name="line.600"></a>
+<FONT color="green">601</FONT>                        yCbCrPositioning, yCbCrSubSampling, referenceBlackWhite,<a name="line.601"></a>
+<FONT color="green">602</FONT>                        samplesPerPixel, bitsPerSample, predictor, width, height);<a name="line.602"></a>
+<FONT color="green">603</FONT>            }<a name="line.603"></a>
+<FONT color="green">604</FONT>    <a name="line.604"></a>
+<FONT color="green">605</FONT>            case 8:<a name="line.605"></a>
+<FONT color="green">606</FONT>                return new PhotometricInterpreterCieLab(samplesPerPixel,<a name="line.606"></a>
+<FONT color="green">607</FONT>                        bitsPerSample, predictor, width, height);<a name="line.607"></a>
+<FONT color="green">608</FONT>    <a name="line.608"></a>
+<FONT color="green">609</FONT>            case 32844:<a name="line.609"></a>
+<FONT color="green">610</FONT>            case 32845: {<a name="line.610"></a>
+<FONT color="green">611</FONT>                final boolean yonly = (photometricInterpretation == 32844);<a name="line.611"></a>
+<FONT color="green">612</FONT>                return new PhotometricInterpreterLogLuv(samplesPerPixel,<a name="line.612"></a>
+<FONT color="green">613</FONT>                        bitsPerSample, predictor, width, height, yonly);<a name="line.613"></a>
+<FONT color="green">614</FONT>            }<a name="line.614"></a>
+<FONT color="green">615</FONT>    <a name="line.615"></a>
+<FONT color="green">616</FONT>            default:<a name="line.616"></a>
+<FONT color="green">617</FONT>                throw new ImageReadException(<a name="line.617"></a>
+<FONT color="green">618</FONT>                        "TIFF: Unknown fPhotometricInterpretation: "<a name="line.618"></a>
+<FONT color="green">619</FONT>                                + photometricInterpretation);<a name="line.619"></a>
+<FONT color="green">620</FONT>            }<a name="line.620"></a>
+<FONT color="green">621</FONT>        }<a name="line.621"></a>
+<FONT color="green">622</FONT>    <a name="line.622"></a>
+<FONT color="green">623</FONT>        @Override<a name="line.623"></a>
+<FONT color="green">624</FONT>        public void writeImage(final BufferedImage src, final OutputStream os, final Map&lt;String,Object&gt; params)<a name="line.624"></a>
+<FONT color="green">625</FONT>                throws ImageWriteException, IOException {<a name="line.625"></a>
+<FONT color="green">626</FONT>            new TiffImageWriterLossy().writeImage(src, os, params);<a name="line.626"></a>
+<FONT color="green">627</FONT>        }<a name="line.627"></a>
+<FONT color="green">628</FONT>    <a name="line.628"></a>
+<FONT color="green">629</FONT>    }<a name="line.629"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
