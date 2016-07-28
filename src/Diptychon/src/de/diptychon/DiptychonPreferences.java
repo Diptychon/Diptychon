@@ -162,7 +162,7 @@ public final class DiptychonPreferences {
     public static String getLastShownDirectory() {
         String lastShown = get(LAST_SHOWN_DIRECTORY);
         DiptychonLogger.debug(lastShown);
-        if (lastShown == null || lastShown.isEmpty()) {
+        if (lastShown == null || lastShown.isEmpty() || !new File(lastShown).exists()) {
             return get(DIPTYCHON_HOME);
         }
         return lastShown;
