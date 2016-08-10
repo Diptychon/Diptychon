@@ -61,6 +61,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
+import de.diptychon.DiptychonFX;
 import de.diptychon.DiptychonLogger;
 import de.diptychon.DiptychonPreferences;
 import de.diptychon.controller.DocumentPanelController;
@@ -325,7 +326,7 @@ public class MainFrame extends AbstractView implements Initializable {
             final IntegerProperty pLineExtTop,
             final IntegerProperty pLineExtBottom,
             final BooleanProperty pOnlyFocused)
-            // , final FloatProperty  pCCThreshold)
+    // , final FloatProperty pCCThreshold)
     {
         this.zoomSlider.valueProperty().bindBidirectional(scale);
         this.showGlyphs.selectedProperty().bindBidirectional(pShowGlyphs);
@@ -474,7 +475,9 @@ public class MainFrame extends AbstractView implements Initializable {
     @FXML
     private void handleAboutAction(final ActionEvent event) {
         DiptychonLogger.info("About clicked");
-        final String txt = "The Diptychon System, Version 20130618\n\n"
+        final String txt = "The Diptychon System, Version "
+                + DiptychonFX.VERSION
+                + "\n\n"
                 +
 
                 "Diptychon is funded by the DFG,\nDeutsche Forschungsgemeinschaft\n"

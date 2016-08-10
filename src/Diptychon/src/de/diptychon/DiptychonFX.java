@@ -49,6 +49,8 @@ import de.diptychon.ui.MainFrame;
  * The Diptychon starting point
  */
 public class DiptychonFX extends Application {
+    
+    public static final String VERSION = "20160810";
 
     public static int[] progressWatch = null;
 
@@ -192,10 +194,10 @@ public class DiptychonFX extends Application {
         ImageView splash = new ImageView(new Image(this.getClass()
                 .getResourceAsStream("/splash/diptychon4.png")));
         splashLayout = new VBox();
-        version = new Label("Version 20130618");
+        version = new Label("Version " + DiptychonFX.VERSION);
         version.setAlignment(Pos.TOP_RIGHT);
         version.setTranslateX(SPLASH_WIDTH - 20 - version.getText().length()
-                * 6);
+                * 8);
         version.setTranslateY(-SPLASH_HEIGHT + 20);
         splashLayout.getChildren().addAll(splash, version);
         splashLayout
