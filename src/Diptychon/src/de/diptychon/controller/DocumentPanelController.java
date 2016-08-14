@@ -1028,8 +1028,7 @@ public class DocumentPanelController extends AbstractController {
     }
 
     public void exportGlyphsBinary(String selectedGlyph) {
-        // this.setModelProperty(EXPORT_GLYPHS_BINARY);
-        // TODO: pass selected glyph
+        this.setModelProperty(EXPORT_GLYPHS_BINARY, selectedGlyph);
     }
 
     public void exportGlyphsGrayscale() {
@@ -1037,8 +1036,7 @@ public class DocumentPanelController extends AbstractController {
     }
 
     public void exportGlyphsGrayscale(String selectedGlyph) {
-        // this.setModelProperty(EXPORT_GLYPHS_GRAYSCALE);
-        // TODO: pass selected glyph
+        this.setModelProperty(EXPORT_GLYPHS_GRAYSCALE, selectedGlyph);
     }
 
     public void showGlyphs() {
