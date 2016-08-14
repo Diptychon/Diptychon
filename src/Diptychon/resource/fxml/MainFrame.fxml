@@ -82,12 +82,7 @@
                         <MenuItem mnemonicParsing="false" onAction="#handleMergeStatistics" text="Merge Statistics..." />
                       </items>
                     </Menu>
-                    <Menu disable="false" mnemonicParsing="false" text="Glyphs">
-                      <items>
-                        <MenuItem mnemonicParsing="false" onAction="#handleExportGlyphsGrayscale" text="Greyscale Images" />
-                        <MenuItem mnemonicParsing="false" onAction="#handleExportGlyphsBinary" text="Binary Images" />
-                      </items>
-                    </Menu>
+                    <MenuItem mnemonicParsing="false" onAction="#handleExportGlyphs" text="Glyphs as Images" />
                   </items>
                 </Menu>
                 <SeparatorMenuItem mnemonicParsing="false" />
