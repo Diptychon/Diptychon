@@ -50,7 +50,7 @@ import de.diptychon.ui.MainFrame;
  */
 public class DiptychonFX extends Application {
     
-    public static final String VERSION = "20160810";
+    public static final String VERSION = "20160815";
 
     public static int[] progressWatch = null;
 
