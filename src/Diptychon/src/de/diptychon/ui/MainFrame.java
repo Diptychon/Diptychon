@@ -45,6 +45,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -61,6 +62,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
+import javafx.stage.Screen;
 import de.diptychon.DiptychonFX;
 import de.diptychon.DiptychonLogger;
 import de.diptychon.DiptychonPreferences;
@@ -69,12 +71,15 @@ import de.diptychon.models.data.Digital;
 import de.diptychon.ui.views.AbstractView;
 import de.diptychon.ui.views.dialogs.A_Dialog;
 import de.diptychon.ui.views.dialogs.ConfirmationQuitDialog;
+import de.diptychon.ui.views.dialogs.ExportGlyphDialog;
+import de.diptychon.ui.views.dialogs.FindDialog;
 import de.diptychon.ui.views.dialogs.FontSettingsDialog;
 import de.diptychon.ui.views.dialogs.FragSettingsDialog;
 import de.diptychon.ui.views.dialogs.InformationDialog;
 import de.diptychon.ui.views.dialogs.LineSettingsDialog;
 import de.diptychon.ui.views.dialogs.SearchEngineDialog;
 import de.diptychon.ui.views.dialogs.WizardDialogManager;
+import de.diptychon.ui.views.panels.DocumentPanel;
 
 /**
  * The MainFrame of the user interace. Includes the menubar, toolbar, ...
@@ -509,15 +514,19 @@ public class MainFrame extends AbstractView implements Initializable {
     private void handleExportStatistic(final ActionEvent event) {
         this.documentPanelController.exportStatistic();
     }
-
+    
     @FXML
-    private void handleExportGlyphsBinary(final ActionEvent event) {
-        this.documentPanelController.exportGlyphsBinary();
-    }
+    private void handleExportGlyphs(final ActionEvent event) {
+        final ExportGlyphDialog findDialog = (ExportGlyphDialog) new A_Dialog.Factory()
+        .createDialog(ExportGlyphDialog.class.getCanonicalName(),
+                MainFrame.this.documentPanelController);
 
-    @FXML
-    private void handleExportGlyphsGrayscale(final ActionEvent event) {
-        this.documentPanelController.exportGlyphsGrayscale();
+        final Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+
+        findDialog.showNormalDialog(MainFrame.this.root.getScene()
+                .getWindow(),
+                (int) ((bounds.getWidth() - bounds.getMinX()) / 2 - 200),
+                (int) ((bounds.getHeight() - bounds.getMinY()) / 2 - 120));
     }
 
     @FXML

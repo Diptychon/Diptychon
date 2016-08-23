@@ -1253,6 +1253,13 @@ public class Digital extends AbstractModel implements Serializable {
      * Exports the binary images of all glyphs
      */
     public void exportGlyphsBinary() throws IOException {
+        exportGlyphsBinary(null);
+    }
+
+    /**
+     * Exports the binary images of all glyphs that matches the given string.
+     */
+    public void exportGlyphsBinary(String specificGlyph) throws IOException {
         this.firePropertyChange(DocumentPanelController.UPDATE_GLYPH_ANNO,
                 null, new Object[] { this.activeImage().getAllGlyphs() });
 
@@ -1303,43 +1310,45 @@ public class Digital extends AbstractModel implements Serializable {
                 filename + "Glyphs.zip"));
         for (Glyph g : glyphs) {
             if (!g.isSpace) {
-                zout.putNextEntry(new ZipEntry(g.getID() + ".png"));
-                ImageUtils.writeGrayscaleImage(zout, g.getBinarizedImage());
-                zout.closeEntry();
-                final PolygonComparison features = new PolygonComparison(
-                        g.getBinarizedImagePixels(), g.getWidth(),
-                        g.getHeight());
-                final Moments moments = new Moments(
-                        g.getBinarizedImagePixels(), g.getWidth(),
-                        g.getHeight());
-                double[] moms = moments.getMoments();
-
-                // float divisor =
-                // ((float)features.getPerimeter()*(float)features.getPerimeter());
-                // if (divisor == 0) { divisor = (float) 0.01; }
-
-                // Oft inkorrekte Berechnung (warum?) des Flächeninhaltes über
-                // das von PolygonComparison gelieferte größte äußere Polygon:
-                // final float area = features.getArea();
-
-                final float area = g.getSize();
-                final float perimeter = features.getPerimeter();
-                final float circularity = (float) ((4 * Math.PI * area) / Math
-                        .pow(perimeter, 2));
-                out.print(g.getID() + " " + g.getGroupID() + " "
-                        + g.getLayoutX() + " " + g.getLayoutY() + " "
-                        + g.getWidth() + " " + g.getHeight() + " "
-                        + g.getSize() + " " + features.getNumOfPolygons() + " "
-                        + features.getPerimeter() + " "
-                        + features.getNumOfInnerPolygons() + " " + circularity
-                        + " " + features.getExtent() + " "
-                        + features.getExtremum() + " "
-                        + features.getCurvature() + " "
-                        + features.getBetweenness());
-                for (int i = 0; i < moms.length; i++) {
-                    out.print(" " + moms[i]);
+                if (specificGlyph == null || specificGlyph.equals(g.getGroupID())) {
+                    zout.putNextEntry(new ZipEntry(g.getID() + ".png"));
+                    ImageUtils.writeGrayscaleImage(zout, g.getBinarizedImage());
+                    zout.closeEntry();
+                    final PolygonComparison features = new PolygonComparison(
+                            g.getBinarizedImagePixels(), g.getWidth(),
+                            g.getHeight());
+                    final Moments moments = new Moments(
+                            g.getBinarizedImagePixels(), g.getWidth(),
+                            g.getHeight());
+                    double[] moms = moments.getMoments();
+    
+                    // float divisor =
+                    // ((float)features.getPerimeter()*(float)features.getPerimeter());
+                    // if (divisor == 0) { divisor = (float) 0.01; }
+    
+                    // Oft inkorrekte Berechnung (warum?) des Flächeninhaltes über
+                    // das von PolygonComparison gelieferte größte äußere Polygon:
+                    // final float area = features.getArea();
+    
+                    final float area = g.getSize();
+                    final float perimeter = features.getPerimeter();
+                    final float circularity = (float) ((4 * Math.PI * area) / Math
+                            .pow(perimeter, 2));
+                    out.print(g.getID() + " " + g.getGroupID() + " "
+                            + g.getLayoutX() + " " + g.getLayoutY() + " "
+                            + g.getWidth() + " " + g.getHeight() + " "
+                            + g.getSize() + " " + features.getNumOfPolygons() + " "
+                            + features.getPerimeter() + " "
+                            + features.getNumOfInnerPolygons() + " " + circularity
+                            + " " + features.getExtent() + " "
+                            + features.getExtremum() + " "
+                            + features.getCurvature() + " "
+                            + features.getBetweenness());
+                    for (int i = 0; i < moms.length; i++) {
+                        out.print(" " + moms[i]);
+                    }
+                    out.println();
                 }
-                out.println();
             }
         }
         out.close();
@@ -1350,6 +1359,13 @@ public class Digital extends AbstractModel implements Serializable {
      * Exports the gray images of all glyphs
      */
     public void exportGlyphsGrayscale() throws IOException {
+        exportGlyphsGrayscale(null);
+    }
+
+    /**
+     * Exports the gray images of all glyphs that matches the given string.
+     */
+    public void exportGlyphsGrayscale(String specificGlyph) throws IOException {
         this.firePropertyChange(DocumentPanelController.UPDATE_GLYPH_ANNO,
                 null, new Object[] { this.activeImage().getAllGlyphs() });
 
@@ -1374,13 +1390,14 @@ public class Digital extends AbstractModel implements Serializable {
                 filename + "Glyphs.zip"));
         for (Glyph g : glyphs) {
             if (!g.isSpace) {
-                zout.putNextEntry(new ZipEntry(g.getID() + ".png"));
-                ImageUtils.writeGrayscaleImage(zout, g.getGrayImage());
-                zout.closeEntry();
+                if (specificGlyph == null || specificGlyph.equals(g.getGroupID())) {
+                    zout.putNextEntry(new ZipEntry(g.getID() + ".png"));
+                    ImageUtils.writeGrayscaleImage(zout, g.getGrayImage());
+                    zout.closeEntry();
+                }
             }
         }
         zout.close();
-
     }
 
     /**
